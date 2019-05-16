@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <time.h>
 #include <string.h>
 #include <helper_functions.h>   // helper functions for string parsing
 #include <helper_cuda.h>   
@@ -186,6 +187,77 @@ int wait_for_kernel_termination(t_strPool *pool, t_kcoexec *info, int *kernelid)
 	}				
 }
 
+int wait_for_kernel_termination_with_proxy(t_sched *sched, t_strPool *pool, t_kcoexec *info, int *kernelid)
+{
+	int prev_executed_tasks[2];
+	int curr_executed_tasks[2];
+	double  task_per_second[2];
+	struct timespec now;
+	double prev_time, curr_time;
+	
+	// Obtain the number of streams per kernel
+	int *pending_streams = (int *) calloc(info->num_kernels, sizeof(int));
+	for (int i = 0; i < info->num_kernels; i++){
+		for (int j = 0; j < info->kstr[i]->num_streams; j++)
+			if (info->kstr[i]->index[j] != -1)
+				pending_streams[i]++;			
+	}		
+		
+	// Current value of number of executed tasks
+	clock_gettime(CLOCK_REALTIME, &now);
+	prev_time = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	for (int i = 0; i < info->num_kernels; i++)
+		prev_executed_tasks[i] = *(sched->cont_tasks_zc+i);
+	
+	while(1){
+		
+		// Check streams
+		
+		for (int i = 0; i < info->num_kernels; i++) { // For each kernel 
+			for (int j=0; j < info->kstr[i]->num_streams; j++){ // For each stream
+				if (info->kstr[i]->index[j] != -1)
+				{
+					if (cudaStreamQuery(pool->streams[info->kstr[i]->index[j]]) == cudaSuccess) {
+						printf("stream %d de kernel %d finalizado\n", j, info->kstr[i]->kstub->id);
+					
+						/* Udpate pool info */
+						pool->status[info->kstr[i]->index[j]] = Free;
+						pool->avail_streams++;
+						/* Update kstream info */
+						info->kstr[i]->status[j] = NONE;
+						info->kstr[i]->index[j] = -1;				
+				
+						pending_streams[i]--;
+					}
+				}
+			}
+			
+			if (pending_streams[i] == 0 ) {//All the streams of a kernel have finished
+				info->kstr[i]->num_streams=0;
+				*kernelid = i;
+				free(pending_streams);
+				return 0;
+			}
+		}
+		
+		// Current value of number of executed tasks
+		clock_gettime(CLOCK_REALTIME, &now);
+		for (int i = 0; i < info->num_kernels; i++)
+			curr_executed_tasks[i] = *(sched->cont_tasks_zc+i);
+		curr_time = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+		for (int i = 0; i < info->num_kernels; i++) {
+			task_per_second[i] = (curr_executed_tasks[i] - prev_executed_tasks[i]) / (curr_time - prev_time);
+			printf("Kid=%d tpms=%f\n", info->kstr[i]->kstub->id, task_per_second[i]/1000);
+		}
+		
+		prev_time = curr_time;
+		for (int i = 0; i < info->num_kernels; i++)
+			prev_executed_tasks[i] = curr_executed_tasks[i];
+		
+	}				
+}
+
+
 int evict_streams(t_strPool *pool, t_kstreams *kstr, int num_streams)
 {
 
@@ -257,6 +329,224 @@ int all_nocke_execution(t_kernel_stub **kstubs, int num_kernels)
 	
 	return 0;
 }
+
+int launch_tasks_with_proxy(int deviceId)
+{	
+	cudaError_t err;
+
+	// Select device
+	cudaSetDevice(deviceId);
+	cudaDeviceProp deviceProp;
+    cudaGetDeviceProperties(&deviceProp, deviceId);	
+	printf("Device=%s\n", deviceProp.name);
+
+	// Create sched structure
+	
+	t_sched sched;
+	sched.num_conc_kernels = 2; // Two concurrent kernels
+	
+	sched.proxy_s = (cudaStream_t *)malloc(sizeof(cudaStream_t));
+	err = cudaStreamCreate(sched.proxy_s); // Stream to lauch proxy
+	checkCudaErrors(err);
+	
+	checkCudaErrors(cudaMalloc((void **)&(sched.kernel_evict),  sched.num_conc_kernels * sizeof(State*))); 
+	checkCudaErrors(cudaMalloc((void **)&(sched.gm_cont_tasks), sched.num_conc_kernels * sizeof(State*)));
+	cudaMemset(sched.kernel_evict, 0,  sched.num_conc_kernels * sizeof(State *));
+	cudaMemset(sched.gm_cont_tasks, 0,  sched.num_conc_kernels * sizeof(int *));
+	
+	checkCudaErrors(cudaHostAlloc((void **)&(sched.kernel_evict_zc), sched.num_conc_kernels * sizeof(int), cudaHostAllocMapped));
+	checkCudaErrors(cudaHostAlloc((void **)&(sched.cont_tasks_zc), sched.num_conc_kernels * sizeof(int), cudaHostAllocMapped));
+	memset(sched.kernel_evict_zc,0, sched.num_conc_kernels * sizeof(State));
+	memset(sched.cont_tasks_zc, 0, sched.num_conc_kernels * sizeof(State));
+	
+	// Prepare coexecution
+	
+	t_Kernel *kid;
+	t_kernel_stub **kstubs;
+
+	
+	char skid[20];	
+	
+	// Initializae performance of coexecution
+	
+	initialize_performance();
+	
+	// Select kernels
+	int num_kernels=4;
+	
+	kid = (t_Kernel *)calloc(num_kernels, sizeof(t_Kernel));
+	//kid[0]=MM; kid[1]=VA; kid[2]=BS; kid[3]=PF;
+	kid[0]=BS; kid[1]=Reduction; kid[2]=VA; kid[3]=PF; //kid[4]=MM;
+	/** Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands*/
+	cudaStream_t *transfers_s;
+	transfers_s = (cudaStream_t *)calloc(2, sizeof(cudaStream_t));
+	
+	for (int i=0;i<2;i++){
+		err = cudaStreamCreate(&transfers_s[i]);
+		checkCudaErrors(err);
+	} 
+	
+	cudaStream_t preemp_s;
+	checkCudaErrors(cudaStreamCreateWithFlags(&preemp_s, cudaStreamNonBlocking)); 
+	
+	// Create stream pool for kernel execution
+	t_strPool pool;	
+	int max_cke_kernels = 2;
+	create_stream_pool(max_cke_kernels*MAX_STREAMS_PER_KERNEL, &pool);
+	
+	/** Create stubs ***/
+	kstubs = (t_kernel_stub **)calloc(num_kernels, sizeof(t_kernel_stub*));
+	for (int i=0; i<num_kernels; i++)
+		create_stubinfo(&kstubs[i], deviceId, kid[i], transfers_s, &preemp_s);
+	
+	make_transfers(kstubs, num_kernels);
+	
+	all_nocke_execution(kstubs, num_kernels);
+
+	// Create streams kernel info for coexecution
+	t_kstreams *kstr = (t_kstreams *)calloc(num_kernels, sizeof(t_kstreams));
+	for (int i=0; i<num_kernels; i++)
+		create_kstreams(kstubs[i], &kstr[i]);
+	
+	// Coxecution info	
+	t_kcoexec coexec;
+	create_coexec(&coexec, 2);
+	
+	// Select first kernel to be launch	
+	//t_Kernel curr_kid = MM; // Id of the first kernel in coexec
+	
+	int *k_select = (int *)calloc(num_kernels, sizeof(int));
+	
+	/*int i;
+	for (i=0; i<num_kernels; i++)
+		if (kid[i] == curr_kid && k_select[i] == 0){
+			k_select[i] = 1; //Mask kernel to avoid the relaunch of a kernel
+		}
+	
+	if (i>= num_kernels){
+		printf("Error: first kernel not found\n");
+		return -1;
+	}*/
+	
+	// Launch proxy
+	launch_generic_proxy((void *)&sched);	// Launch proxy
+	
+	// Get coexecution kernels
+	int run_kernel_index; //= i; // index in kid array of the fist kernel of coexec structure (coexec.kstr[0])
+	int b0, b1; // optimun number of blocks in kernels stored in coexec to achieve the best speedup
+	int index_new_kernel; // index in kid array of the second kernel of coexec structure (coexec.kstr[0]
+	t_Kernel curr_kid, next_kid; // Id of the second kernel of coexec
+	int cont_kernels_finished = 0;
+	while (cont_kernels_finished < num_kernels) {
+		
+		int i;
+		if (coexec.kstr[0] == NULL) { // If no kernel in coexec selected 
+			for (i=0;i<num_kernels;i++){
+				if (k_select[i] == 0) // Select the first kernel available
+					break;
+			}
+			if (i == num_kernels) {
+				printf("error:  No kernel found\n");
+				return -1;
+			}
+			else {
+				k_select[i]=1;
+				curr_kid = kid[i];
+				run_kernel_index = i;
+				coexec.kstr[0] = &kstr[run_kernel_index];
+			}
+		}
+
+		if (cont_kernels_finished == num_kernels - 1 ){ // If only a kernel remains
+				get_last_kernel(coexec.kstr[0]->kstub->id, &b0); // Give all resources to the last kernel
+				next_kid = EMPTY;
+			}
+			else
+				get_best_partner(kid, k_select, num_kernels, curr_kid, &next_kid, &index_new_kernel, &b0, &b1);	// Get the partner (next_kid) provinding the higher speepup in coexecution with curr_kid kernel 	
+	
+		if (next_kid == EMPTY) {		// It is better to execute kernel alone
+			coexec.kstr[0] = &kstr[run_kernel_index]; // Fisrt kernel
+			coexec.kstr[1] = NULL; // Second kernel null
+			coexec.num_kernels = 1;
+			
+			kid_from_index(curr_kid, skid);
+			printf("Solo kernel %s(%d)\n", skid, b0); 
+			
+			if (b0 < coexec.kstr[0]->num_streams){ // If number of streams of irst kernel must be reduced
+				evict_streams(&pool, coexec.kstr[0], coexec.kstr[0]->num_streams - b0); // Evict those streams (remaining streams continue in execution)
+			}
+			else {
+				add_streams(&pool, coexec.kstr[0], b0 - coexec.kstr[0]->num_streams); // More streams are added
+				coexec.kstr[0]->kstub->d_executed_tasks = sched.gm_cont_tasks; /* Remaping to zero-copy*/
+				coexec.kstr[0]->kstub->gm_state = sched.kernel_evict; /*Remaping to zero-copy */
+				launch_SMK_kernel(&pool, coexec.kstr[0]); // Those new streams are launched
+			}
+			
+		}
+		else
+		{
+			k_select[index_new_kernel] = 1;
+			coexec.kstr[0] = &kstr[run_kernel_index]; // First kernel is loaded in coexec
+			coexec.kstr[1] = &kstr[index_new_kernel]; // Second kernel
+			coexec.num_kernels = 2;
+			
+			kid_from_index(curr_kid, skid);
+			printf("Two kernels %s(%d) ", skid, b0); 
+			kid_from_index(next_kid, skid);
+			printf(" %s(%d) \n", skid, b1); 
+			
+			if (b0 < coexec.kstr[0]->num_streams) { // Fist kernel is analyzed either to evict some running streams or to launch the new ones
+				evict_streams(&pool, coexec.kstr[0], coexec.kstr[0]->num_streams - b0);
+			}
+			else{
+				add_streams(&pool, coexec.kstr[0], b0 - coexec.kstr[0]->num_streams);
+				coexec.kstr[0]->kstub->d_executed_tasks = sched.gm_cont_tasks; /* Remaping to zero-copy*/
+				coexec.kstr[0]->kstub->gm_state = sched.kernel_evict; /*Remaping to zero-copy */
+				launch_SMK_kernel(&pool, coexec.kstr[0]);
+			}
+	
+			add_streams(&pool, coexec.kstr[1], b1); // Second kernel is launched for the fist time: streams are added
+			coexec.kstr[1]->kstub->d_executed_tasks = sched.gm_cont_tasks+1; /* Remaping to zero-copy*/
+			coexec.kstr[1]->kstub->gm_state = sched.kernel_evict+1; /*Remaping to zero-copy */
+			launch_SMK_kernel(&pool, coexec.kstr[1]);
+		}
+	
+		int kernel_id;
+		wait_for_kernel_termination_with_proxy(&sched, &pool, &coexec, &kernel_id); // Wait until one of the two runnunk kernels ends (all its streams finish)
+		printf("Kernel %d finished\n", coexec.kstr[kernel_id]->kstub->id);
+		cont_kernels_finished++; // Counter that indicates when all kernels have been processed
+		coexec.num_kernels--;
+
+		if (cont_kernels_finished >= num_kernels) // Check if last kernel has finished
+			break; 
+	
+		if (kernel_id == 1){ /* If second kernel finishes*/
+		
+			//k_select[index_new_kernel] = 1; // Remove from further processing
+		
+			coexec.kstr[1]=NULL; // Eliminate it from coexec
+			curr_kid = coexec.kstr[0]->kstub->id; // Update running kernel for next iteration
+		}
+	
+		if (kernel_id == 0){
+			
+			//k_select[run_kernel_index] = 1; // Remove from further processing
+
+			coexec.kstr[0] = coexec.kstr[1]; //Move info from coexec.kstr1 to coexec.kstr0
+			coexec.kstr[1] = NULL; // Remove from further processing
+			run_kernel_index = index_new_kernel; // Update index of running kernel
+			if (coexec.kstr[0] != NULL) // If a kernel is sill running (in coexec.kstr[0])
+				curr_kid = coexec.kstr[0]->kstub->id;
+		}
+	}
+	
+	// Evict proxy
+	sched.kernel_evict_zc[0] =  PROXY_EVICT;
+	cudaDeviceSynchronize();
+	return 0;
+}
+
+
 	
 int launch_tasks(int deviceId)
 {
@@ -277,11 +567,11 @@ int launch_tasks(int deviceId)
 	initialize_performance();
 	
 	// Select kernels
-	int num_kernels=5;
+	int num_kernels=4;
 	
 	kid = (t_Kernel *)calloc(num_kernels, sizeof(t_Kernel));
 	//kid[0]=MM; kid[1]=VA; kid[2]=BS; kid[3]=PF;
-	kid[0]=BS; kid[1]=Reduction; kid[2]=VA; kid[3]=PF; kid[4]=MM;
+	kid[0]=BS; kid[1]=Reduction; kid[2]=VA; kid[3]=PF; //kid[4]=MM;
 	/** Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands*/
 	cudaStream_t *transfers_s;
 	transfers_s = (cudaStream_t *)calloc(2, sizeof(cudaStream_t));
@@ -441,7 +731,7 @@ int launch_tasks(int deviceId)
 
 int main(int argc, char **argv)
 {
-	launch_tasks(4);
+	launch_tasks_with_proxy(4);
 	
 	return 0;
 }

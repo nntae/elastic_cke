@@ -154,6 +154,9 @@ CEDD_Original_Kernel.o: CEDD/CEDD_Original_Kernel.cu elastic_kernel.h
 	
 HST256_Original_Kernel.o: HST/HST256_Original_Kernel.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+
+proxy.o: proxy/proxy.cu elastic_kernel.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
 kstub.o: kstub.cu elastic_kernel.h BS/BS.h MM/MM.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
@@ -164,7 +167,7 @@ basic.o: basic.cu elastic_kernel.h
 utils.o: utils.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
-basic: utils.o kstub.o basic.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o RSC_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
+basic: utils.o kstub.o basic.o proxy.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o RSC_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
 run: build
