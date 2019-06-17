@@ -332,7 +332,7 @@ int launch_preemp_GCEDD(void *arg)
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
 			kstub->d_executed_tasks,
-			kstub->gm_state);
+			&(kstub->gm_state[kstub->stream_index]));
 	#else
 		SMK_gaussianCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
 			out_CEDD, data_CEDD, rows_CEDD, cols_CEDD,
@@ -344,7 +344,7 @@ int launch_preemp_GCEDD(void *arg)
 			kstub->kconf.coarsening,
 			kstub->d_SMs_cont,
 			kstub->d_executed_tasks,
-			kstub->gm_state);
+			&(kstub->gm_state[kstub->stream_index]));
 	#endif
 	
 	return 0;
@@ -787,7 +787,7 @@ int launch_preemp_SCEDD(void *arg)
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
 			kstub->d_executed_tasks,
-			kstub->gm_state);
+			&(kstub->gm_state[kstub->stream_index]));
 	#else
 		SMK_sobelCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
 			data_CEDD, out_CEDD, theta_CEDD, rows_CEDD, cols_CEDD,
@@ -799,7 +799,7 @@ int launch_preemp_SCEDD(void *arg)
 			kstub->kconf.coarsening,
 			kstub->d_SMs_cont,
 			kstub->d_executed_tasks,
-			kstub->gm_state);
+			&(kstub->gm_state[kstub->stream_index]));
 	#endif
 	
 	return 0;

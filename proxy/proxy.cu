@@ -10,13 +10,21 @@
 
 __global__ void generic_proxy(int num_conc_kernels, State *kernel_evict_zc, State *kernel_evict, int *cont_tasks_zc, int *gm_cont_tasks)
 {
+	clock_t start;
+
 	while (1){
 		
+		//start = clock();
+		//while ((clock() - start) < 10000)
+		//	;
+		
 		for (int i=0;i<num_conc_kernels; i++) {	
+
 			
 			// Check if schedluer commands kernel eviction
-			if (kernel_evict_zc[i] == TOEVICT)
-					kernel_evict[i] = TOEVICT;
+			//for (int j=0; j < MAX_STREAMS_PER_KERNEL; j++)
+			//	if (kernel_evict_zc[i*MAX_STREAMS_PER_KERNEL+j] == TOEVICT)
+			//			kernel_evict[i*MAX_STREAMS_PER_KERNEL+j] = TOEVICT;
 				
 			// Update kernel task counter in scheduler memory space
 			

@@ -845,7 +845,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			printf("Unknown kernel\n");
 			return -1;
 	}
-	
+	 
 	// Allocate task support on CPU memory (pinned memory)
 	checkCudaErrors(cudaHostAlloc((void **)&(k_stub->h_state), sizeof(State) * MAX_STREAMS_PER_KERNEL, cudaHostAllocDefault)); // In Pinned memory
 	for (int i=0; i<MAX_STREAMS_PER_KERNEL; i++)

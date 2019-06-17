@@ -89,7 +89,12 @@ int kid_from_index(int index, char *skid)
 			strcpy(skid, "RCONV");
 			break;
 			
+		case 17:
+			strcpy(skid, "EMPTY");
+			break;
+			
 		default:
+			strcpy(skid, "UNKNOWN");
 			printf("kid not supported\n");
 			return -1;
 	}
@@ -97,8 +102,10 @@ int kid_from_index(int index, char *skid)
 	return 0;
 }
 
-t_cke_performance **perf;
+t_cke_performance **perf, **th_perf;
 int *max_num_block;	
+
+t_solo_performance *sperf;
 
 int initialize_performance()
 {
@@ -147,12 +154,12 @@ int initialize_performance()
 	perf[2][0].id[0]=VA;	perf[2][0].id[1]=MM;			perf[2][0].blocks[0]=2;	perf[2][0].blocks[1]=6; 	perf[2][0].speedup=1.21;
 	perf[2][1].id[0]=VA;	perf[2][1].id[1]=BS;			perf[2][1].blocks[0]=3;	perf[2][1].blocks[1]=5; 	perf[2][1].speedup=1.04;
 	perf[2][2].id[0]=VA;	perf[2][2].id[1]=VA;			perf[2][2].blocks[0]=4;	perf[2][2].blocks[1]=4; 	perf[2][2].speedup=0.9;
-	perf[2][3].id[0]=VA;	perf[2][3].id[1]=Reduction;		perf[2][2].blocks[0]=3;	perf[2][2].blocks[1]=5; 	perf[2][2].speedup=1.59;
-	perf[2][4].id[0]=VA;	perf[2][3].id[1]=PF;			perf[2][3].blocks[0]=2;	perf[2][3].blocks[1]=6; 	perf[2][3].speedup=1.24;
-	perf[2][5].id[0]=VA;	perf[2][4].id[1]=GCEDD;			perf[2][4].blocks[0]=1;	perf[2][4].blocks[1]=7; 	perf[2][4].speedup=0.99;
-	perf[2][6].id[0]=VA;	perf[2][5].id[1]=SPMV_CSRscalar;perf[2][5].blocks[0]=2;	perf[2][5].blocks[1]=12; 	perf[2][5].speedup=1.00;
-	perf[2][7].id[0]=VA;	perf[2][6].id[1]=HST256;		perf[2][6].blocks[0]=4;	perf[2][6].blocks[1]=5; 	perf[2][6].speedup=1.00;
-	perf[2][8].id[0]=VA;	perf[2][7].id[1]=RCONV;			perf[2][7].blocks[0]=7;	perf[2][7].blocks[1]=4; 	perf[2][7].speedup=0.97;
+	perf[2][3].id[0]=VA;	perf[2][3].id[1]=Reduction;		perf[2][3].blocks[0]=3;	perf[2][3].blocks[1]=5; 	perf[2][3].speedup=1.59;
+	perf[2][4].id[0]=VA;	perf[2][4].id[1]=PF;			perf[2][4].blocks[0]=2;	perf[2][4].blocks[1]=6; 	perf[2][4].speedup=1.24;
+	perf[2][5].id[0]=VA;	perf[2][5].id[1]=GCEDD;			perf[2][5].blocks[0]=1;	perf[2][5].blocks[1]=7; 	perf[2][5].speedup=0.99;
+	perf[2][6].id[0]=VA;	perf[2][6].id[1]=SPMV_CSRscalar;perf[2][6].blocks[0]=2;	perf[2][6].blocks[1]=12; 	perf[2][6].speedup=1.00;
+	perf[2][7].id[0]=VA;	perf[2][7].id[1]=HST256;		perf[2][7].blocks[0]=4;	perf[2][7].blocks[1]=5; 	perf[2][7].speedup=1.00;
+	perf[2][8].id[0]=VA;	perf[2][8].id[1]=RCONV;			perf[2][8].blocks[0]=7;	perf[2][8].blocks[1]=4; 	perf[2][8].speedup=0.97;
 	
 	/** RED	**/
 	perf[3][0].id[0]=Reduction;		perf[3][0].id[1]=MM;			perf[3][0].blocks[0]=5;	perf[3][0].blocks[1]=3; 	perf[3][0].speedup=1.13;
@@ -183,7 +190,7 @@ int initialize_performance()
 	perf[5][3].id[0]=GCEDD;	perf[5][3].id[1]=Reduction;		perf[5][3].blocks[0]=3;	perf[5][3].blocks[1]=5; 	perf[5][3].speedup=1.10;
 	perf[5][4].id[0]=GCEDD;	perf[5][4].id[1]=PF;			perf[5][4].blocks[0]=6;	perf[5][4].blocks[1]=2; 	perf[5][4].speedup=0.97;
 	perf[5][5].id[0]=GCEDD;	perf[5][5].id[1]=GCEDD;			perf[5][5].blocks[0]=4;	perf[5][5].blocks[1]=4;  	perf[5][5].speedup=0.90;
-	perf[5][7].id[0]=GCEDD;	perf[5][6].id[1]=SPMV_CSRscalar;perf[5][6].blocks[0]=2;	perf[5][6].blocks[1]=7; 	perf[5][6].speedup=0.98;
+	perf[5][7].id[0]=GCEDD;	perf[5][6].id[1]=SPMV_CSRscalar;perf[5][6].blocks[0]=2;	perf[5][6].blocks[1]=7; 	perf[5][6].speedup=1.13;
 	perf[5][7].id[0]=GCEDD;	perf[5][7].id[1]=HST256;		perf[5][7].blocks[0]=7;	perf[5][7].blocks[1]=1; 	perf[5][7].speedup=0.91;
 	perf[5][8].id[0]=GCEDD;	perf[5][8].id[1]=RCONV;			perf[5][8].blocks[0]=25;perf[5][8].blocks[1]=1; 	perf[5][8].speedup=0.97;
 	
@@ -224,6 +231,120 @@ int initialize_performance()
 	return 0;
 }
 
+
+int initialize_theoretical_performance()
+{
+	
+	int num_kernels = 9;
+	
+	th_perf = (t_cke_performance **)calloc(num_kernels, sizeof(t_cke_performance *));
+	for (int i=0; i<num_kernels; i++)
+		th_perf[i] = (t_cke_performance *)calloc(num_kernels, sizeof(t_cke_performance));
+		
+	/** MM **/
+	
+	th_perf[0][0].id[0]=MM;	th_perf[0][0].id[1]=MM;			th_perf[0][0].blocks[0]=4;	th_perf[0][0].blocks[1]=4; th_perf[0][0].speedup=1.0;
+	th_perf[0][1].id[0]=MM;	th_perf[0][1].id[1]=BS;			th_perf[0][1].blocks[0]=4;	th_perf[0][1].blocks[1]=4; th_perf[0][1].speedup=1.60;
+	th_perf[0][2].id[0]=MM;	th_perf[0][2].id[1]=VA;			th_perf[0][2].blocks[0]=5;	th_perf[0][2].blocks[1]=3; th_perf[0][2].speedup=1.82;
+	th_perf[0][3].id[0]=MM;	th_perf[0][3].id[1]=Reduction;		th_perf[0][3].blocks[0]=3;	th_perf[0][3].blocks[1]=5; th_perf[0][3].speedup=1.48;
+	th_perf[0][4].id[0]=MM;	th_perf[0][4].id[1]=PF;			th_perf[0][4].blocks[0]=4;	th_perf[0][4].blocks[1]=4; th_perf[0][4].speedup=1.30;
+	th_perf[0][5].id[0]=MM;	th_perf[0][5].id[1]=GCEDD;			th_perf[0][5].blocks[0]=3;	th_perf[0][5].blocks[1]=5; th_perf[0][5].speedup=1.41;
+	th_perf[0][6].id[0]=MM;	th_perf[0][6].id[1]=SPMV_CSRscalar;th_perf[0][6].blocks[0]=6;	th_perf[0][6].blocks[1]=4; th_perf[0][6].speedup=1.97;
+	th_perf[0][7].id[0]=MM;	th_perf[0][7].id[1]=HST256;		th_perf[0][7].blocks[0]=6;	th_perf[0][7].blocks[1]=2; th_perf[0][7].speedup=1.32;
+	th_perf[0][8].id[0]=MM;	th_perf[0][8].id[1]=RCONV;			th_perf[0][8].blocks[0]=6;	th_perf[0][8].blocks[1]=8; th_perf[0][8].speedup=1.94;
+	
+	/** BS **/
+	th_perf[1][0].id[0]=BS;	th_perf[1][0].id[1]=MM;			th_perf[1][0].blocks[0]=4;	th_perf[1][0].blocks[1]=4; th_perf[1][0].speedup=1.60;
+	th_perf[1][1].id[0]=BS;	th_perf[1][1].id[1]=BS;			th_perf[1][1].blocks[0]=4;	th_perf[1][1].blocks[1]=4; th_perf[1][1].speedup=1.00;
+	th_perf[1][2].id[0]=BS;	th_perf[1][2].id[1]=VA;			th_perf[1][2].blocks[0]=5;	th_perf[1][2].blocks[1]=3; th_perf[1][2].speedup=1.87;
+	th_perf[1][3].id[0]=BS;	th_perf[1][3].id[1]=Reduction;		th_perf[1][3].blocks[0]=3;	th_perf[1][3].blocks[1]=5; th_perf[1][3].speedup=1.55;
+	th_perf[1][4].id[0]=BS;	th_perf[1][4].id[1]=PF;			th_perf[1][4].blocks[0]=3;	th_perf[1][4].blocks[1]=5; th_perf[1][4].speedup=1.37;
+	th_perf[1][5].id[0]=BS;	th_perf[1][5].id[1]=GCEDD;			th_perf[1][5].blocks[0]=3;	th_perf[1][5].blocks[1]=5; th_perf[1][5].speedup=1.49;
+	th_perf[1][6].id[0]=BS;	th_perf[1][6].id[1]=SPMV_CSRscalar;th_perf[1][6].blocks[0]=6;	th_perf[1][6].blocks[1]=4; th_perf[1][6].speedup=2.00;
+	th_perf[1][7].id[0]=BS;	th_perf[1][7].id[1]=HST256;		th_perf[1][7].blocks[0]=6;	th_perf[1][7].blocks[1]=2; th_perf[1][7].speedup=1.34;
+	th_perf[1][8].id[0]=BS;	th_perf[1][8].id[1]=RCONV;			th_perf[1][8].blocks[0]=6;	th_perf[1][8].blocks[1]=8; th_perf[1][8].speedup=1.97;
+	
+	/** VA **/
+	th_perf[2][0].id[0]=VA;	th_perf[2][0].id[1]=MM;			th_perf[2][0].blocks[0]=3;	th_perf[2][0].blocks[1]=5; 	th_perf[2][0].speedup=1.82;
+	th_perf[2][1].id[0]=VA;	th_perf[2][1].id[1]=BS;			th_perf[2][1].blocks[0]=5;	th_perf[2][1].blocks[1]=3; 	th_perf[2][1].speedup=1.87;
+	th_perf[2][2].id[0]=VA;	th_perf[2][2].id[1]=VA;			th_perf[2][2].blocks[0]=4;	th_perf[2][2].blocks[1]=4; 	th_perf[2][2].speedup=1.00;
+	th_perf[2][3].id[0]=VA;	th_perf[2][3].id[1]=Reduction;		th_perf[2][3].blocks[0]=3;	th_perf[2][3].blocks[1]=5; 	th_perf[2][2].speedup=1.80;
+	th_perf[2][4].id[0]=VA;	th_perf[2][4].id[1]=PF;			th_perf[2][4].blocks[0]=3;	th_perf[2][4].blocks[1]=5; 	th_perf[2][3].speedup=1.61;
+	th_perf[2][5].id[0]=VA;	th_perf[2][5].id[1]=GCEDD;			th_perf[2][5].blocks[0]=2;	th_perf[2][5].blocks[1]=6; 	th_perf[2][4].speedup=1.75;
+	th_perf[2][6].id[0]=VA;	th_perf[2][6].id[1]=SPMV_CSRscalar;th_perf[2][6].blocks[0]=3;	th_perf[2][6].blocks[1]=10; 	th_perf[2][5].speedup=2.07;
+	th_perf[2][7].id[0]=VA;	th_perf[2][7].id[1]=HST256;		th_perf[2][7].blocks[0]=5;	th_perf[2][7].blocks[1]=4; 	th_perf[2][6].speedup=1.66;
+	th_perf[2][8].id[0]=VA;	th_perf[2][8].id[1]=RCONV;			th_perf[2][8].blocks[0]=5;	th_perf[2][8].blocks[1]=12; 	th_perf[2][7].speedup=2.00;
+	
+	/** RED	**/
+	th_perf[3][0].id[0]=Reduction;		th_perf[3][0].id[1]=MM;			th_perf[3][0].blocks[0]=5;	th_perf[3][0].blocks[1]=3; 	th_perf[3][0].speedup=1.48;
+	th_perf[3][1].id[0]=Reduction;		th_perf[3][1].id[1]=BS;			th_perf[3][1].blocks[0]=5;	th_perf[3][1].blocks[1]=3; 	th_perf[3][1].speedup=1.55;
+	th_perf[3][2].id[0]=Reduction;		th_perf[3][2].id[1]=VA;			th_perf[3][2].blocks[0]=5;	th_perf[3][2].blocks[1]=3; 	th_perf[3][2].speedup=1.80;
+	th_perf[3][3].id[0]=Reduction;		th_perf[3][3].id[1]=Reduction;		th_perf[3][3].blocks[0]=4;	th_perf[3][3].blocks[1]=4; 	th_perf[3][3].speedup=1.00;
+	th_perf[3][4].id[0]=Reduction;		th_perf[3][4].id[1]=PF;			th_perf[3][4].blocks[0]=4;	th_perf[3][4].blocks[1]=4; 	th_perf[3][4].speedup=1.24;
+	th_perf[3][5].id[0]=Reduction;		th_perf[3][5].id[1]=GCEDD;			th_perf[3][5].blocks[0]=4;	th_perf[3][5].blocks[1]=4; 	th_perf[3][5].speedup=1.34;
+	th_perf[3][6].id[0]=Reduction;		th_perf[3][6].id[1]=SPMV_CSRscalar;th_perf[3][6].blocks[0]=4;	th_perf[3][6].blocks[1]=6; 	th_perf[3][6].speedup=1.95;
+	th_perf[3][7].id[0]=Reduction;		th_perf[3][7].id[1]=HST256;		th_perf[3][7].blocks[0]=5;	th_perf[3][7].blocks[1]=4; 	th_perf[3][7].speedup=1.48;
+	th_perf[3][8].id[0]=Reduction;		th_perf[3][8].id[1]=RCONV;			th_perf[3][8].blocks[0]=6;	th_perf[3][8].blocks[1]=8; 	th_perf[3][8].speedup=1.91;
+	
+	/** PF **/
+	th_perf[4][0].id[0]=PF;	th_perf[4][0].id[1]=MM;			th_perf[4][0].blocks[0]=4;	th_perf[4][0].blocks[1]=4; 	th_perf[4][0].speedup=1.30;
+	th_perf[4][1].id[0]=PF;	th_perf[4][1].id[1]=BS;			th_perf[4][1].blocks[0]=5;	th_perf[4][1].blocks[1]=3; 	th_perf[4][1].speedup=1.37;
+	th_perf[4][2].id[0]=PF;	th_perf[4][2].id[1]=VA;			th_perf[4][2].blocks[0]=5;	th_perf[4][2].blocks[1]=3; 	th_perf[4][2].speedup=1.61;
+	th_perf[4][3].id[0]=PF;	th_perf[4][3].id[1]=Reduction;		th_perf[4][3].blocks[0]=4;	th_perf[4][3].blocks[1]=4; 	th_perf[4][3].speedup=1.24;
+	th_perf[4][4].id[0]=PF;	th_perf[4][4].id[1]=PF;			th_perf[4][4].blocks[0]=4;	th_perf[4][4].blocks[1]=4; 	th_perf[4][4].speedup=1.00;
+	th_perf[4][5].id[0]=PF;	th_perf[4][5].id[1]=GCEDD;			th_perf[4][5].blocks[0]=4;	th_perf[4][5].blocks[1]=4; 	th_perf[4][5].speedup=1.18;
+	th_perf[4][6].id[0]=PF;	th_perf[4][6].id[1]=SPMV_CSRscalar;th_perf[4][6].blocks[0]=6;	th_perf[4][6].blocks[1]=4; 	th_perf[4][6].speedup=1.80;
+	th_perf[4][7].id[0]=PF;	th_perf[4][7].id[1]=HST256;		th_perf[4][7].blocks[0]=5;	th_perf[4][7].blocks[1]=4; 	th_perf[4][7].speedup=1.30;
+	th_perf[4][8].id[0]=PF;	th_perf[4][8].id[1]=RCONV;			th_perf[4][8].blocks[0]=6;	th_perf[4][8].blocks[1]=8; 	th_perf[4][8].speedup=1.76;
+	
+	/** GCEDD **/
+	th_perf[5][0].id[0]=GCEDD;	th_perf[5][0].id[1]=MM;			th_perf[5][0].blocks[0]=5;	th_perf[5][0].blocks[1]=3; 	th_perf[5][0].speedup=1.41;
+	th_perf[5][1].id[0]=GCEDD;	th_perf[5][1].id[1]=BS;			th_perf[5][1].blocks[0]=5;	th_perf[5][1].blocks[1]=3; 	th_perf[5][1].speedup=1.49;
+	th_perf[5][2].id[0]=GCEDD;	th_perf[5][2].id[1]=VA;			th_perf[5][2].blocks[0]=6;	th_perf[5][2].blocks[1]=2; 	th_perf[5][2].speedup=1.75;
+	th_perf[5][3].id[0]=GCEDD;	th_perf[5][3].id[1]=Reduction;		th_perf[5][3].blocks[0]=4;	th_perf[5][3].blocks[1]=4; 	th_perf[5][3].speedup=1.34;
+	th_perf[5][4].id[0]=GCEDD;	th_perf[5][4].id[1]=PF;			th_perf[5][4].blocks[0]=4;	th_perf[5][4].blocks[1]=4; 	th_perf[5][4].speedup=1.18;
+	th_perf[5][5].id[0]=GCEDD;	th_perf[5][5].id[1]=GCEDD;			th_perf[5][5].blocks[0]=4;	th_perf[5][5].blocks[1]=4;  	th_perf[5][5].speedup=1.00;
+	th_perf[5][7].id[0]=GCEDD;	th_perf[5][6].id[1]=SPMV_CSRscalar;th_perf[5][6].blocks[0]=6;	th_perf[5][6].blocks[1]=4; 	th_perf[5][6].speedup=1.89;
+	th_perf[5][7].id[0]=GCEDD;	th_perf[5][7].id[1]=HST256;		th_perf[5][7].blocks[0]=5;	th_perf[5][7].blocks[1]=4;		th_perf[5][7].speedup=1.42;
+	th_perf[5][8].id[0]=GCEDD;	th_perf[5][8].id[1]=RCONV;			th_perf[5][8].blocks[0]=6; th_perf[5][8].blocks[1]=8; 	th_perf[5][8].speedup=1.86;
+	
+	/*SPMV */
+	th_perf[6][0].id[0]=SPMV_CSRscalar;		th_perf[6][0].id[1]=MM;			th_perf[6][0].blocks[0]=4;	th_perf[6][0].blocks[1]=6; 	th_perf[6][0].speedup=1.97;
+	th_perf[6][1].id[0]=SPMV_CSRscalar;		th_perf[6][1].id[1]=BS;			th_perf[6][1].blocks[0]=4;	th_perf[6][1].blocks[1]=6; 	th_perf[6][1].speedup=2.00;
+	th_perf[6][2].id[0]=SPMV_CSRscalar;		th_perf[6][2].id[1]=VA;			th_perf[6][2].blocks[0]=10;th_perf[6][2].blocks[1]=3; 	th_perf[6][2].speedup=2.07;
+	th_perf[6][3].id[0]=SPMV_CSRscalar;		th_perf[6][3].id[1]=Reduction;		th_perf[6][3].blocks[0]=6;	th_perf[6][3].blocks[1]=4; 	th_perf[6][3].speedup=1.95;
+	th_perf[6][4].id[0]=SPMV_CSRscalar;		th_perf[6][4].id[1]=PF;			th_perf[6][4].blocks[0]=4;	th_perf[6][4].blocks[1]=6; 	th_perf[6][4].speedup=1.80;
+	th_perf[6][5].id[0]=SPMV_CSRscalar;		th_perf[6][5].id[1]=GCEDD;			th_perf[6][5].blocks[0]=4;	th_perf[6][5].blocks[1]=6; 	th_perf[6][5].speedup=1.89;
+	th_perf[6][6].id[0]=SPMV_CSRscalar;		th_perf[6][6].id[1]=SPMV_CSRscalar;th_perf[6][6].blocks[0]=8;	th_perf[6][6].blocks[1]=8; 	th_perf[6][6].speedup=1.00;
+	th_perf[6][7].id[0]=SPMV_CSRscalar;		th_perf[6][7].id[1]=HST256;		th_perf[6][7].blocks[0]=5;	th_perf[6][7].blocks[1]=7; 	th_perf[6][7].speedup=1.97;
+	th_perf[6][8].id[0]=SPMV_CSRscalar;		th_perf[6][8].id[1]=RCONV;			th_perf[6][8].blocks[0]=7; th_perf[6][8].blocks[1]=18; 	th_perf[6][8].speedup=2.00;
+	
+	/*HST256 */
+	th_perf[7][0].id[0]=HST256;		th_perf[7][0].id[1]=MM;			th_perf[7][0].blocks[0]=2;	th_perf[7][0].blocks[1]=6; 	th_perf[7][0].speedup=1.32;
+	th_perf[7][1].id[0]=HST256;		th_perf[7][1].id[1]=BS;			th_perf[7][1].blocks[0]=2;	th_perf[7][1].blocks[1]=6; 	th_perf[7][1].speedup=1.34;
+	th_perf[7][2].id[0]=HST256;		th_perf[7][2].id[1]=VA;			th_perf[7][2].blocks[0]=5;	th_perf[7][2].blocks[1]=4; 	th_perf[7][2].speedup=1.00;
+	th_perf[7][3].id[0]=HST256;		th_perf[7][3].id[1]=Reduction;		th_perf[7][3].blocks[0]=4;	th_perf[7][3].blocks[1]=5; 	th_perf[7][3].speedup=1.48;
+	th_perf[7][4].id[0]=HST256;		th_perf[7][4].id[1]=PF;			th_perf[7][4].blocks[0]=5;	th_perf[7][4].blocks[1]=4; 	th_perf[7][4].speedup=1.30;
+	th_perf[7][5].id[0]=HST256;		th_perf[7][5].id[1]=GCEDD;			th_perf[7][5].blocks[0]=4;	th_perf[7][5].blocks[1]=5; 	th_perf[7][5].speedup=1.42;
+	th_perf[7][6].id[0]=HST256;		th_perf[7][6].id[1]=SPMV_CSRscalar;th_perf[7][6].blocks[0]=7;	th_perf[7][6].blocks[1]=5; 	th_perf[7][6].speedup=1.97;
+	th_perf[7][7].id[0]=HST256;		th_perf[7][7].id[1]=HST256;		th_perf[7][7].blocks[0]=5;	th_perf[7][7].blocks[1]=5; 	th_perf[7][7].speedup=1.00;
+	th_perf[7][8].id[0]=HST256;		th_perf[7][8].id[1]=RCONV;			th_perf[7][8].blocks[0]=8;	th_perf[7][8].blocks[1]=6; 	th_perf[7][8].speedup=1.91;
+	
+	/*RCONV */
+	th_perf[8][0].id[0]=RCONV;		th_perf[8][0].id[1]=MM;			th_perf[8][0].blocks[0]=8;	th_perf[8][0].blocks[1]=6; 	th_perf[8][0].speedup=1.94;
+	th_perf[8][1].id[0]=RCONV;		th_perf[8][1].id[1]=BS;			th_perf[8][1].blocks[0]=8;	th_perf[8][1].blocks[1]=6; 	th_perf[8][1].speedup=1.94;
+	th_perf[8][2].id[0]=RCONV;		th_perf[8][2].id[1]=VA;			th_perf[8][2].blocks[0]=12;th_perf[8][2].blocks[1]=5; 	th_perf[8][2].speedup=2.00;
+	th_perf[8][3].id[0]=RCONV;		th_perf[8][3].id[1]=Reduction;		th_perf[8][3].blocks[0]=8;	th_perf[8][3].blocks[1]=6; 	th_perf[8][3].speedup=1.91;
+	th_perf[8][4].id[0]=RCONV;		th_perf[8][4].id[1]=PF;			th_perf[8][4].blocks[0]=8;	th_perf[8][4].blocks[1]=6; 	th_perf[8][4].speedup=0.30;
+	th_perf[8][5].id[0]=RCONV;		th_perf[8][5].id[1]=GCEDD;			th_perf[8][5].blocks[0]=8;	th_perf[8][5].blocks[1]=6; 	th_perf[8][5].speedup=1.76;
+	th_perf[8][6].id[0]=RCONV;		th_perf[8][6].id[1]=SPMV_CSRscalar;th_perf[8][6].blocks[0]=18;th_perf[8][6].blocks[1]=7; 	th_perf[8][6].speedup=2.10;
+	th_perf[8][7].id[0]=RCONV;		th_perf[8][7].id[1]=HST256;		th_perf[8][7].blocks[0]=6;	th_perf[8][7].blocks[1]=8; 	th_perf[8][7].speedup=1.91;
+	th_perf[8][8].id[0]=RCONV;		th_perf[8][8].id[1]=RCONV;			th_perf[8][8].blocks[0]=12;th_perf[8][8].blocks[1]=13; 	th_perf[8][8].speedup=1.00;
+
+	
+	return 0;
+}
+
 int get_best_partner(t_Kernel *kid, int *k_done, int num_kernels, t_Kernel curr_kid, t_Kernel *next_kid, int *index_next, int *b0, int *b1)
 {
 	int index1, index2, save_index2;
@@ -246,18 +367,53 @@ int get_best_partner(t_Kernel *kid, int *k_done, int num_kernels, t_Kernel curr_
 		}
 	}
 			
-	if (best_perf >1.05) {
+	if (best_perf >= MIN_SPEEDUP) {
 		*next_kid = best_kid;
 		*index_next = best_index;
 		*b0 = perf[index1][save_index2].blocks[0];
 		*b1 = perf[index1][save_index2].blocks[1];
 	}else{
 		*next_kid = EMPTY;
-		*b0 = max_num_block[save_index2]; // If performace is low the running kernel is executed with all the blocks
+		*b0 = max_num_block[index1]; // If performace is low the running kernel is executed with all the blocks
 	}
 	
 	return 0;
 	
+}
+
+int get_best_partner_theoretical(t_Kernel curr_kid, t_Kernel *kid, int *k_done, float **bad_partner, int num_kernels, t_Kernel *select_kid, int *select_index, int *b0, int *b1)
+{
+	int index1, index2, save_index2;
+	
+	get_index(curr_kid, &index1); // Get the index of the running kernel for perfomance tables
+	
+	double best_perf = -1.0;
+	int best_index;
+	t_Kernel best_kid;
+	
+	for (int i=0; i<num_kernels; i++){ // For the remainning kernels 
+		if (k_done[i] == 0 && bad_partner[curr_kid][kid[i]] == 0){ // If kernel has not been executed yet	and it is not a bad partner
+			get_index(kid[i], &index2); // Get the index of the new kernel
+			if (perf[index1][index2].speedup > best_perf) { // Check performance and annotate if better
+				best_perf = perf[index1][index2].speedup;
+				best_index = i;
+				best_kid = kid[i];
+				save_index2 = index2;
+			}
+		}
+	}
+			
+	if (best_perf >=MIN_SPEEDUP) {
+		*select_kid = best_kid;
+		*select_index = best_index;
+		*b0 = perf[index1][save_index2].blocks[0];
+		*b1 = perf[index1][save_index2].blocks[1];
+	}else{
+		*select_kid = EMPTY;
+		*b0 = max_num_block[index1]; // If performace is low the running kernel is executed with all the blocks
+	}
+	
+	return 0;
 }
 
 int get_last_kernel (t_Kernel kid, int *num_blocks)
@@ -270,5 +426,42 @@ int get_last_kernel (t_Kernel kid, int *num_blocks)
 	return 0;
 }
 	
-			
+int initialize_solo_performance()
+{
+	int num_kernels = 9;
 	
+	sperf = (t_solo_performance *)calloc(num_kernels, sizeof(t_solo_performance));
+	
+	sperf[0].id = MM; 				sperf[0].max_tpms=735;
+	sperf[1].id = BS; 				sperf[1].max_tpms=2431;
+	sperf[2].id = VA; 				sperf[2].max_tpms=2914;
+	sperf[3].id = Reduction; 		sperf[3].max_tpms=17231;
+	sperf[4].id = PF; 				sperf[4].max_tpms=1221;
+	sperf[5].id = GCEDD; 			sperf[5].max_tpms=86893;
+	sperf[6].id = SPMV_CSRscalar; 	sperf[6].max_tpms=34309;
+	sperf[7].id = HST256; 			sperf[7].max_tpms=4632;
+	sperf[8].id = RCONV; 			sperf[8].max_tpms=66377;
+	
+	return 0;
+}
+
+double get_solo_perf(t_Kernel id)
+{
+	
+	int num_kernels = 9;
+	
+	for (int i=0; i<num_kernels; i++)
+		if (id == sperf[i].id)
+			return sperf[i].max_tpms;
+		
+	printf("Error: id not found\n");
+	
+	return 0;
+}
+
+int get_max_blocks(t_Kernel kid)
+{
+	int index;
+	get_index(kid, &index);
+	return max_num_block[index];
+}

@@ -9,12 +9,14 @@
 //#define MANAGED_MEM 
 
 #define MAX_STREAMS_PER_KERNEL 16
+#define MAX_NUM_COEXEC_KERNELS 2
+#define MIN_SPEEDUP 1.0
 
 #define ZEROCOPY
  
 #define C_S 1000000000 // Chunksize: 18Mbytes/s // Changed to 2MBytes to reduce preemption delay
 
-typedef enum {MM=0, BS, VA, RSC_MODEL, RSC_EVALUATE, SPMV_CSRscalar, Reduction, PF, RCONV, CCONV, FDTD3d, Dummy, GCEDD, SCEDD, NCEDD, HCEDD, HST256, EMPTY} t_Kernel;
+typedef enum {MM=0, BS, VA, RSC_MODEL, RSC_EVALUATE, SPMV_CSRscalar, Reduction, PF, RCONV, CCONV, FDTD3d, Dummy, GCEDD, SCEDD, NCEDD, HCEDD, HST256, EMPTY, Number_of_Kernels} t_Kernel;
 typedef enum {NONBLOCKING=0, BLOCKING, STREAM_SYNCHRO, NOACTION} t_tsynchro;
 typedef enum {DATA=0, LAUNCH, NOLAUNCH, EVICT, PENDING, SYNCHRO, LAST_TRANSFER} t_type;  
 
@@ -143,6 +145,7 @@ typedef struct {
 typedef struct {
 	cudaStream_t *proxy_s;
 	int num_conc_kernels;
+	int num_streams;
 	State *kernel_evict_zc;
 	State *kernel_evict;
 	int *cont_tasks_zc;
@@ -229,7 +232,27 @@ typedef struct {
 	float speedup;
 }t_cke_performance;
 
+typedef struct {
+	t_Kernel id;
+	double max_tpms;
+}t_solo_performance;
+
 __device__ uint get_smid(void);
+
+typedef struct{
+	t_kernel_stub *kstub;
+	int save_cont_task; // Storage value of yye task counter (0 at the beginning and X after a complete kernel eviction
+	int num_streams; // Numner of executing streams of the kernel
+	int save_cont_tasks; // Here we save the number if executed tasks of the kernel when it is evicted (used to start with this value kernel is restarted)
+	cudaStream_t str[MAX_STREAMS_PER_KERNEL]; // Streams id
+}t_kstreams;
+
+typedef struct{
+	int num_kernels;
+	t_kstreams **kstr;
+	int *num_streams; // Number of streams to be lauched for each kernel 
+	int *queue_index; // Index to the queue of ready kernel. It inidcates the position of the kernel in that queue
+}t_kcoexec;
 
 
 int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_t *transfer_s, cudaStream_t *preemp_s);
@@ -258,10 +281,15 @@ int two_kernel_bench_spatial(int deviceId, t_Kernel *kid, double *max_tpms);
 
 
 int initialize_performance();
+int initialize_solo_performance();
+int initialize_theoretical_performance();
 int get_best_partner(t_Kernel *kid, int *k_done, int num_kernels, t_Kernel curr_kid, t_Kernel *next_kid, int *index_next, int *b0, int *b1);
+int get_best_partner_theoretical(t_Kernel curr_kid, t_Kernel *kid, int *k_done, float **bad_partner, int num_kernels, t_Kernel *select_kid, int *select_index, int *b0, int *b1);
 int get_last_kernel (t_Kernel kid, int *num_blocks);
 int all_nocke_execution(t_kernel_stub **kstubs, int num_kernels);
 int kid_from_index(int index, char *skid);
+double get_solo_perf(t_Kernel id);
+int get_max_blocks(t_Kernel kid);
 
 #ifdef ZEROCOPY
 int launch_proxy(void *arg);

@@ -915,7 +915,7 @@ int launch_preemp_BS(void *arg)
 			kstub->kconf.coarsening,
 			kstub->d_SMs_cont,
 			kstub->d_executed_tasks,
-			kstub->gm_statekstub->stream_index]
+			&kstub->gm_state[kstub->stream_index]
     );
 		
 	#endif

@@ -642,7 +642,7 @@ int launch_preemp_VA(void *arg)
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
 			kstub->d_executed_tasks,
-			kstub->gm_state
+			&(kstub->gm_state[kstub->stream_index])
 	);
 	
 	#else
@@ -654,7 +654,7 @@ int launch_preemp_VA(void *arg)
 			kstub->kconf.coarsening,
 			kstub->d_SMs_cont,
 			kstub->d_executed_tasks,
-			kstub->gm_state
+			&(kstub->gm_state[kstub->stream_index])
 	);	
 		
 	#endif
