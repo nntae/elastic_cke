@@ -480,7 +480,7 @@ float RandFloat(float low, float high)
 	
 	float	RISKFREE = 0.02f;
 	float   VOLATILITY = 0.30f;
-	int 	OPT_SZ;
+	long int 	OPT_SZ;
 	int OPT_N;
 
 	
