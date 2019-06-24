@@ -6,12 +6,12 @@
 #include "BS/BS.h"
 #include "VA/VA.h"
 #include "MM/MM.h"
-#include "RSC/RSC.h"
+//#include "RSC/RSC.h"
 #include "SPMV/SPMV.h"
 #include "PF/PF.h"
 #include "Reduction/reduction.h"
 #include "FDTD3d/FDTD3dGPU.h"
-#include "Dummy/Dummy.h"
+//#include "Dummy/Dummy.h"
 #include "CONV/CONV.h"
 #include "CEDD/CEDD.h"
 #include "HST/HST256.h"
@@ -210,7 +210,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			}
 
 			break;
-			
+		
+/*		
 		case RSC_MODEL:
 			t_RSC_params *RSC_params;
 	 
@@ -290,6 +291,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			}
 
 			break;
+*/
 			
 		case SPMV_CSRscalar:
 			
