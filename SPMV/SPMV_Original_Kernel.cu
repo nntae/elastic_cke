@@ -635,8 +635,14 @@ int SPMVcsr_start_kernel(void *arg)
 	
     int nItems;
 
-     numRows = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;;
-     nItems = numRows * numRows * 0.000005; // 5% of entries will be non-zero
+     numRows = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
+	 
+	 //Data set 1
+     //nItems = numRows * numRows * 0.000005; // 5% of entries will be non-zero
+	 
+	 //Data set 2
+	 nItems = numRows * numRows / 14;
+	 
      float maxval = 50.0;
 	 
 	 // Allocate and set up host data (only for scalar csr)
@@ -681,8 +687,14 @@ int SPMVcsr_start_mallocs(void *arg)
 	
     int nItems;
 
-     numRows = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;;
-     nItems = (int)((double)numRows * (double)(numRows) * 0.000001); // 5% of entries will be non-zero
+     numRows = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
+     //nItems = (int)((double)numRows * (double)(numRows) * 0.000001); // 5% of entries will be non-zero
+	 //Data set 1
+     //nItems = numRows * numRows * 0.000005; // 5% of entries will be non-zero
+	 
+	 //Data set 2
+	 nItems = numRows * numRows / 14;
+	 
      float maxval = 50.0;
 	 
 	 printf("Items per row =%d\n", (int)((double)nItems/(double)numRows));
