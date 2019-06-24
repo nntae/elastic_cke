@@ -254,6 +254,19 @@ typedef struct{
 	int *queue_index; // Index to the queue of ready kernel. It inidcates the position of the kernel in that queue
 }t_kcoexec;
 
+typedef struct{ // Configuration of number og blocks per kernel in coexection and task per ms achieved
+	t_Kernel kid[2];
+	int num_configs;
+	int **pairs;
+	double **tpms;
+}
+t_coBlocks;
+
+typedef struct{
+	int num_configs;
+	double *tpms;
+} t_solo;
+
 
 int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_t *transfer_s, cudaStream_t *preemp_s);
 int start_linux_scheduler(t_Kernel *kernel_list, int list_size);
@@ -290,6 +303,11 @@ int all_nocke_execution(t_kernel_stub **kstubs, int num_kernels);
 int kid_from_index(int index, char *skid);
 double get_solo_perf(t_Kernel id);
 int get_max_blocks(t_Kernel kid);
+
+int make_transfers(t_kernel_stub **kstubs, int num_kernels);
+int all_profiling(t_Kernel *kid, int num_kernels, int deviceId);
+int fill_coBlocks();
+int fill_solo();
 
 #ifdef ZEROCOPY
 int launch_proxy(void *arg);

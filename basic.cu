@@ -336,9 +336,9 @@ int all_nocke_execution(t_kernel_stub **kstubs, int num_kernels)
 		idSMs[2*i+1] = kstubs[i]->kconf.numSMs-1;
 		kstubs[i]->idSMs = idSMs+2*i;
 		(kstubs[i]->launchCKEkernel)(kstubs[i]);
+		cudaDeviceSynchronize();
 	}
 	
-	cudaDeviceSynchronize();
 	
 	// Reset task counter
 	
@@ -889,10 +889,11 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 	
 	// Select kernels
 	
-	int num_kernels=9;
+	int num_kernels=5;
 	
 	kid = (t_Kernel *)calloc(num_kernels, sizeof(t_Kernel));
-	kid[0]=MM; kid[1]=VA; kid[2]=Reduction; kid[3]=PF; kid[4]=BS; kid[5]=HST256; kid[6]=SPMV_CSRscalar; kid[7]=GCEDD; kid[8]=RCONV;
+	//kid[0]=MM; kid[1]=HST256; kid[2]=Reduction; kid[3]=PF; kid[4]=VA; kid[5]=BS; kid[6]=SPMV_CSRscalar; kid[7]=GCEDD; kid[8]=RCONV;
+	kid[0]=MM; kid[1]=BS; kid[2]=VA;kid[3]=MM; kid[4]=VA;
 	/** Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands*/
 	cudaStream_t *transfers_s;
 	transfers_s = (cudaStream_t *)calloc(2, sizeof(cudaStream_t));
@@ -1017,7 +1018,7 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 			evict_streams(coexec.kstr[1], coexec.kstr[1]->num_streams); // Stop all the streams of the second kernel (why not the first one?-> criterion based on remaining execution time?)
 			k_done[coexec.queue_index[1]]= 0;  //Put the second kernel as ready again
 			
-			printf("Bad partner --> %d,%d\n", coexec.kstr[0]->kstub->id, coexec.kstr[1]->kstub->id); 
+			//printf("Bad partner --> %d,%d\n", coexec.kstr[0]->kstub->id, coexec.kstr[1]->kstub->id); 
 			bad_partner[coexec.kstr[0]->kstub->id][coexec.kstr[1]->kstub->id] = -1;//speedup; // Annotate bad partner
 			bad_partner[coexec.kstr[1]->kstub->id][coexec.kstr[0]->kstub->id] = -1; //;
 			
@@ -1082,8 +1083,15 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 
 int main(int argc, char **argv)
 {
-	launch_tasks_with_proxy_theoretical(2);
-	//test_eviction(2);
+	//launch_tasks_with_proxy_theoretical(2);
+	
+	int num_kernels = 9;
+	t_Kernel kid[9];
+
+	kid[0]=VA; kid[1]=MM; kid[2]=BS; kid[3]=Reduction; kid[4]=PF; kid[5]=HST256; kid[6]=GCEDD; kid[7]=SPMV_CSRscalar; kid[8]=RCONV;
+	
+	all_profiling(kid, num_kernels, 2);
+
 	return 0;
 }
 

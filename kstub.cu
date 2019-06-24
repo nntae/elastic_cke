@@ -82,7 +82,10 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.numSMs = 28;
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 256;
-						k_stub->kconf.gridsize.x = 25 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
+						//Data set 1 
+						//k_stub->kconf.gridsize.x = 25 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
+						//Data set 2
+						k_stub->kconf.gridsize.x = 50 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 40;
 					}
@@ -125,7 +128,10 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.numSMs = 28;
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 256;
-						k_stub->kconf.gridsize.x = 50 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
+						// Data set 1
+						//k_stub->kconf.gridsize.x = 50 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
+						// Data set 2
+						k_stub->kconf.gridsize.x = 100 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 40;
 					}
@@ -144,10 +150,16 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			
 			MM_params = (t_MM_params *)calloc(1, sizeof(t_MM_params));
 			
+			/*//Dataset 1
 			MM_params->Asize.x=4096;MM_params->Asize.y=4096;
-			MM_params->Bsize.x=4096;MM_params->Bsize.y=4096;
+			MM_params->Bsize.x=4096;MM_params->Bsize.y=4096;*/
+			
+			//Dataset 2
+			MM_params->Asize.x=2048;MM_params->Asize.y=2048;
+			MM_params->Bsize.x=2048;MM_params->Bsize.y=2048;
+			
 			k_stub->params = (void *)MM_params;
-		
+			
 			k_stub->launchCKEkernel = launch_preemp_MM;
 			k_stub->launchORIkernel = launch_orig_MM;
 			k_stub->startKernel = MM_start_kernel;
@@ -319,7 +331,10 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.max_persistent_blocks = 8;
 					k_stub->kconf.blocksize.x = 256;
 					k_stub->kconf.blocksize.y = 1;
-					k_stub->kconf.gridsize.x =  64*28*8; // 64 * number_of_permanent_blocks, a ver que tal
+					//Data set 1
+					//k_stub->kconf.gridsize.x =  64*28*8;
+					// Data set 2
+					k_stub->kconf.gridsize.x =  640*28*8; // 64 * number_of_permanent_blocks, a ver que tal
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
 					k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					k_stub->kconf.coarsening = 20;
@@ -362,9 +377,17 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			
 			PF_params = (t_PF_params *)calloc(1, sizeof(t_PF_params));
 			
-			PF_params->nRows = 500;
+			// Data set 1
+			//PF_params->nRows = 500;
+			//PF_params->nCols = 6000;
+			//PF_params->param_pyramid_height = 126;
+			
+			
+			//Data set 2
+			PF_params->nRows = 5000;
 			PF_params->nCols = 6000;
 			PF_params->param_pyramid_height = 126;
+			
 			k_stub->params = (void *)PF_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_PF;
