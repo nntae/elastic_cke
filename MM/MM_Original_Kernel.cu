@@ -355,44 +355,44 @@ void constantInit(float *data, int size, float val)
     }
 }
 
-float *h_MMA, *h_MMB, *h_MMC;
-float *d_MMA, *d_MMB, *d_MMC;
-int size_A, size_B, size_C;
-int dimA_x, dimB_x;
+// float *h_MMA, *h_MMB, *h_MMC;
+// float *d_MMA, *d_MMB, *d_MMC;
+// int size_A, size_B, size_C;
+// int dimA_x, dimB_x;
 
 int MM_start_kernel(void *arg) 
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_MM_params * params = (t_MM_params *)kstub->params;
 	
 	dim3 dimsA, dimsB;
 	
-	t_MM_params * params = (t_MM_params *)kstub->params;
 	dimsA = params->Asize;
 	dimsB = params->Bsize;
 
     // Allocate host memory for matrices A and B
 	
-    size_A = dimsA.x * dimsA.y;
-	dimA_x = dimsA.x;
-    unsigned int mem_size_A = sizeof(float) * size_A;
-    h_MMA = (float *)malloc(mem_size_A);
-    size_B = dimsB.x * dimsB.y;
-	dimB_x=dimsB.x;
-    unsigned int mem_size_B = sizeof(float) * size_B;
-    h_MMB = (float *)malloc(mem_size_B);
+    params->size_A = dimsA.x * dimsA.y;
+	params->dimA_x = dimsA.x;
+    unsigned int mem_size_A = sizeof(float) * params->size_A;
+    params->h_MMA = (float *)malloc(mem_size_A);
+    params->size_B = dimsB.x * dimsB.y;
+	params->dimB_x=dimsB.x;
+    unsigned int mem_size_B = sizeof(float) * params->size_B;
+    params->h_MMB = (float *)malloc(mem_size_B);
 
     // Initialize host memory
     const float valB = 0.01f;
-    constantInit(h_MMA, size_A, 1.0f);
-    constantInit(h_MMB, size_B, valB);
+    constantInit(params->h_MMA, params->size_A, 1.0f);
+    constantInit(params->h_MMB, params->size_B, valB);
 
     // Allocate host matrix C
     dim3 dimsC(dimsB.x, dimsA.y, 1);
-	size_C = dimsC.x * dimsC.y;
+	params->size_C = dimsC.x * dimsC.y;
     unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(float);
-    h_MMC = (float *) malloc(mem_size_C);
+    params->h_MMC = (float *) malloc(mem_size_C);
 
-    if (h_MMC == NULL)
+    if (params->h_MMC == NULL)
     {
         fprintf(stderr, "Failed to allocate host matrix C!\n");
         exit(EXIT_FAILURE);
@@ -400,7 +400,7 @@ int MM_start_kernel(void *arg)
 
     cudaError_t error;
 
-    error = cudaMalloc((void **) &d_MMA, mem_size_A);
+    error = cudaMalloc((void **) &params->d_MMA, mem_size_A);
 
     if (error != cudaSuccess)
     {
@@ -408,7 +408,7 @@ int MM_start_kernel(void *arg)
         exit(EXIT_FAILURE);
     }
 
-    error = cudaMalloc((void **) &d_MMB, mem_size_B);
+    error = cudaMalloc((void **) &params->d_MMB, mem_size_B);
 
     if (error != cudaSuccess)
     {
@@ -416,7 +416,7 @@ int MM_start_kernel(void *arg)
         exit(EXIT_FAILURE);
     }
 
-    error = cudaMalloc((void **) &d_MMC, mem_size_C);
+    error = cudaMalloc((void **) &params->d_MMC, mem_size_C);
 
     if (error != cudaSuccess)
     {
@@ -425,7 +425,7 @@ int MM_start_kernel(void *arg)
     }
 
     // copy host memory to device
-    error = cudaMemcpy(d_MMA, h_MMA, mem_size_A, cudaMemcpyHostToDevice);
+    error = cudaMemcpy(params->d_MMA, params->h_MMA, mem_size_A, cudaMemcpyHostToDevice);
 
     if (error != cudaSuccess)
     {
@@ -433,7 +433,7 @@ int MM_start_kernel(void *arg)
         exit(EXIT_FAILURE);
     }
 
-    error = cudaMemcpy(d_MMB, h_MMB, mem_size_B, cudaMemcpyHostToDevice);
+    error = cudaMemcpy(params->d_MMB, params->h_MMB, mem_size_B, cudaMemcpyHostToDevice);
 
     if (error != cudaSuccess)
     {
@@ -456,26 +456,26 @@ int MM_start_mallocs(void *arg)
 	
     // Allocate host memory for matrices A and B
 	
-    size_A = dimsA.x * dimsA.y;
-	dimA_x = dimsA.x;
-    unsigned int mem_size_A = sizeof(float) * size_A;
+    params->size_A = dimsA.x * dimsA.y;
+	params->dimA_x = dimsA.x;
+    unsigned int mem_size_A = sizeof(float) * params->size_A;
    
-    size_B = dimsB.x * dimsB.y;
-	dimB_x=dimsB.x;
-    unsigned int mem_size_B = sizeof(float) * size_B;
+    params->size_B = dimsB.x * dimsB.y;
+	params->dimB_x=dimsB.x;
+    unsigned int mem_size_B = sizeof(float) * params->size_B;
    
 	// Allocate host matrix C
     dim3 dimsC(dimsB.x, dimsA.y, 1);
-	size_C = dimsC.x * dimsC.y;
+	params->size_C = dimsC.x * dimsC.y;
     unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(float);
  
 #if defined(MEMCPY_SYNC) || defined(MEMCPY_ASYNC)
 	
-	cudaMallocHost(&h_MMA, mem_size_A);
-	cudaMallocHost(&h_MMB, mem_size_A);
-	cudaMallocHost(&h_MMC, mem_size_A);
+	cudaMallocHost(&params->h_MMA, mem_size_A);
+	cudaMallocHost(&params->h_MMB, mem_size_A);
+	cudaMallocHost(&params->h_MMC, mem_size_A);
 	
-	if (h_MMC == NULL)
+	if (params->h_MMC == NULL)
     {
         fprintf(stderr, "Failed to allocate host matrix C!\n");
         exit(EXIT_FAILURE);
@@ -483,7 +483,7 @@ int MM_start_mallocs(void *arg)
 
     cudaError_t error;
 
-    error = cudaMalloc((void **) &d_MMA, mem_size_A);
+    error = cudaMalloc((void **) &params->d_MMA, mem_size_A);
 
     if (error != cudaSuccess)
     {
@@ -491,7 +491,7 @@ int MM_start_mallocs(void *arg)
         exit(EXIT_FAILURE);
     }
 
-    error = cudaMalloc((void **) &d_MMB, mem_size_B);
+    error = cudaMalloc((void **) &params->d_MMB, mem_size_B);
 
     if (error != cudaSuccess)
     {
@@ -499,7 +499,7 @@ int MM_start_mallocs(void *arg)
         exit(EXIT_FAILURE);
     }
 
-    error = cudaMalloc((void **) &d_MMC, mem_size_C);
+    error = cudaMalloc((void **) &params->d_MMC, mem_size_C);
 
     if (error != cudaSuccess)
     {
@@ -510,13 +510,13 @@ int MM_start_mallocs(void *arg)
 	
 	#ifdef MANAGED_MEM
 	
-	checkCudaErrors(cudaMallocManaged(&h_MMA, mem_size_A*sizeof(float)));
-	checkCudaErrors(cudaMallocManaged(&h_MMB, mem_size_B*sizeof(float)));
-	checkCudaErrors(cudaMallocManaged(&h_MMC, mem_size_C*sizeof(float)));
+	checkCudaErrors(cudaMallocManaged(&params->h_MMA, mem_size_A*sizeof(float)));
+	checkCudaErrors(cudaMallocManaged(&params->h_MMB, mem_size_B*sizeof(float)));
+	checkCudaErrors(cudaMallocManaged(&params->h_MMC, mem_size_C*sizeof(float)));
 	
-	d_MMA = h_MMA;
-	d_MMB = h_MMB;
-	d_MMC = h_MMC;
+	params->d_MMA = params->h_MMA;
+	params->d_MMB = params->h_MMB;
+	params->d_MMC = params->h_MMC;
 	
 	#else
 		printf("No transfer model: Exiting ...\n");
@@ -526,9 +526,9 @@ int MM_start_mallocs(void *arg)
 	
 	 // Initialize host memory
     const float valB = 0.01f;
-    constantInit(h_MMA, size_A, 1.0f);
-    constantInit(h_MMB, size_B, valB);
-	constantInit(h_MMC, size_C, 0.0f);
+    constantInit(params->h_MMA, params->size_A, 1.0f);
+    constantInit(params->h_MMB, params->size_B, valB);
+	constantInit(params->h_MMC, params->size_C, 0.0f);
 	
 	return 0;
 }
@@ -546,16 +546,16 @@ int MM_start_transfers(void *arg)
 	 
     // Allocate host memory for matrices A and B
 	
-    size_A = dimsA.x * dimsA.y;
-	dimA_x = dimsA.x;
-    unsigned int mem_size_A = sizeof(float) * size_A;
+    params->size_A = dimsA.x * dimsA.y;
+	params->dimA_x = dimsA.x;
+    unsigned int mem_size_A = sizeof(float) * params->size_A;
    
-    size_B = dimsB.x * dimsB.y;
-	dimB_x=dimsB.x;
-    unsigned int mem_size_B = sizeof(float) * size_B;
+    params->size_B = dimsB.x * dimsB.y;
+	params->dimB_x=dimsB.x;
+    unsigned int mem_size_B = sizeof(float) * params->size_B;
 	
 	dim3 dimsC(dimsB.x, dimsA.y, 1);
-	size_C = dimsC.x * dimsC.y;
+	params->size_C = dimsC.x * dimsC.y;
     unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(float);
  
 
@@ -566,7 +566,7 @@ int MM_start_transfers(void *arg)
 	// copy host memory to device
 	//HtD_data_transfer(d_MMA, h_MMA, mem_size_A, C_S);
 	printf("llamando enqueue\n");
-	enqueue_tcomamnd(tqueues, d_MMA, h_MMA, mem_size_A, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->d_MMA, params->h_MMA, mem_size_A, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
     /*error = cudaMemcpy(d_MMA, h_MMA, mem_size_A, cudaMemcpyHostToDevice);
 
     if (error != cudaSuccess)
@@ -576,7 +576,7 @@ int MM_start_transfers(void *arg)
     }*/
 
 	//HtD_data_transfer(d_MMB, h_MMB, mem_size_B, C_S);
-	enqueue_tcomamnd(tqueues, d_MMB, h_MMB, mem_size_B, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW,  kstub);
+	enqueue_tcomamnd(tqueues, params->d_MMB, params->h_MMB, mem_size_B, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW,  kstub);
 
     /*error = cudaMemcpy(d_MMB, h_MMB, mem_size_B, cudaMemcpyHostToDevice);
 
@@ -596,7 +596,7 @@ int MM_start_transfers(void *arg)
 	cudaError_t error;
 
 	// copy host memoray to device
-    error = cudaMemcpyAsync(d_MMA, h_MMA, mem_size_A, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+    error = cudaMemcpyAsync(params->d_MMA, params->h_MMA, mem_size_A, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 
     if (error != cudaSuccess)
     {
@@ -605,7 +605,7 @@ int MM_start_transfers(void *arg)
     }
 	//enqueue_tcomamnd(tqueues, d_MMA, h_MMA, mem_size_A, cudaMemcpyHostToDevice, kstub->transfer_s[0], NONBLOCKING, DATA, MEDIUM, kstub);
 
-    error = cudaMemcpyAsync(d_MMB, h_MMB, mem_size_B, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+    error = cudaMemcpyAsync(params->d_MMB, params->h_MMB, mem_size_B, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 
     if (error != cudaSuccess)
     {
@@ -641,17 +641,17 @@ int MM_start_transfers(void *arg)
 
 	if (p.concurrentManagedAccess)
 	{
-		err = cudaMemPrefetchAsync(h_MMA, mem_size_A*sizeof(float), kstub->deviceId, kstub->transfer_s[0]);
+		err = cudaMemPrefetchAsync(params->h_MMA, mem_size_A*sizeof(float), kstub->deviceId, kstub->transfer_s[0]);
 		if ( err != cudaSuccess) {
 			printf("Error in MM:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_MMB, mem_size_B*sizeof(float), kstub->deviceId, kstub->transfer_s[0]);
+		err = cudaMemPrefetchAsync(params->h_MMB, mem_size_B*sizeof(float), kstub->deviceId, kstub->transfer_s[0]);
 		if ( err != cudaSuccess) {
 			printf("Error in MM:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_MMC, mem_size_C*sizeof(float), kstub->deviceId, kstub->transfer_s[0]);
+		err = cudaMemPrefetchAsync(params->h_MMC, mem_size_C*sizeof(float), kstub->deviceId, kstub->transfer_s[0]);
 		if ( err != cudaSuccess) {
 			printf("Error in MM:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
@@ -676,6 +676,7 @@ int MM_end_kernel(void *arg)
 	cudaError_t error;
 	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_MM_params * params = (t_MM_params *)kstub->params;
 	
 #ifdef MEMCPY_SYNC
 
@@ -683,7 +684,7 @@ int MM_end_kernel(void *arg)
 	
 	//DtH_data_transfer(h_MMC, d_MMC, size_C*sizeof(float), C_S);
 	
-	t_tcommand *com = enqueue_tcomamnd(tqueues, h_MMC, d_MMC, size_C*sizeof(float), cudaMemcpyDeviceToHost, 0, BLOCKING, LAST_TRANSFER, LOW, kstub);
+	t_tcommand *com = enqueue_tcomamnd(tqueues, params->h_MMC, params->d_MMC, params->size_C*sizeof(float), cudaMemcpyDeviceToHost, 0, BLOCKING, LAST_TRANSFER, LOW, kstub);
 	cudaEventSynchronize(com->end_transfers);
        // Copy result from device to host
     /*error = cudaMemcpy(h_MMC, d_MMC, size_C*sizeof(float), cudaMemcpyDeviceToHost);
@@ -699,7 +700,7 @@ int MM_end_kernel(void *arg)
 	//error = cudaEventSynchronize(kstub->end_Exec);
 	
 	   // Copy result from device to host
-    error = cudaMemcpyAsync(h_MMC, d_MMC, size_C*sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+    error = cudaMemcpyAsync(params->h_MMC, params->d_MMC, params->size_C*sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
 
     if (error != cudaSuccess)
     {
@@ -802,11 +803,11 @@ int launch_orig_MM(void *arg)
     // Performs warmup operation using matrixMul CUDA kernel
     if (kstub->kconf.blocksize.x == 16)
     {
-        original_matrixMulCUDA<16><<< kstub->kconf.gridsize.x, threads >>>(d_MMC, d_MMA, d_MMB, dimsA.x, dimsB.x, params->gridDimX);
+        original_matrixMulCUDA<16><<< kstub->kconf.gridsize.x, threads >>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX);
     }
     else
     {
-        original_matrixMulCUDA<32><<< kstub->kconf.gridsize.x, threads >>>(d_MMC, d_MMA, d_MMB, dimsA.x, dimsB.x, params->gridDimX);
+        original_matrixMulCUDA<32><<< kstub->kconf.gridsize.x, threads >>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX);
     }
 		
 		return 0;
@@ -828,7 +829,7 @@ int launch_preemp_MM(void *arg)
 	#ifdef SMT
 	
 	if (kstub->kconf.blocksize.x == 16)
-		SMT_matrixMulCUDA<16><<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s)>>>(d_MMC, d_MMA, d_MMB, dimsA.x, dimsB.x, params->gridDimX,
+		SMT_matrixMulCUDA<16><<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s)>>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX,
 						kstub->idSMs[0],
 						kstub->idSMs[1],
 						kstub->total_tasks,
@@ -836,7 +837,7 @@ int launch_preemp_MM(void *arg)
 						kstub->d_executed_tasks,
 						&(kstub->gm_state[kstub->stream_index]));
 	else
-		SMT_matrixMulCUDA<32><<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s)>>>(d_MMC, d_MMA, d_MMB, dimsA.x, dimsB.x, params->gridDimX,
+		SMT_matrixMulCUDA<32><<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s)>>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX,
 						kstub->idSMs[0],
 						kstub->idSMs[1],
 						kstub->total_tasks,
@@ -848,7 +849,7 @@ int launch_preemp_MM(void *arg)
 		
 	
 	if (kstub->kconf.blocksize.x == 16)
-		SMK_matrixMulCUDA<16><<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s)>>(d_MMC, d_MMA, d_MMB, dimsA.x, dimsB.x, params->gridDimX,
+		SMK_matrixMulCUDA<16><<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s)>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX,
 						kstub->num_blocks_per_SM,
 						kstub->total_tasks,
 						kstub->kconf.coarsening,
@@ -857,7 +858,7 @@ int launch_preemp_MM(void *arg)
 						&kstub->gm_state[kstub->stream_index]
 						);
 	else
-		SMK_matrixMulCUDA<32><<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s)>>>(d_MMC, d_MMA, d_MMB, dimsA.x, dimsB.x, params->gridDimX,
+		SMK_matrixMulCUDA<32><<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s)>>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX,
 						kstub->num_blocks_per_SM,
 						kstub->total_tasks,
 						kstub->kconf.coarsening,
