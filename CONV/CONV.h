@@ -20,6 +20,9 @@
 #define   COLUMNS_GRIDDIM_Y  48 * 2
 
 typedef struct {
+	float *h_Kernel, *h_Input, *h_Buffer, *h_OutputCPU, *h_OutputGPU;
+	float *d_Input, *d_Output, *d_Buffer;
+	
 	int conv_rows;
 	int conv_cols;
 	int gridDimY;

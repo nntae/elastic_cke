@@ -24,9 +24,8 @@ using namespace std;
 
 extern t_tqueue *tqueues;
 
-float *h_Kernel, *h_Input, *h_Buffer, *h_OutputCPU, *h_OutputGPU;
-
-float *d_Input, *d_Output, *d_Buffer;
+// float *h_Kernel, *h_Input, *h_Buffer, *h_OutputCPU, *h_OutputGPU;
+// float *d_Input, *d_Output, *d_Buffer;
 
 int imageW;
 int imageH;
@@ -311,7 +310,7 @@ int launch_orig_RCONV(void *arg)
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	original_rowsConvolutionCUDA<<<blocks, threads>>>(
-		d_Buffer, d_Input, imageW, imageH, imageW,
+		params->d_Buffer, params->d_Input, imageW, imageH, imageW,
 		
 		params->gridDimY);
 
@@ -329,7 +328,7 @@ int launch_preemp_RCONV(void *arg)
 	
 	#ifdef SMT
 		SMT_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
-			d_Buffer, d_Input, imageW, imageH, imageW,
+			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
 			
 			params->gridDimY,
 			
@@ -341,7 +340,7 @@ int launch_preemp_RCONV(void *arg)
 			kstub->gm_state);
 	#else
 		SMK_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
-			d_Buffer, d_Input, imageW, imageH, imageW,
+			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
 			
 			params->gridDimY,
 			
@@ -615,7 +614,7 @@ int launch_orig_CCONV(void *arg)
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	original_colsConvolutionCUDA<<<blocks, threads>>>(
-		d_Output, d_Buffer, imageW, imageH, imageW,
+		params->d_Output, params->d_Buffer, imageW, imageH, imageW,
 		
 		params->gridDimY);
 
@@ -633,7 +632,7 @@ int launch_preemp_CCONV(void *arg)
 	
 	#ifdef SMT
 		SMT_colsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
-			d_Output, d_Buffer, imageW, imageH, imageW,
+			params->d_Output, params->d_Buffer, imageW, imageH, imageW,
 			
 			params->gridDimY,
 			
@@ -645,7 +644,7 @@ int launch_preemp_CCONV(void *arg)
 			&(kstub->gm_state[kstub->stream_index]));
 	#else
 		SMK_colsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
-			d_Output, d_Buffer, imageW, imageH, imageW,
+			params->d_Output, params->d_Buffer, imageW, imageH, imageW,
 			
 			params->gridDimY,
 			
@@ -675,29 +674,29 @@ int RCONV_start_kernel(void *arg)
     // h_OutputCPU = (float *)malloc(imageW * imageH * sizeof(float));
     // h_OutputGPU = (float *)malloc(imageW * imageH * sizeof(float));
 	
-	cudaMallocHost(&h_Kernel, KERNEL_LENGTH * sizeof(float));
-	cudaMallocHost(&h_Input, imageW * imageH * sizeof(float));
-	cudaMallocHost(&h_Buffer, imageW * imageH * sizeof(float));
-	cudaMallocHost(&h_OutputCPU, imageW * imageH * sizeof(float));
-	cudaMallocHost(&h_OutputGPU, imageW * imageH * sizeof(float));
+	cudaMallocHost(&params->h_Kernel, KERNEL_LENGTH * sizeof(float));
+	cudaMallocHost(&params->h_Input, imageW * imageH * sizeof(float));
+	cudaMallocHost(&params->h_Buffer, imageW * imageH * sizeof(float));
+	cudaMallocHost(&params->h_OutputCPU, imageW * imageH * sizeof(float));
+	cudaMallocHost(&params->h_OutputGPU, imageW * imageH * sizeof(float));
     srand(200);
 	
 	for (unsigned int i = 0; i < KERNEL_LENGTH; i++)
     {
-        h_Kernel[i] = (float)(rand() % 16);
+        params->h_Kernel[i] = (float)(rand() % 16);
     }
 
     for (unsigned i = 0; i < imageW * imageH; i++)
     {
-        h_Input[i] = (float)(rand() % 16);
+        params->h_Input[i] = (float)(rand() % 16);
     }
 	
-	checkCudaErrors(cudaMalloc((void **)&d_Input,   imageW * imageH * sizeof(float)));
-    checkCudaErrors(cudaMalloc((void **)&d_Output,  imageW * imageH * sizeof(float)));
-    checkCudaErrors(cudaMalloc((void **)&d_Buffer , imageW * imageH * sizeof(float)));
+	checkCudaErrors(cudaMalloc((void **)&params->d_Input,   imageW * imageH * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&params->d_Output,  imageW * imageH * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&params->d_Buffer , imageW * imageH * sizeof(float)));
 	
-	setConvolutionKernel(h_Kernel);
-    checkCudaErrors(cudaMemcpy(d_Input, h_Input, imageW * imageH * sizeof(float), cudaMemcpyHostToDevice));
+	setConvolutionKernel(params->h_Kernel);
+    checkCudaErrors(cudaMemcpy(params->d_Input, params->h_Input, imageW * imageH * sizeof(float), cudaMemcpyHostToDevice));
 	
 	return 0;
 }
@@ -712,23 +711,23 @@ int RCONV_start_mallocs(void *arg)
 	imageW = params->conv_cols;
 	
 #if defined(MEMCPY_SYNC) || defined(MEMCPY_ASYNC)
-	cudaMallocHost(&h_Kernel, KERNEL_LENGTH * sizeof(float));
-	cudaMallocHost(&h_Input, imageW * imageH * sizeof(float));
-	cudaMallocHost(&h_Buffer, imageW * imageH * sizeof(float));
-	cudaMallocHost(&h_OutputCPU, imageW * imageH * sizeof(float));
-	cudaMallocHost(&h_OutputGPU, imageW * imageH * sizeof(float));
+	cudaMallocHost(&params->h_Kernel, KERNEL_LENGTH * sizeof(float));
+	cudaMallocHost(&params->h_Input, imageW * imageH * sizeof(float));
+	cudaMallocHost(&params->h_Buffer, imageW * imageH * sizeof(float));
+	cudaMallocHost(&params->h_OutputCPU, imageW * imageH * sizeof(float));
+	cudaMallocHost(&params->h_OutputGPU, imageW * imageH * sizeof(float));
 
-	checkCudaErrors(cudaMalloc((void **)&d_Input,   imageW * imageH * sizeof(float)));
-    checkCudaErrors(cudaMalloc((void **)&d_Output,  imageW * imageH * sizeof(float)));
-    checkCudaErrors(cudaMalloc((void **)&d_Buffer , imageW * imageH * sizeof(float)));
+	checkCudaErrors(cudaMalloc((void **)&params->d_Input,   imageW * imageH * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&params->d_Output,  imageW * imageH * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&params->d_Buffer , imageW * imageH * sizeof(float)));
 #else
 	#ifdef MANAGED_MEM
 
-	cudaMallocManaged(&h_Kernel, KERNEL_LENGTH * sizeof(float));
-	cudaMallocManaged(&h_Input, imageW * imageH * sizeof(float));
-	cudaMallocManaged(&h_Buffer, imageW * imageH * sizeof(float));
-	cudaMallocManaged(&h_OutputCPU, imageW * imageH * sizeof(float));
-	cudaMallocManaged(&h_OutputGPU, imageW * imageH * sizeof(float));
+	cudaMallocManaged(&params->h_Kernel, KERNEL_LENGTH * sizeof(float));
+	cudaMallocManaged(&params->h_Input, imageW * imageH * sizeof(float));
+	cudaMallocManaged(&params->h_Buffer, imageW * imageH * sizeof(float));
+	cudaMallocManaged(&params->h_OutputCPU, imageW * imageH * sizeof(float));
+	cudaMallocManaged(&params->h_OutputGPU, imageW * imageH * sizeof(float));
 	
 	d_Input = h_Input;
 	#else
@@ -738,7 +737,7 @@ int RCONV_start_mallocs(void *arg)
 #endif
 
 	// Verify that allocations succeeded
-    if (h_Kernel == NULL || h_Input == NULL || h_Buffer == NULL || h_OutputCPU == NULL || h_OutputGPU == NULL)
+    if (params->h_Kernel == NULL || params->h_Input == NULL || params->h_Buffer == NULL || params->h_OutputCPU == NULL || params->h_OutputGPU == NULL)
     {
         fprintf(stderr, "Failed to allocate host vectors!\n");
         exit(EXIT_FAILURE);
@@ -748,15 +747,15 @@ int RCONV_start_mallocs(void *arg)
 	
 	for (unsigned int i = 0; i < KERNEL_LENGTH; i++)
     {
-        h_Kernel[i] = (float)(rand() % 16);
+        params->h_Kernel[i] = (float)(rand() % 16);
     }
 
     for (unsigned i = 0; i < imageW * imageH; i++)
     {
-        h_Input[i] = (float)(rand() % 16);
+        params->h_Input[i] = (float)(rand() % 16);
     }
 	
-	setConvolutionKernel(h_Kernel);
+	setConvolutionKernel(params->h_Kernel);
 
 	return 0;
 }
@@ -771,7 +770,7 @@ int RCONV_start_transfers(void *arg)
 	imageW = params->conv_cols;
 	
 #ifdef MEMCPY_SYNC
-	enqueue_tcomamnd(tqueues, d_Input, h_Input, imageW * imageH * sizeof(float), cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->d_Input, params->h_Input, imageW * imageH * sizeof(float), cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
 	
 	kstub->HtD_tranfers_finished = 1;
 
@@ -781,7 +780,7 @@ int RCONV_start_transfers(void *arg)
 	#ifdef MEMCPY_ASYNC
 	
 	//enqueue_tcomamnd(tqueues, d_Input, h_Input, imageW * imageH * sizeof(float), cudaMemcpyHostToDevice, 0, NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(d_Input, h_Input, imageW * imageH * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	cudaMemcpyAsync(params->d_Input, params->h_Input, imageW * imageH * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 	#else
 	#ifdef MANAGED_MEM
 
@@ -790,27 +789,27 @@ int RCONV_start_transfers(void *arg)
 	
 	if (p.concurrentManagedAccess)
 	{
-		err = cudaMemPrefetchAsync(h_Kernel, KERNEL_LENGTH * sizeof(float), kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_Kernel, KERNEL_LENGTH * sizeof(float), kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_Input, imageW * imageH * sizeof(float), kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_Input, imageW * imageH * sizeof(float), kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_Buffer, imageW * imageH * sizeof(float), kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_Buffer, imageW * imageH * sizeof(float), kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_OutputCPU, imageW * imageH * sizeof(float), kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_OutputCPU, imageW * imageH * sizeof(float), kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_OutputGPU, imageW * imageH * sizeof(float), kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_OutputGPU, imageW * imageH * sizeof(float), kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
@@ -832,19 +831,20 @@ int RCONV_end_kernel(void *arg)
 {
 	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_CONV_params * params = (t_CONV_params *)kstub->params;
 	
 #ifdef MEMCPY_SYNC
 
 	cudaEventSynchronize(kstub->end_Exec);
 
-	enqueue_tcomamnd(tqueues, h_OutputGPU, d_Output, imageW * imageH * sizeof(float), cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->h_OutputGPU, params->d_Output, imageW * imageH * sizeof(float), cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
 	 
 #else
 	#ifdef MEMCPY_ASYNC
 	printf("-->Comienzo de DtH para tarea %d\n", kstub->id);
 
 	//enqueue_tcomamnd(tqueues, h_OutputGPU, d_Output, imageW * imageH * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(h_OutputGPU, d_Output, imageW * imageH * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+	cudaMemcpyAsync(params->h_OutputGPU, params->d_Output, imageW * imageH * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
 	#else
 		#ifdef MANAGED_MEM
 			cudaStreamSynchronize(*(kstub->execution_s)); // To be sure kernel execution has finished before processing output data
