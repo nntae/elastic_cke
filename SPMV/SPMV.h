@@ -1,5 +1,11 @@
 typedef struct {
-	int numRows;
+	float *h_val, *h_vec, *refOut, *h_out;
+	int *h_cols, *h_rowDelimiters;
+
+	float *d_val, *d_out, *d_vec;
+	int *d_cols, *d_rowDelimiters;
+	
+	int numNonZeroes, numRows;
 	int nItems;
 } t_SPMV_params;
 

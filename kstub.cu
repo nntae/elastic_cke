@@ -336,6 +336,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows / 14;
 			#endif
 			
+			SPMV_params->numNonZeroes = SPMV_params->nItems;
+			
 			break;
 
 		case Reduction:

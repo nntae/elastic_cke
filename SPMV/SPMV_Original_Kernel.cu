@@ -621,21 +621,21 @@ preemp_SMT_spmv_ellpackr_kernel(const float * __restrict__ val,
 //*************************************************/
 
 
-float *h_val, *h_vec, *refOut, *h_out;
-int *h_cols, *h_rowDelimiters;
+// float *h_val, *h_vec, *refOut, *h_out;
+// int *h_cols, *h_rowDelimiters;
 
-float *d_val, *d_out, *d_vec;
-int *d_cols, *d_rowDelimiters;
+// float *d_val, *d_out, *d_vec;
+// int *d_cols, *d_rowDelimiters;
 
-int numNonZeroes, numRows;
+// int numNonZeroes, numRows;
 	 
 int SPMVcsr_start_kernel(void *arg)
  {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_SPMV_params * params = (t_SPMV_params *)kstub->params;
 	
-	numRows = params->numRows;
-    int nItems = params->nItems;
+	// numRows = params->numRows;
+    // int nItems = params->nItems;
 	//numRows = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
 
 	//Data set 1
@@ -647,36 +647,36 @@ int SPMVcsr_start_kernel(void *arg)
 	float maxval = 50.0;
 
 	// Allocate and set up host data (only for scalar csr)
-	CUDA_SAFE_CALL(cudaMallocHost(&h_val, nItems * sizeof(float)));
-	CUDA_SAFE_CALL(cudaMallocHost(&h_vec, numRows * sizeof(float)));
-	CUDA_SAFE_CALL(cudaMallocHost(&h_cols, nItems * sizeof(int)));
-	CUDA_SAFE_CALL(cudaMallocHost(&h_rowDelimiters, (numRows + 1) * sizeof(int)));
-	CUDA_SAFE_CALL(cudaMallocHost(&h_out,  numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost(&params->h_val, params->nItems * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost(&params->h_vec, params->numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost(&params->h_cols, params->nItems * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMallocHost(&params->h_rowDelimiters, (params->numRows + 1) * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMallocHost(&params->h_out,  params->numRows * sizeof(float)));
 
-	fill(h_val, nItems, maxval);
-	initRandomMatrix_ver3(h_cols, h_rowDelimiters, nItems, numRows);
-	fill(h_vec, numRows, maxval);
+	fill(params->h_val, params->nItems, maxval);
+	initRandomMatrix_ver3(params->h_cols, params->h_rowDelimiters, params->nItems, params->numRows);
+	fill(params->h_vec, params->numRows, maxval);
 
 	// Allocate device memory
-	numNonZeroes = nItems;
-	CUDA_SAFE_CALL(cudaMalloc(&d_val,  numNonZeroes * sizeof(float)));
-	CUDA_SAFE_CALL(cudaMalloc(&d_cols, numNonZeroes * sizeof(int)));
-	CUDA_SAFE_CALL(cudaMalloc(&d_vec,  numRows * sizeof(float)));
-	CUDA_SAFE_CALL(cudaMalloc(&d_out,  numRows * sizeof(float)));
-	CUDA_SAFE_CALL(cudaMalloc(&d_rowDelimiters, (numRows+1) * sizeof(int)));
+	//numNonZeroes = nItems;
+	CUDA_SAFE_CALL(cudaMalloc(&params->d_val,  params->numNonZeroes * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&params->d_cols, params->numNonZeroes * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMalloc(&params->d_vec,  params->numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&params->d_out,  params->numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&params->d_rowDelimiters, (params->numRows+1) * sizeof(int)));
 
 	// Bind texture for position
 	cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<float>();
-	CUDA_SAFE_CALL(cudaBindTexture(0, vecTex, d_vec, channelDesc, numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaBindTexture(0, vecTex, params->d_vec, channelDesc, params->numRows * sizeof(float)));
 
-	CUDA_SAFE_CALL(cudaMemcpy(d_val, h_val,   numNonZeroes * sizeof(float),
+	CUDA_SAFE_CALL(cudaMemcpy(params->d_val, params->h_val,   params->numNonZeroes * sizeof(float),
 		cudaMemcpyHostToDevice));
-	CUDA_SAFE_CALL(cudaMemcpy(d_vec, h_vec,   numRows* sizeof(float),
+	CUDA_SAFE_CALL(cudaMemcpy(params->d_vec, params->h_vec,   params->numRows* sizeof(float),
 		cudaMemcpyHostToDevice));
-    CUDA_SAFE_CALL(cudaMemcpy(d_cols, h_cols, numNonZeroes * sizeof(int),
+    CUDA_SAFE_CALL(cudaMemcpy(params->d_cols, params->h_cols, params->numNonZeroes * sizeof(int),
         cudaMemcpyHostToDevice));
-    CUDA_SAFE_CALL(cudaMemcpy(d_rowDelimiters, h_rowDelimiters,
-        (numRows+1) * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(params->d_rowDelimiters, params->h_rowDelimiters,
+        (params->numRows+1) * sizeof(int), cudaMemcpyHostToDevice));
 		
 	return 0;
  }
@@ -686,8 +686,8 @@ int SPMVcsr_start_mallocs(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_SPMV_params * params = (t_SPMV_params *)kstub->params;	
 	
-	numRows = params->numRows;
-    int nItems = params->nItems;
+	// numRows = params->numRows;
+    // int nItems = params->nItems;
 
 	//numRows = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
 	//nItems = (int)((double)numRows * (double)(numRows) * 0.000001); // 5% of entries will be non-zero
@@ -702,27 +702,27 @@ int SPMVcsr_start_mallocs(void *arg)
 	//printf("Items per row =%d\n", (int)((double)nItems/(double)numRows));
 
 	// Allocate and set up host data (only for scalar csr)
-	CUDA_SAFE_CALL(cudaMallocHost(&h_val, nItems * sizeof(float)));
-	CUDA_SAFE_CALL(cudaMallocHost(&h_vec, numRows * sizeof(float)));
-	CUDA_SAFE_CALL(cudaMallocHost(&h_cols, nItems * sizeof(int)));
-	CUDA_SAFE_CALL(cudaMallocHost(&h_rowDelimiters, (numRows + 1) * sizeof(int)));
-	CUDA_SAFE_CALL(cudaMallocHost(&h_out,  numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost(&params->h_val, params->nItems * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost(&params->h_vec, params->numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost(&params->h_cols, params->nItems * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMallocHost(&params->h_rowDelimiters, (params->numRows + 1) * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMallocHost(&params->h_out,  params->numRows * sizeof(float)));
 
-	fill(h_val, nItems, maxval);
-	initRandomMatrix_ver3(h_cols, h_rowDelimiters, nItems, numRows);
-	fill(h_vec, numRows, maxval);
+	fill(params->h_val, params->nItems, maxval);
+	initRandomMatrix_ver3(params->h_cols, params->h_rowDelimiters, params->nItems, params->numRows);
+	fill(params->h_vec, params->numRows, maxval);
 
 	// Allocate device memory
-	numNonZeroes = nItems;
-	CUDA_SAFE_CALL(cudaMalloc(&d_val,  numNonZeroes * sizeof(float)));
-	CUDA_SAFE_CALL(cudaMalloc(&d_cols, numNonZeroes * sizeof(int)));
-	CUDA_SAFE_CALL(cudaMalloc(&d_vec,  numRows * sizeof(float)));
-	CUDA_SAFE_CALL(cudaMalloc(&d_out,  numRows * sizeof(float)));
-	CUDA_SAFE_CALL(cudaMalloc(&d_rowDelimiters, (numRows+1) * sizeof(int)));
+	// numNonZeroes = nItems;
+	CUDA_SAFE_CALL(cudaMalloc(&params->d_val,  params->numNonZeroes * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&params->d_cols, params->numNonZeroes * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMalloc(&params->d_vec,  params->numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&params->d_out,  params->numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&params->d_rowDelimiters, (params->numRows+1) * sizeof(int)));
 
 	// Bind texture for position
 	cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<float>();
-	CUDA_SAFE_CALL(cudaBindTexture(0, vecTex, d_vec, channelDesc, numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaBindTexture(0, vecTex, params->d_vec, channelDesc, params->numRows * sizeof(float)));
 	
 	return 0;
 }
@@ -734,35 +734,36 @@ int SPMVcsr_start_mallocs(void *arg)
 int SPMVcsr_start_transfers(void *arg){
 	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_SPMV_params * params = (t_SPMV_params *)kstub->params;
 
 	
 #if defined(MEMCPY_ASYNC)
 
 	//enqueue_tcomamnd(tqueues, d_val, h_val, numNonZeroes * sizeof(float), cudaMemcpyHostToDevice, 
 	//					kstub->transfer_s[0], NONBLOCKING, DATA, MEDIUM, kstub);
-	cudaMemcpyAsync(d_val, h_val, numNonZeroes * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	cudaMemcpyAsync(params->d_val, params->h_val, params->numNonZeroes * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 						
 	//enqueue_tcomamnd(tqueues, d_vec, h_vec, numRows * sizeof(float), cudaMemcpyHostToDevice, 
 	//					kstub->transfer_s[0], NONBLOCKING, DATA, MEDIUM, kstub);
-	cudaMemcpyAsync(d_vec, h_vec, numRows * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	cudaMemcpyAsync(params->d_vec, params->h_vec, params->numRows * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 	
 	//enqueue_tcomamnd(tqueues, d_cols, h_cols, numNonZeroes * sizeof(float), cudaMemcpyHostToDevice, 
 	//					kstub->transfer_s[0], NONBLOCKING, DATA, MEDIUM, kstub);
-	cudaMemcpyAsync(d_cols, h_cols, numNonZeroes * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	cudaMemcpyAsync(params->d_cols, params->h_cols, params->numNonZeroes * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 
 	//enqueue_tcomamnd(tqueues, d_rowDelimiters, h_rowDelimiters, (numRows+1) * sizeof(int), cudaMemcpyHostToDevice, 
 	//					kstub->transfer_s[0], NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(d_rowDelimiters, h_rowDelimiters, (numRows+1) * sizeof(int), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	cudaMemcpyAsync(params->d_rowDelimiters, params->h_rowDelimiters, (params->numRows+1) * sizeof(int), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 							
 #else
 
-	CUDA_SAFE_CALL(cudaMemcpy(d_val, h_val,   numNonZeroes * sizeof(float),
+	CUDA_SAFE_CALL(cudaMemcpy(params->d_val, params->h_val,   params->numNonZeroes * sizeof(float),
               cudaMemcpyHostToDevice));
-	CUDA_SAFE_CALL(cudaMemcpy(d_vec, h_vec,   numRows* sizeof(float),
+	CUDA_SAFE_CALL(cudaMemcpy(params->d_vec, params->h_vec,   params->numRows* sizeof(float),
               cudaMemcpyHostToDevice));
-    CUDA_SAFE_CALL(cudaMemcpy(d_cols, h_cols, numNonZeroes * sizeof(int),
+    CUDA_SAFE_CALL(cudaMemcpy(params->d_cols, params->h_cols, params->numNonZeroes * sizeof(int),
               cudaMemcpyHostToDevice));
-    CUDA_SAFE_CALL(cudaMemcpy(d_rowDelimiters, h_rowDelimiters,
+    CUDA_SAFE_CALL(cudaMemcpy(params->d_rowDelimiters, params->h_rowDelimiters,
               (numRows+1) * sizeof(int), cudaMemcpyHostToDevice));
 #endif
 
@@ -777,9 +778,8 @@ int SPMVcsr_start_transfers(void *arg){
 
 int SPMVcsr_end_kernel(void *arg)
 {
-
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
-
+	t_SPMV_params * params = (t_SPMV_params *)kstub->params;
 
 #if defined(MEMCPY_ASYNC)
 	//cudaEventSynchronize(kstub->end_Exec);
@@ -787,7 +787,7 @@ int SPMVcsr_end_kernel(void *arg)
 		printf("-->Comienzo de DtH para tarea %d\n", kstub->id);
 
 	//enqueue_tcomamnd(tqueues, h_out, d_out, numRows * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(h_out, d_out, numRows * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+	cudaMemcpyAsync(params->h_out, params->d_out, params->numRows * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
 	//cudaEventRecord(kstub->end_DtH, kstub->transfer_s[1]);
 	
 	//kstub->DtH_tranfers_finished = 1;
@@ -800,30 +800,30 @@ int SPMVcsr_end_kernel(void *arg)
 	
 	cudaEventSynchronize(kstub->end_Exec);
 	
-	CUDA_SAFE_CALL(cudaMemcpy(h_out, d_out, numRows * sizeof(float),
+	CUDA_SAFE_CALL(cudaMemcpy(params->h_out, params->d_out, params->numRows * sizeof(float),
                   cudaMemcpyDeviceToHost));
 				 		 
-	CUDA_SAFE_CALL(cudaFree(d_val));
-	CUDA_SAFE_CALL(cudaFree(d_vec));
+	CUDA_SAFE_CALL(cudaFree(params->d_val));
+	CUDA_SAFE_CALL(cudaFree(params->d_vec));
 
-	CUDA_SAFE_CALL(cudaFree(d_cols));
-	CUDA_SAFE_CALL(cudaFree(d_rowDelimiters));
-	CUDA_SAFE_CALL(cudaFree(d_out));
+	CUDA_SAFE_CALL(cudaFree(params->d_cols));
+	CUDA_SAFE_CALL(cudaFree(params->d_rowDelimiters));
+	CUDA_SAFE_CALL(cudaFree(params->d_out));
 #endif
 	
 	// Compute results on CPU
-	float *refOut = new float[numRows];
-    spmvCpu(h_val, h_cols, h_rowDelimiters, h_vec, numRows, refOut);
+	params->refOut = new float[params->numRows];
+    spmvCpu(params->h_val, params->h_cols, params->h_rowDelimiters, params->h_vec, params->numRows, params->refOut);
 	
-	if (verifyResults(refOut, h_out, numRows) == false)
+	if (verifyResults(params->refOut, params->h_out, params->numRows) == false)
 		printf("!!!! Error verifying SPMV csr\n");
 	
-	free(refOut);
-	cudaFree(h_vec);
-	cudaFree(h_val);
-	cudaFree(h_cols);
-	cudaFree(h_out);
-	cudaFree(h_rowDelimiters);
+	free(params->refOut);
+	cudaFree(params->h_vec);
+	cudaFree(params->h_val);
+	cudaFree(params->h_cols);
+	cudaFree(params->h_out);
+	cudaFree(params->h_rowDelimiters);
 	
 	return 0;
 }
@@ -832,21 +832,22 @@ int SPMVcsr_end_kernel(void *arg)
 int launch_orig_SPMVcsr(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_SPMV_params * params = (t_SPMV_params *)kstub->params;
 	
 	original_spmv_csr_scalar_kernel<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>
-			(d_val, d_cols, d_rowDelimiters, numRows, d_out);
+			(params->d_val, params->d_cols, params->d_rowDelimiters, params->numRows, params->d_out);
 	
 	return 0;
 }
 
 int launch_preemp_SPMVcsr(void *arg)
 {
-	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_SPMV_params * params = (t_SPMV_params *)kstub->params;
 	
 	#ifdef SMT
 	preemp_SMT_spmv_csr_scalar_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>
-			(d_val, d_cols, d_rowDelimiters, numRows, d_out,
+			(params->d_val, params->d_cols, params->d_rowDelimiters, params->numRows, params->d_out,
 			kstub->idSMs[0],
 			kstub->idSMs[1],
 			kstub->total_tasks, 
@@ -858,7 +859,7 @@ int launch_preemp_SPMVcsr(void *arg)
 	#else
 		
 	preemp_SMK_spmv_csr_scalar_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>
-			(d_val, d_cols, d_rowDelimiters, numRows, d_out, 
+			(params->d_val, params->d_cols, params->d_rowDelimiters, params->numRows, params->d_out, 
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
