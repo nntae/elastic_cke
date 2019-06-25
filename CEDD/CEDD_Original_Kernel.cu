@@ -33,8 +33,8 @@ __constant__ int   soby[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
 
 const int GPU_IN_PROXY = 0;
 const int GPU_OUT_PROXY = 1;
-unsigned char *    h_in_out[2];
-unsigned char *data_CEDD, *out_CEDD, *theta_CEDD;
+// unsigned char *    h_in_out[2];
+// unsigned char *data_CEDD, *out_CEDD, *theta_CEDD;
 int rows_CEDD, cols_CEDD, in_size;
 int l_mem_size;
 
@@ -306,7 +306,7 @@ int launch_orig_GCEDD(void *arg)
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	original_gaussianCannyCUDA<<<dimGrid, threads, l_mem_size>>>(
-		out_CEDD, data_CEDD, rows_CEDD, cols_CEDD,
+		params->out_CEDD, params->data_CEDD, rows_CEDD, cols_CEDD,
 		params->gridDimY);
 
 	return 0;
@@ -323,7 +323,7 @@ int launch_preemp_GCEDD(void *arg)
 	
 	#ifdef SMT
 		SMT_gaussianCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
-			out_CEDD, data_CEDD, rows_CEDD, cols_CEDD,
+			params->out_CEDD, params->data_CEDD, rows_CEDD, cols_CEDD,
 			
 			params->gridDimY,
 			
@@ -335,7 +335,7 @@ int launch_preemp_GCEDD(void *arg)
 			&(kstub->gm_state[kstub->stream_index]));
 	#else
 		SMK_gaussianCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
-			out_CEDD, data_CEDD, rows_CEDD, cols_CEDD,
+			params->out_CEDD, params->data_CEDD, rows_CEDD, cols_CEDD,
 			
 			params->gridDimY,
 			
@@ -759,7 +759,7 @@ int launch_orig_SCEDD(void *arg)
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	original_sobelCannyCUDA<<<dimGrid, threads, l_mem_size>>>(
-		data_CEDD, out_CEDD, theta_CEDD, rows_CEDD, cols_CEDD,
+		params->data_CEDD, params->out_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD,
 		params->gridDimY,
 		
 		kstub->kconf.coarsening);
@@ -778,7 +778,7 @@ int launch_preemp_SCEDD(void *arg)
 	
 	#ifdef SMT
 		SMT_sobelCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
-			data_CEDD, out_CEDD, theta_CEDD, rows_CEDD, cols_CEDD,
+			params->data_CEDD, params->out_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD,
 			
 			params->gridDimY,
 			
@@ -790,7 +790,7 @@ int launch_preemp_SCEDD(void *arg)
 			&(kstub->gm_state[kstub->stream_index]));
 	#else
 		SMK_sobelCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
-			data_CEDD, out_CEDD, theta_CEDD, rows_CEDD, cols_CEDD,
+			params->data_CEDD, params->out_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD,
 			
 			params->gridDimY,
 			
@@ -1245,7 +1245,7 @@ int launch_orig_NCEDD(void *arg)
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	original_nonCannyCUDA<<<dimGrid, threads, l_mem_size>>>(
-		out_CEDD, data_CEDD, theta_CEDD, rows_CEDD, cols_CEDD,
+		params->out_CEDD, params->data_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD,
 		params->gridDimY);
 
 	return 0;
@@ -1262,7 +1262,7 @@ int launch_preemp_NCEDD(void *arg)
 	
 	#ifdef SMT
 		SMT_nonCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
-			out_CEDD, data_CEDD, theta_CEDD, rows_CEDD, cols_CEDD,
+			params->out_CEDD, params->data_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD,
 			
 			params->gridDimY,
 			
@@ -1274,7 +1274,7 @@ int launch_preemp_NCEDD(void *arg)
 			&(kstub->gm_state[kstub->stream_index]));
 	#else
 		SMK_nonCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
-			out_CEDD, data_CEDD, theta_CEDD, rows_CEDD, cols_CEDD,
+			params->out_CEDD, params->data_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD,
 			
 			params->gridDimY,
 			
@@ -1471,7 +1471,7 @@ int launch_orig_HCEDD(void *arg)
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	original_hystCannyCUDA<<<dimGrid, threads>>>(
-		data_CEDD, out_CEDD, rows_CEDD, cols_CEDD,
+		params->data_CEDD, params->out_CEDD, rows_CEDD, cols_CEDD,
 		params->gridDimY);
 
 	return 0;
@@ -1488,7 +1488,7 @@ int launch_preemp_HCEDD(void *arg)
 	
 	#ifdef SMT
 		SMT_hystCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
-			data_CEDD, out_CEDD, rows_CEDD, cols_CEDD,
+			params->data_CEDD, params->out_CEDD, rows_CEDD, cols_CEDD,
 			
 			params->gridDimY,
 			
@@ -1500,7 +1500,7 @@ int launch_preemp_HCEDD(void *arg)
 			&(kstub->gm_state[kstub->stream_index]));
 	#else
 		SMK_hystCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
-			data_CEDD, out_CEDD, rows_CEDD, cols_CEDD,
+			params->data_CEDD, params->out_CEDD, rows_CEDD, cols_CEDD,
 			
 			params->gridDimY,
 			
@@ -1545,20 +1545,20 @@ int GCEDD_start_kernel(void *arg)
 	
     // h_in_out[GPU_IN_PROXY] = (unsigned char *)malloc(in_size);
 	// h_in_out[GPU_OUT_PROXY] = (unsigned char *)malloc(in_size);
-	cudaMallocHost(&h_in_out[GPU_IN_PROXY], in_size);
-	cudaMallocHost(&h_in_out[GPU_OUT_PROXY], in_size);
+	cudaMallocHost(&params->h_in_out[GPU_IN_PROXY], in_size);
+	cudaMallocHost(&params->h_in_out[GPU_OUT_PROXY], in_size);
 	
 	int size = rows_CEDD * cols_CEDD;
 	
-	loadVector(h_in_out[GPU_IN_PROXY], "input.txt", size);
+	loadVector(params->h_in_out[GPU_IN_PROXY], "input.txt", size);
 	
-    cudaMalloc((void**)&data_CEDD, in_size);
-	cudaMalloc((void**)&out_CEDD, in_size);
-	cudaMalloc((void**)&theta_CEDD, in_size);
+    cudaMalloc((void**)&params->data_CEDD, in_size);
+	cudaMalloc((void**)&params->out_CEDD, in_size);
+	cudaMalloc((void**)&params->theta_CEDD, in_size);
 	
 	l_mem_size = (kstub->kconf.blocksize.x + 2) * (kstub->kconf.blocksize.y + 2) * sizeof(int);
 	
-	cudaMemcpy(out_CEDD, h_in_out[GPU_IN_PROXY], in_size, cudaMemcpyHostToDevice);
+	cudaMemcpy(params->out_CEDD, params->h_in_out[GPU_IN_PROXY], in_size, cudaMemcpyHostToDevice);
 	
 	return 0;
 }
@@ -1574,21 +1574,21 @@ int GCEDD_start_mallocs(void *arg)
 	in_size = rows_CEDD * cols_CEDD * sizeof(unsigned char);
 	
 #if defined(MEMCPY_SYNC) || defined(MEMCPY_ASYNC)
-	cudaMallocHost(&h_in_out[GPU_IN_PROXY], in_size);
-	cudaMallocHost(&h_in_out[GPU_OUT_PROXY], in_size);
+	cudaMallocHost(&params->h_in_out[GPU_IN_PROXY], in_size);
+	cudaMallocHost(&params->h_in_out[GPU_OUT_PROXY], in_size);
 
-	cudaMalloc((void**)&data_CEDD, in_size);
-	cudaMalloc((void**)&out_CEDD, in_size);
-	cudaMalloc((void**)&theta_CEDD, in_size);
+	cudaMalloc((void**)&params->data_CEDD, in_size);
+	cudaMalloc((void**)&params->out_CEDD, in_size);
+	cudaMalloc((void**)&params->theta_CEDD, in_size);
 #else
 	#ifdef MANAGED_MEM
 
-	cudaMallocManaged(&h_in_out[GPU_IN_PROXY], in_size);
-	cudaMallocManaged(&h_in_out[GPU_OUT_PROXY], in_size);
+	cudaMallocManaged(&params->h_in_out[GPU_IN_PROXY], in_size);
+	cudaMallocManaged(&params->h_in_out[GPU_OUT_PROXY], in_size);
 	
-	loadVector(h_in_out[GPU_IN_PROXY], "input.txt", size);
+	loadVector(params->h_in_out[GPU_IN_PROXY], "input.txt", size);
 	
-	out_CEDD = h_in_out[GPU_IN_PROXY];
+	params->out_CEDD = params->h_in_out[GPU_IN_PROXY];
 	#else
 		printf("No transfer model: Exiting ...\n");
 		exit(-1);
@@ -1596,7 +1596,7 @@ int GCEDD_start_mallocs(void *arg)
 #endif
 
 	// Verify that allocations succeeded
-    if (h_in_out[GPU_IN_PROXY] == NULL || h_in_out[GPU_OUT_PROXY] == NULL)
+    if (params->h_in_out[GPU_IN_PROXY] == NULL || params->h_in_out[GPU_OUT_PROXY] == NULL)
     {
         fprintf(stderr, "Failed to allocate host vectors!\n");
         exit(EXIT_FAILURE);
@@ -1604,7 +1604,7 @@ int GCEDD_start_mallocs(void *arg)
 
     int size = rows_CEDD * cols_CEDD;
 	
-	loadVector(h_in_out[GPU_IN_PROXY], "input.txt", size);
+	loadVector(params->h_in_out[GPU_IN_PROXY], "input.txt", size);
 	
 	l_mem_size = (kstub->kconf.blocksize.x + 2) * (kstub->kconf.blocksize.y + 2) * sizeof(int);
 
@@ -1622,7 +1622,7 @@ int GCEDD_start_transfers(void *arg)
 	in_size = rows_CEDD * cols_CEDD * sizeof(unsigned char);
 	
 #ifdef MEMCPY_SYNC
-	enqueue_tcomamnd(tqueues, out_CEDD, h_in_out[GPU_IN_PROXY], in_size, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->out_CEDD, params->h_in_out[GPU_IN_PROXY], in_size, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
 	
 	kstub->HtD_tranfers_finished = 1;
 
@@ -1632,7 +1632,7 @@ int GCEDD_start_transfers(void *arg)
 	#ifdef MEMCPY_ASYNC
 	
 	//enqueue_tcomamnd(tqueues, out_CEDD, h_in_out[GPU_IN_PROXY], in_size, cudaMemcpyHostToDevice, 0, NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(out_CEDD, h_in_out[GPU_IN_PROXY], in_size, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	cudaMemcpyAsync(params->out_CEDD, params->h_in_out[GPU_IN_PROXY], in_size, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 	#else
 	#ifdef MANAGED_MEM
 
@@ -1641,12 +1641,12 @@ int GCEDD_start_transfers(void *arg)
 	
 	if (p.concurrentManagedAccess)
 	{
-		err = cudaMemPrefetchAsync(h_in_out[GPU_IN_PROXY], in_size, kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_in_out[GPU_IN_PROXY], in_size, kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_in_out[GPU_OUT_PROXY], in_size, kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_in_out[GPU_OUT_PROXY], in_size, kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
@@ -1668,19 +1668,20 @@ int GCEDD_end_kernel(void *arg)
 {
 	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_CEDD_params * params = (t_CEDD_params *)kstub->params;
 	
 #ifdef MEMCPY_SYNC
 
 	cudaEventSynchronize(kstub->end_Exec);
 
-	enqueue_tcomamnd(tqueues, h_in_out[GPU_OUT_PROXY], out_CEDD, in_size, cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->h_in_out[GPU_OUT_PROXY], params->out_CEDD, in_size, cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
 	 
 #else
 	#ifdef MEMCPY_ASYNC
 	printf("-->Comienzo de DtH para tarea %d\n", kstub->id);
 
 	//enqueue_tcomamnd(tqueues, h_in_out[GPU_OUT_PROXY], out_CEDD, in_size, cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(h_in_out[GPU_OUT_PROXY], out_CEDD, in_size, cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+	cudaMemcpyAsync(params->h_in_out[GPU_OUT_PROXY], params->out_CEDD, in_size, cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
 
 	#else
 		#ifdef MANAGED_MEM

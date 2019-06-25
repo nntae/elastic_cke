@@ -3,6 +3,9 @@
 #include <semaphore.h> 			
 
 typedef struct {
+	unsigned char * h_in_out[2];
+	unsigned char * data_CEDD, *out_CEDD, *theta_CEDD;
+	
 	int nRows;
 	int nCols;
 	int gridDimX;
