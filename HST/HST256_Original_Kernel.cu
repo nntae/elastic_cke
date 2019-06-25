@@ -19,14 +19,14 @@ using namespace std;
 #include "../elastic_kernel.h"
 #include "HST256.h"
 
-uchar *h_Data256;
-uint  *h_HistogramCPU256, *h_HistogramGPU256;
-uchar *d_Data256;
-uint  *d_Histogram256;
-uint byteCount256;
+// uchar *h_Data256;
+// uint  *h_HistogramCPU256, *h_HistogramGPU256;
+// uchar *d_Data256;
+// uint  *d_Histogram256;
+// uint byteCount256;
 
 static const uint PARTIAL_HISTOGRAM256_COUNT = 240 * 24;
-static uint *d_PartialHistograms256;
+//static uint *d_PartialHistograms256;
 
 extern t_tqueue *tqueues;
 
@@ -253,7 +253,7 @@ int HST256_start_kernel(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
-	byteCount256 = params->byteCount256;
+	//byteCount256 = params->byteCount256;
 	//Data set 1 
 	//byteCount256 = 64 * 1048576 * 6;
 	
@@ -264,22 +264,22 @@ int HST256_start_kernel(void *arg)
     // h_HistogramCPU256 = (uint *)malloc(HISTOGRAM256_BIN_COUNT * sizeof(uint));
     // h_HistogramGPU256 = (uint *)malloc(HISTOGRAM256_BIN_COUNT * sizeof(uint));
 	
-	cudaMallocHost(&h_Data256, byteCount256);
-	cudaMallocHost(&h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
-	cudaMallocHost(&h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
+	cudaMallocHost(&params->h_Data256, params->byteCount256);
+	cudaMallocHost(&params->h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
+	cudaMallocHost(&params->h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
 	
 	srand(2009);
 
-    for (uint i = 0; i < byteCount256; i++)
+    for (uint i = 0; i < params->byteCount256; i++)
     {
-        h_Data256[i] = rand() % 256;
+        params->h_Data256[i] = rand() % 256;
     }
 	
-	checkCudaErrors(cudaMalloc((void **)&d_Data256, byteCount256));
-    checkCudaErrors(cudaMalloc((void **)&d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint)));
-    checkCudaErrors(cudaMemcpy(d_Data256, h_Data256, byteCount256, cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMalloc((void **)&params->d_Data256, params->byteCount256));
+    checkCudaErrors(cudaMalloc((void **)&params->d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint)));
+    checkCudaErrors(cudaMemcpy(params->d_Data256, params->h_Data256, params->byteCount256, cudaMemcpyHostToDevice));
 	
-	checkCudaErrors(cudaMalloc((void **)&d_PartialHistograms256, PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT * sizeof(uint)));
+	checkCudaErrors(cudaMalloc((void **)&params->d_PartialHistograms256, PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT * sizeof(uint)));
 	
 	return 0;
 }
@@ -289,7 +289,7 @@ int HST256_start_mallocs(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
-	byteCount256 = params->byteCount256;
+	//byteCount256 = params->byteCount256;
 	
 	//Data set 1 
 	//byteCount256 = 64 * 1048576 * 6;
@@ -298,28 +298,28 @@ int HST256_start_mallocs(void *arg)
 	//byteCount256 = 64 * 1048576 * 6 * 6;
 	
 #if defined(MEMCPY_SYNC) || defined(MEMCPY_ASYNC)
-	cudaMallocHost(&h_Data256, byteCount256);
-	cudaMallocHost(&h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
-	cudaMallocHost(&h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
+	cudaMallocHost(&params->h_Data256, params->byteCount256);
+	cudaMallocHost(&params->h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
+	cudaMallocHost(&params->h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
 
-	checkCudaErrors(cudaMalloc((void **)&d_Data256, byteCount256));
-    checkCudaErrors(cudaMalloc((void **)&d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint)));	
-	checkCudaErrors(cudaMalloc((void **)&d_PartialHistograms256, PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT * sizeof(uint)));
+	checkCudaErrors(cudaMalloc((void **)&params->d_Data256, params->byteCount256));
+    checkCudaErrors(cudaMalloc((void **)&params->d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint)));	
+	checkCudaErrors(cudaMalloc((void **)&params->d_PartialHistograms256, PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT * sizeof(uint)));
 #else
 	#ifdef MANAGED_MEM
 
-	cudaMallocManaged(&h_Data256, byteCount256);
-	cudaMallocManaged(&h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
-	cudaMallocManaged(&h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
+	cudaMallocManaged(&params->h_Data256, params->byteCount256);
+	cudaMallocManaged(&params->h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
+	cudaMallocManaged(&params->h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
 	
 	srand(2009);
 
-    for (uint i = 0; i < byteCount256; i++)
+    for (uint i = 0; i < params->byteCount256; i++)
     {
-        h_Data256[i] = rand() % 256;
+        params->h_Data256[i] = rand() % 256;
     }
 	
-	d_Data256 = h_Data256;
+	params->d_Data256 = params->h_Data256;
 	#else
 		printf("No transfer model: Exiting ...\n");
 		exit(-1);
@@ -327,7 +327,7 @@ int HST256_start_mallocs(void *arg)
 #endif
 
 	// Verify that allocations succeeded
-    if (h_Data256 == NULL || h_HistogramCPU256 == NULL || h_HistogramGPU256 == NULL)
+    if (params->h_Data256 == NULL || params->h_HistogramCPU256 == NULL || params->h_HistogramGPU256 == NULL)
     {
         fprintf(stderr, "Failed to allocate host vectors!\n");
         exit(EXIT_FAILURE);
@@ -335,9 +335,9 @@ int HST256_start_mallocs(void *arg)
 
     srand(2009);
 
-    for (uint i = 0; i < byteCount256; i++)
+    for (uint i = 0; i < params->byteCount256; i++)
     {
-        h_Data256[i] = rand() % 256;
+        params->h_Data256[i] = rand() % 256;
     }
 
 	return 0;
@@ -348,7 +348,7 @@ int HST256_start_transfers(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
-	byteCount256 = params->byteCount256;
+	//byteCount256 = params->byteCount256;
 	
 	//Data set 1 
 	//byteCount256 = 64 * 1048576 * 6;
@@ -357,7 +357,7 @@ int HST256_start_transfers(void *arg)
 	//byteCount256 = 64 * 1048576 * 6 * 6;
 	
 #ifdef MEMCPY_SYNC
-	enqueue_tcomamnd(tqueues, d_Data256, h_Data256, byteCount256, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->d_Data256, params->h_Data256, params->byteCount256, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
 	kstub->HtD_tranfers_finished = 1;
 
 	
@@ -366,7 +366,7 @@ int HST256_start_transfers(void *arg)
 	#ifdef MEMCPY_ASYNC
 	
 	//enqueue_tcomamnd(tqueues, d_Data256, h_Data256, byteCount256, cudaMemcpyHostToDevice, 0, NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(d_Data256, h_Data256, byteCount256, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	cudaMemcpyAsync(params->d_Data256, params->h_Data256, params->byteCount256, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 
 	#else
 	#ifdef MANAGED_MEM
@@ -376,17 +376,17 @@ int HST256_start_transfers(void *arg)
 	
 	if (p.concurrentManagedAccess)
 	{
-		err = cudaMemPrefetchAsync(h_Data256, byteCount256, kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_Data256, params->byteCount256, kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint), kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint), kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint), kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint), kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
@@ -407,17 +407,18 @@ int HST256_start_transfers(void *arg)
 int HST256_end_kernel(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
 #ifdef MEMCPY_SYNC
 
 	cudaEventSynchronize(kstub->end_Exec);
 
-	enqueue_tcomamnd(tqueues, h_HistogramGPU256, d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint), cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->h_HistogramGPU256, params->d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint), cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
 	 
 #else
 	#ifdef MEMCPY_ASYNC
 	//enqueue_tcomamnd(tqueues, h_HistogramGPU256, d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint), cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(h_HistogramGPU256, d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+	cudaMemcpyAsync(params->h_HistogramGPU256, params->d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
 	
 	#else
 		#ifdef MANAGED_MEM
@@ -450,11 +451,12 @@ int HST256_end_kernel(void *arg)
 int launch_orig_HST256(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
 	original_histogram256CUDA<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(
-        d_PartialHistograms256,
-        (uint *)d_Data256,
-        byteCount256 / sizeof(uint)
+        params->d_PartialHistograms256,
+        (uint *)params->d_Data256,
+        params->byteCount256 / sizeof(uint)
     );
 
 	return 0;
@@ -463,12 +465,13 @@ int launch_orig_HST256(void *arg)
 int launch_preemp_HST256(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
 	#ifdef SMT
 		SMT_histogram256CUDA<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
-			d_PartialHistograms256,
-			(uint *)d_Data256,
-			byteCount256 / sizeof(uint),
+			params->d_PartialHistograms256,
+			(uint *)params->d_Data256,
+			params->byteCount256 / sizeof(uint),
 			
 			kstub->idSMs[0],
 			kstub->idSMs[1],
@@ -479,9 +482,9 @@ int launch_preemp_HST256(void *arg)
 		);
 	#else
 		SMK_histogram256CUDA<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
-			d_PartialHistograms256,
-			(uint *)d_Data256,
-			byteCount256 / sizeof(uint),
+			params->d_PartialHistograms256,
+			(uint *)params->d_Data256,
+			params->byteCount256 / sizeof(uint),
 			
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,

@@ -33,7 +33,12 @@ typedef unsigned char uchar;
 #define TAG_MASK 0xFFFFFFFFU
 
 typedef struct {
+	uchar *h_Data256;
+	uint  *h_HistogramCPU256, *h_HistogramGPU256;
+	uchar *d_Data256;
+	uint  *d_Histogram256;
 	uint byteCount256;
+	uint *d_PartialHistograms256;
 } t_HST256_params;
 
 /*** histogram ***/	
