@@ -102,6 +102,10 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			break;
 			
 		case VA: 
+			t_VA_params *VA_params;
+			VA_params = (t_VA_params *)calloc(1, sizeof(t_VA_params));
+			k_stub->params = (void *)VA_params;
+		
 			k_stub->launchCKEkernel = launch_preemp_VA;
 			k_stub->launchORIkernel = launch_orig_VA;
 			k_stub->startKernel = VA_start_kernel_dummy;

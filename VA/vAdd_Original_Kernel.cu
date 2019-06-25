@@ -192,53 +192,54 @@ preempt_SMT_vectorAdd(const float *A, const float *B, float *C, int numelements,
  
 //// Global variables
 
- float *h_A;
- float *h_B;
- float *h_C;
- float *d_A;
- float *d_B;
- float *d_C;
+ // float *h_A;
+ // float *h_B;
+ // float *h_C;
+ // float *d_A;
+ // float *d_B;
+ // float *d_C;
  
- int numElements;
+ // int numElements;
  
 int VA_start_kernel_dummy(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_VA_params * params = (t_VA_params *)kstub->params;
 	
 	// Error code to check return values for CUDA calls
     cudaError_t err = cudaSuccess;
 
     // Print the vector length to be used, and compute its size
-    /*int*/ numElements = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
-    size_t size = numElements * sizeof(float);
-    //printf("[Vector addition of %d elements]\n", numElements);
+    /*int*/ params->numElements = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
+    size_t size = params->numElements * sizeof(float);
+    //printf("[Vector addition of %d elements]\n", params->numElements);
 
     // Allocate the host input vector A
-    h_A = (float *)malloc(size);
+    params->h_A = (float *)malloc(size);
 
     // Allocate the host input vector B
-    h_B = (float *)malloc(size);
+    params->h_B = (float *)malloc(size);
 
     // Allocate the host output vector C
-    h_C = (float *)malloc(size);
+    params->h_C = (float *)malloc(size);
 
     // Verify that allocations succeeded
-    if (h_A == NULL || h_B == NULL || h_C == NULL)
+    if (params->h_A == NULL || params->h_B == NULL || params->h_C == NULL)
     {
         fprintf(stderr, "Failed to allocate host vectors!\n");
         exit(EXIT_FAILURE);
     }
 
     // Initialize the host input vectors
-    for (int i = 0; i < numElements; ++i)
+    for (int i = 0; i < params->numElements; ++i)
     {
-        h_A[i] = rand()/(float)RAND_MAX;
-        h_B[i] = rand()/(float)RAND_MAX;
+        params->h_A[i] = rand()/(float)RAND_MAX;
+        params->h_B[i] = rand()/(float)RAND_MAX;
     }
 
     // Allocate the device input vector A
-    d_A = NULL;
-    err = cudaMalloc((void **)&d_A, size);
+    params->d_A = NULL;
+    err = cudaMalloc((void **)&params->d_A, size);
 
     if (err != cudaSuccess)
     {
@@ -247,8 +248,8 @@ int VA_start_kernel_dummy(void *arg)
     }
 
     // Allocate the device input vector B
-    d_B = NULL;
-    err = cudaMalloc((void **)&d_B, size);
+    params->d_B = NULL;
+    err = cudaMalloc((void **)&params->d_B, size);
 
     if (err != cudaSuccess)
     {
@@ -257,9 +258,9 @@ int VA_start_kernel_dummy(void *arg)
     }
 
     // Allocate the device output vector C
-    d_C = NULL;
-    err = cudaMalloc((void **)&d_C, size);
-    checkCudaErrors(cudaMemset(d_C, 0, size));
+    params->d_C = NULL;
+    err = cudaMalloc((void **)&params->d_C, size);
+    checkCudaErrors(cudaMemset(params->d_C, 0, size));
 
 
     if (err != cudaSuccess)
@@ -271,7 +272,7 @@ int VA_start_kernel_dummy(void *arg)
     // Copy the host input vectors A and B in host memory to the device input vectors in
     // device memory
     //printf("Copy input data from the host memory to the CUDA device\n");
-    err = cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice);
+    err = cudaMemcpy(params->d_A, params->h_A, size, cudaMemcpyHostToDevice);
 
     if (err != cudaSuccess)
     {
@@ -279,7 +280,7 @@ int VA_start_kernel_dummy(void *arg)
         exit(EXIT_FAILURE);
     }
 
-    err = cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);
+    err = cudaMemcpy(params->d_B, params->h_B, size, cudaMemcpyHostToDevice);
 
     if (err != cudaSuccess)
     {
@@ -293,29 +294,30 @@ int VA_start_kernel_dummy(void *arg)
 int VA_start_mallocs(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_VA_params * params = (t_VA_params *)kstub->params;
 	
 	// Error code to check return values for CUDA calls
     cudaError_t err = cudaSuccess;
 
     // Print the vector length to be used, and compute its size
-    /*int*/ numElements = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
-    size_t size = numElements * sizeof(float);
-    //printf("[Vector addition of %d elements]\n", numElements);
+    /*int*/ params->numElements = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
+    size_t size = params->numElements * sizeof(float);
+    //printf("[Vector addition of %d elements]\n", params->numElements);
 	
 #if defined(MEMCPY_SYNC) || defined(MEMCPY_ASYNC)
 
     // Allocate the host input vector A
-	cudaMallocHost(&h_A, size);
+	cudaMallocHost(&params->h_A, size);
 
     // Allocate the host input vector B
-    cudaMallocHost(&h_B, size);
+    cudaMallocHost(&params->h_B, size);
 
     // Allocate the host output vector C
-    cudaMallocHost(&h_C, size);
+    cudaMallocHost(&params->h_C, size);
 	
 	// Allocate the device input vector A
-    d_A = NULL;
-    err = cudaMalloc((void **)&d_A, size);
+    params->d_A = NULL;
+    err = cudaMalloc((void **)&params->d_A, size);
 
     if (err != cudaSuccess)
     {
@@ -324,8 +326,8 @@ int VA_start_mallocs(void *arg)
     }
 
     // Allocate the device input vector B
-    d_B = NULL;
-    err = cudaMalloc((void **)&d_B, size);
+    params->d_B = NULL;
+    err = cudaMalloc((void **)&params->d_B, size);
 
     if (err != cudaSuccess)
     {
@@ -334,9 +336,9 @@ int VA_start_mallocs(void *arg)
     }
 
     // Allocate the device output vector C
-    d_C = NULL;
-    err = cudaMalloc((void **)&d_C, size);
-    checkCudaErrors(cudaMemset(d_C, 0, size));
+    params->d_C = NULL;
+    err = cudaMalloc((void **)&params->d_C, size);
+    checkCudaErrors(cudaMemset(params->d_C, 0, size));
 
 
     if (err != cudaSuccess)
@@ -348,13 +350,13 @@ int VA_start_mallocs(void *arg)
 #else
 	#ifdef MANAGED_MEM
 
-	cudaMallocManaged(&h_A, size);
-	cudaMallocManaged(&h_B, size);
-	cudaMallocManaged(&h_C, size);
+	cudaMallocManaged(&params->h_A, size);
+	cudaMallocManaged(&params->h_B, size);
+	cudaMallocManaged(&params->h_C, size);
 	
-	d_A = h_A;
-	d_B = h_B;
-	d_C = h_C;
+	params->d_A = params->h_A;
+	params->d_B = params->h_B;
+	params->d_C = params->h_C;
 	
 	#else
 		printf("No transfer model: Exiting ...\n");
@@ -364,18 +366,18 @@ int VA_start_mallocs(void *arg)
 
 
     // Verify that allocations succeeded
-    if (h_A == NULL || h_B == NULL || h_C == NULL)
+    if (params->h_A == NULL || params->h_B == NULL || params->h_C == NULL)
     {
         fprintf(stderr, "Failed to allocate host vectors!\n");
         exit(EXIT_FAILURE);
     }
 
     // Initialize the host input vectors
-    for (int i = 0; i < numElements; ++i)
+    for (int i = 0; i < params->numElements; ++i)
     {
-        h_A[i] = rand()/(float)RAND_MAX;
-        h_B[i] = rand()/(float)RAND_MAX;
-		h_C[i] = 0;
+        params->h_A[i] = rand()/(float)RAND_MAX;
+        params->h_B[i] = rand()/(float)RAND_MAX;
+		params->h_C[i] = 0;
     }
 
 	return 0;
@@ -383,10 +385,10 @@ int VA_start_mallocs(void *arg)
 	
 int VA_start_transfers(void *arg)
 {
-	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_VA_params * params = (t_VA_params *)kstub->params;
 
-	size_t size = numElements * sizeof(float);
+	size_t size = params->numElements * sizeof(float);
 	
 	// Error code to check return values for CUDA calls
     cudaError_t err = cudaSuccess;
@@ -405,7 +407,7 @@ int VA_start_transfers(void *arg)
 	
 	/*HtD_data_transfer(d_A, h_A, size, C_S);*/
 	
-	enqueue_tcomamnd(tqueues, d_A, h_A, size, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->d_A, params->h_A, size, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
 
     /*err = cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);
 
@@ -416,7 +418,7 @@ int VA_start_transfers(void *arg)
     }*/
 	
 	//HtD_data_transfer(d_B, h_B, size, C_S);
-	enqueue_tcomamnd(tqueues, d_B, h_B, size, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->d_B, params->h_B, size, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
 	
 	kstub->HtD_tranfers_finished = 1;
 
@@ -425,7 +427,7 @@ int VA_start_transfers(void *arg)
 	
 	#ifdef MEMCPY_ASYNC
 	
-	err = cudaMemcpyAsync(d_A, h_A, size, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	err = cudaMemcpyAsync(params->d_A, params->h_A, size, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 
     if (err != cudaSuccess)
     {
@@ -433,7 +435,7 @@ int VA_start_transfers(void *arg)
         exit(EXIT_FAILURE);
     }
 
-    err = cudaMemcpyAsync(d_B, h_B, size, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+    err = cudaMemcpyAsync(params->d_B, params->h_B, size, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 
     if (err != cudaSuccess)
     {
@@ -461,17 +463,17 @@ int VA_start_transfers(void *arg)
 	
 	if (p.concurrentManagedAccess)
 	{
-		err = cudaMemPrefetchAsync(h_A, size, kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_A, size, kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_B, size, kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_B, size, kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_C, size, kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->h_C, size, kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
@@ -493,8 +495,8 @@ int VA_start_transfers(void *arg)
  
 int VA_end_kernel_dummy(void *arg)
 {
-	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_VA_params * params = (t_VA_params *)kstub->params;
 	
 #ifdef MEMCPY_SYNC
 
@@ -514,7 +516,7 @@ int VA_end_kernel_dummy(void *arg)
      }*/
 	 
 	 //DtH_data_transfer(h_C, d_C, numElements*sizeof(float), C_S);
-	 enqueue_tcomamnd(tqueues, h_C, d_C, numElements*sizeof(float), cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
+	 enqueue_tcomamnd(tqueues, params->h_C, params->d_C, params->numElements*sizeof(float), cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
 	 
 #else
 	#ifdef MEMCPY_ASYNC
@@ -523,7 +525,7 @@ int VA_end_kernel_dummy(void *arg)
 
 	//err = cudaEventSynchronize(kstub->end_Exec);
 	
-	err = cudaMemcpyAsync(h_C, d_C, numElements*sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+	err = cudaMemcpyAsync(params->h_C, params->d_C, params->numElements*sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
 
      if (err != cudaSuccess)
      {
@@ -619,24 +621,25 @@ int VA_end_kernel_dummy(void *arg)
 int launch_orig_VA(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_VA_params * params = (t_VA_params *)kstub->params;
 	
 	original_vectorAdd<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(
-		d_A, d_B, d_C, 
+		params->d_A, params->d_B, params->d_C, 
 		kstub->kconf.coarsening,
-		numElements);
+		params->numElements);
 	
 	return 0;
 }
 
 int launch_preemp_VA(void *arg)
 {
-	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_VA_params * params = (t_VA_params *)kstub->params;
 	
 	#ifdef SMT
 	
 	preempt_SMT_vectorAdd<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>/*(VAparams->d_A, VAparams->d_B, VAparams->d_C, VAparams->numElements, */
-			(d_A, d_B, d_C, numElements,
+			(params->d_A, params->d_B, params->d_C, params->numElements,
 			kstub->idSMs[0],
 			kstub->idSMs[1],
 			kstub->total_tasks,
@@ -648,7 +651,7 @@ int launch_preemp_VA(void *arg)
 	#else
 		
 	preempt_SMK_vectorAdd<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>
-			(d_A, d_B, d_C, numElements, 
+			(params->d_A, params->d_B, params->d_C, params->numElements, 
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
