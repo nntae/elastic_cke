@@ -345,6 +345,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			break;
 
 		case Reduction:
+			t_reduction_params *reduction_params;
+			reduction_params = (t_reduction_params *)calloc(1, sizeof(t_reduction_params));
+			k_stub->params = (void *)reduction_params;
 			
 			k_stub->launchCKEkernel = launch_preemp_reduce;
 			k_stub->launchORIkernel = launch_orig_reduce;

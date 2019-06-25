@@ -46,8 +46,8 @@ T reduceCPU(const T *data, unsigned long int size)
 // Memory Allocation
 //*************************************************/
 
-float *h_idata, *h_odata;
-float *d_idata, *d_odata;
+// float *h_idata, *h_odata;
+// float *d_idata, *d_odata;
 
 unsigned long int nItems = 32*32*1024*1024; // Maximum size without overflow
 int nBlocks = 64;
@@ -57,6 +57,7 @@ int smem_size = blockSize * sizeof(float);
 int reduce_start_kernel(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_reduction_params * params = (t_reduction_params *)kstub->params;
 	
 	nBlocks = kstub->kconf.gridsize.x;
 	blockSize =	kstub->kconf.blocksize.x;
@@ -64,20 +65,20 @@ int reduce_start_kernel(void *arg)
 	smem_size = blockSize * sizeof(float);
 	
 	// Allocate and set up host data (assuming T data is float)
-	CUDA_SAFE_CALL(cudaMallocHost((void**)&h_idata, nItems * sizeof(float)));
-    CUDA_SAFE_CALL(cudaMallocHost((void**)&h_odata, nBlocks * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost((void**)&params->h_idata, nItems * sizeof(float)));
+    CUDA_SAFE_CALL(cudaMallocHost((void**)&params->h_odata, nBlocks * sizeof(float)));
 
 	for(long int i = 0; i < nItems; i++)
     {
-        h_idata[i] = ((float) (i % 2)/100000); //Fill with some pattern
+        params->h_idata[i] = ((float) (i % 2)/100000); //Fill with some pattern
     }
 
 	// Allocate device memory
-	CUDA_SAFE_CALL(cudaMalloc((void**)&d_idata, nItems * sizeof(float)));
-    CUDA_SAFE_CALL(cudaMalloc((void**)&d_odata, nBlocks * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc((void**)&params->d_idata, nItems * sizeof(float)));
+    CUDA_SAFE_CALL(cudaMalloc((void**)&params->d_odata, nBlocks * sizeof(float)));
 	
 	// Transfer data from host to device
-	CUDA_SAFE_CALL(cudaMemcpy(d_idata, h_idata, nItems*sizeof(float), cudaMemcpyHostToDevice));
+	CUDA_SAFE_CALL(cudaMemcpy(params->d_idata, params->h_idata, nItems*sizeof(float), cudaMemcpyHostToDevice));
 
   
 	return 0;
@@ -86,6 +87,7 @@ int reduce_start_kernel(void *arg)
 int reduce_start_mallocs(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_reduction_params * params = (t_reduction_params *)kstub->params;
 	
 	nBlocks = kstub->kconf.gridsize.x;
 	blockSize =	kstub->kconf.blocksize.x;
@@ -95,18 +97,18 @@ int reduce_start_mallocs(void *arg)
 	//printf("\tWorking with %d items, reduced with %d (%d) blocks\n", nItems, nBlocks, kstub->kconf.coarsening);
 
 	// Allocate and set up host data (assuming T data is float)
-	CUDA_SAFE_CALL(cudaMallocHost((void**)&h_idata, nItems * sizeof(float)));
-    CUDA_SAFE_CALL(cudaMallocHost((void**)&h_odata, nBlocks * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost((void**)&params->h_idata, nItems * sizeof(float)));
+    CUDA_SAFE_CALL(cudaMallocHost((void**)&params->h_odata, nBlocks * sizeof(float)));
 
 	for(unsigned long int i = 0; i < nItems; i++)
     {
-        h_idata[i] = ((float) (i % 2)/100000); //Fill with some pattern
+        params->h_idata[i] = ((float) (i % 2)/100000); //Fill with some pattern
         //h_idata[i] = (float) (i % 2); //Fill with some pattern
     }
 
 	// Allocate device memory
-	CUDA_SAFE_CALL(cudaMalloc((void**)&d_idata, nItems * sizeof(float)));
-    CUDA_SAFE_CALL(cudaMalloc((void**)&d_odata, nBlocks * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc((void**)&params->d_idata, nItems * sizeof(float)));
+    CUDA_SAFE_CALL(cudaMalloc((void**)&params->d_odata, nBlocks * sizeof(float)));
 
 	return 0;
 }
@@ -118,16 +120,17 @@ int reduce_start_mallocs(void *arg)
 int reduce_start_transfers(void *arg){
 	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_reduction_params * params = (t_reduction_params *)kstub->params;
 
 #if defined(MEMCPY_ASYNC)
 
 	//enqueue_tcomamnd(tqueues, d_idata, h_idata, nItems * sizeof(float), cudaMemcpyHostToDevice, 
 	// kstub->transfer_s[0], NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(d_idata, h_idata, nItems * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	cudaMemcpyAsync(params->d_idata, params->h_idata, nItems * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 	
 #else
 
-	CUDA_SAFE_CALL(cudaMemcpy(d_idata, h_idata,   nItems * sizeof(float),
+	CUDA_SAFE_CALL(cudaMemcpy(params->d_idata, params->h_idata,   nItems * sizeof(float),
               cudaMemcpyHostToDevice));
 
 #endif
@@ -143,21 +146,22 @@ int reduce_end_kernel(void *arg)
 {
 
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_reduction_params * params = (t_reduction_params *)kstub->params;
 
 #if defined(MEMCPY_ASYNC)
 	cudaEventSynchronize(kstub->end_Exec);
 
 	//enqueue_tcomamnd(tqueues, h_odata, d_odata, nBlocks * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(h_odata, d_odata, nBlocks * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+	cudaMemcpyAsync(params->h_odata, params->d_odata, nBlocks * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
 #else
 	
 	cudaEventSynchronize(kstub->end_Exec);
 	
-	CUDA_SAFE_CALL(cudaMemcpy(h_odata, d_odata, nBlocks * sizeof(float),
+	CUDA_SAFE_CALL(cudaMemcpy(params->h_odata, params->d_odata, nBlocks * sizeof(float),
                   cudaMemcpyDeviceToHost));
 				 		 
-	CUDA_SAFE_CALL(cudaFree(d_idata));
-	CUDA_SAFE_CALL(cudaFree(d_odata));
+	CUDA_SAFE_CALL(cudaFree(params->d_idata));
+	CUDA_SAFE_CALL(cudaFree(params->d_odata));
 
 #endif
 
@@ -179,8 +183,8 @@ int reduce_end_kernel(void *arg)
 	// else
 		// printf("Test failed: %f (%f - %f)\n", diff, dev_result, cpu_result);
 
-	cudaFree(h_idata);
-	cudaFree(h_odata);
+	cudaFree(params->h_idata);
+	cudaFree(params->h_odata);
 	
 	return 0;
 }
@@ -189,12 +193,13 @@ int reduce_end_kernel(void *arg)
 int launch_orig_reduce(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_reduction_params * params = (t_reduction_params *)kstub->params;
 
 	dim3 threads = dim3(blockSize, 1, 1);
 	dim3 blocks = dim3(nBlocks, 1, 1);
 	
 	reduce<<<blocks, threads, smem_size>>>
-                (d_idata, d_odata, nItems);			
+                (params->d_idata, params->d_odata, nItems);			
 	
 	return 0;
 }
@@ -203,13 +208,14 @@ int launch_preemp_reduce(void *arg)
 {
 	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_reduction_params * params = (t_reduction_params *)kstub->params;
 	dim3 threads = dim3(kstub->kconf.blocksize.x, 1, 1);
 	dim3 blocks = dim3(kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, 1, 1);
 
 	#ifdef SMT
 
 	preemp_SMT_reduce_kernel<<<blocks, threads, smem_size, *(kstub->execution_s)>>>
-			(d_idata, d_odata, nItems,
+			(params->d_idata, params->d_odata, nItems,
 			kstub->idSMs[0],
 			kstub->idSMs[1],
 			kstub->total_tasks,
@@ -221,7 +227,7 @@ int launch_preemp_reduce(void *arg)
 	#else
 
 	preemp_SMK_reduce_kernel<<<blocks, threads, smem_size, *(kstub->execution_s)>>>
-			(d_idata, d_odata, nItems, 
+			(params->d_idata, params->d_odata, nItems, 
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
@@ -249,6 +255,7 @@ int reduce_test(t_Kernel *kernel_id, float *tHtD, float *tK, float *tDtH)
 	printf("Device=%s\n", deviceProp.name);
 	
 	t_kernel_stub **kstub = (t_kernel_stub **)calloc(1, sizeof(t_kernel_stub *));
+	t_reduction_params * params = (t_reduction_params *)kstub[0]->params;
 
 	create_stubinfo(&kstub[0], devId, kernel_id[0], 0, 0);
 	void *arg = kstub[0];
@@ -274,7 +281,7 @@ int reduce_test(t_Kernel *kernel_id, float *tHtD, float *tK, float *tDtH)
 		cudaDeviceSynchronize();
 		checkCudaErrors(cudaEventRecord(profileStart1, 0));
 		// Transfer data from host to device
-		CUDA_SAFE_CALL(cudaMemcpy(d_idata, h_idata,   nItems * sizeof(float), cudaMemcpyHostToDevice));
+		CUDA_SAFE_CALL(cudaMemcpy(params->d_idata, params->h_idata,   nItems * sizeof(float), cudaMemcpyHostToDevice));
 		checkCudaErrors(cudaEventRecord(profileEnd1, 0));
 
 	    // Wait for the kernel to complete
@@ -291,7 +298,7 @@ int reduce_test(t_Kernel *kernel_id, float *tHtD, float *tK, float *tDtH)
 		tK[0] += t2;
 
 		checkCudaErrors(cudaEventRecord(profileStart3, 0));
-		CUDA_SAFE_CALL(cudaMemcpy(h_odata, d_odata, nBlocks * sizeof(float), cudaMemcpyDeviceToHost));	
+		CUDA_SAFE_CALL(cudaMemcpy(params->h_odata, params->d_odata, nBlocks * sizeof(float), cudaMemcpyDeviceToHost));	
 		checkCudaErrors(cudaEventRecord(profileEnd3, 0));
 
 		cudaDeviceSynchronize();
@@ -303,12 +310,12 @@ int reduce_test(t_Kernel *kernel_id, float *tHtD, float *tK, float *tDtH)
 		float dev_result = 0;
 		for (i=0; i<nBlocks; i++)
 		{
-			dev_result += h_odata[i];
+			dev_result += params->h_odata[i];
 		}
 		
 		float cpu_result = 0;
 		for (i = 0; i < nItems; i++ )
-			cpu_result += h_idata[i];
+			cpu_result += params->h_idata[i];
 		//reduceCPU<float>(h_idata, nItems);
 		double threshold = 5.0e-2;
 		float diff = fabs(dev_result - cpu_result)/dev_result;
@@ -318,8 +325,8 @@ int reduce_test(t_Kernel *kernel_id, float *tHtD, float *tK, float *tDtH)
 		else
 			printf("Test failed: %d items - %f (%f - %f)\n", i, diff, dev_result, cpu_result);
 
-		cudaFree(h_idata);
-		cudaFree(h_odata);
+		cudaFree(params->h_idata);
+		cudaFree(params->h_odata);
 	}
 
 	tHtD[0] /= nsteps;
