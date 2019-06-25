@@ -250,11 +250,15 @@ SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 
 int HST256_start_kernel(void *arg) 
 {
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_HST256_params * params = (t_HST256_params *)kstub->params;
+	
+	byteCount256 = params->byteCount256;
 	//Data set 1 
 	//byteCount256 = 64 * 1048576 * 6;
 	
 	//Data set 2
-	byteCount256 = 64 * 1048576 * 6 * 6;
+	//byteCount256 = 64 * 1048576 * 6 * 6;
 
 	// h_Data256         = (uchar *)malloc(byteCount256);
     // h_HistogramCPU256 = (uint *)malloc(HISTOGRAM256_BIN_COUNT * sizeof(uint));
@@ -282,11 +286,16 @@ int HST256_start_kernel(void *arg)
 
 int HST256_start_mallocs(void *arg)
 {
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_HST256_params * params = (t_HST256_params *)kstub->params;
+	
+	byteCount256 = params->byteCount256;
+	
 	//Data set 1 
 	//byteCount256 = 64 * 1048576 * 6;
 	
 	//Data set 2
-	byteCount256 = 64 * 1048576 * 6 * 6;
+	//byteCount256 = 64 * 1048576 * 6 * 6;
 	
 #if defined(MEMCPY_SYNC) || defined(MEMCPY_ASYNC)
 	cudaMallocHost(&h_Data256, byteCount256);
@@ -337,12 +346,15 @@ int HST256_start_mallocs(void *arg)
 int HST256_start_transfers(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_HST256_params * params = (t_HST256_params *)kstub->params;
+	
+	byteCount256 = params->byteCount256;
 	
 	//Data set 1 
 	//byteCount256 = 64 * 1048576 * 6;
 	
 	//Data set 2
-	byteCount256 = 64 * 1048576 * 6 * 6;
+	//byteCount256 = 64 * 1048576 * 6 * 6;
 	
 #ifdef MEMCPY_SYNC
 	enqueue_tcomamnd(tqueues, d_Data256, h_Data256, byteCount256, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);

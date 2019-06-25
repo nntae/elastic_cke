@@ -631,98 +631,100 @@ int numNonZeroes, numRows;
 	 
 int SPMVcsr_start_kernel(void *arg)
  {
-	 t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_SPMV_params * params = (t_SPMV_params *)kstub->params;
 	
-    int nItems;
+	numRows = params->numRows;
+    int nItems = params->nItems;
+	//numRows = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
 
-     numRows = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
-	 
-	 //Data set 1
-     //nItems = numRows * numRows * 0.000005; // 5% of entries will be non-zero
-	 
-	 //Data set 2
-	 nItems = numRows * numRows / 14;
-	 
-     float maxval = 50.0;
-	 
-	 // Allocate and set up host data (only for scalar csr)
-     CUDA_SAFE_CALL(cudaMallocHost(&h_val, nItems * sizeof(float)));
-	 CUDA_SAFE_CALL(cudaMallocHost(&h_vec, numRows * sizeof(float)));
-     CUDA_SAFE_CALL(cudaMallocHost(&h_cols, nItems * sizeof(int)));
-     CUDA_SAFE_CALL(cudaMallocHost(&h_rowDelimiters, (numRows + 1) * sizeof(int)));
-	 CUDA_SAFE_CALL(cudaMallocHost(&h_out,  numRows * sizeof(float)));
-	 
-     fill(h_val, nItems, maxval);
-     initRandomMatrix_ver3(h_cols, h_rowDelimiters, nItems, numRows);
-	 fill(h_vec, numRows, maxval);
-	
+	//Data set 1
+	//nItems = numRows * numRows * 0.000005; // 5% of entries will be non-zero
+
+	//Data set 2
+	//nItems = numRows * numRows / 14;
+
+	float maxval = 50.0;
+
+	// Allocate and set up host data (only for scalar csr)
+	CUDA_SAFE_CALL(cudaMallocHost(&h_val, nItems * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost(&h_vec, numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost(&h_cols, nItems * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMallocHost(&h_rowDelimiters, (numRows + 1) * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMallocHost(&h_out,  numRows * sizeof(float)));
+
+	fill(h_val, nItems, maxval);
+	initRandomMatrix_ver3(h_cols, h_rowDelimiters, nItems, numRows);
+	fill(h_vec, numRows, maxval);
+
 	// Allocate device memory
-	 numNonZeroes = nItems;
-     CUDA_SAFE_CALL(cudaMalloc(&d_val,  numNonZeroes * sizeof(float)));
-     CUDA_SAFE_CALL(cudaMalloc(&d_cols, numNonZeroes * sizeof(int)));
-     CUDA_SAFE_CALL(cudaMalloc(&d_vec,  numRows * sizeof(float)));
-     CUDA_SAFE_CALL(cudaMalloc(&d_out,  numRows * sizeof(float)));
-     CUDA_SAFE_CALL(cudaMalloc(&d_rowDelimiters, (numRows+1) * sizeof(int)));
-	 
-	 // Bind texture for position
-     cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<float>();
-     CUDA_SAFE_CALL(cudaBindTexture(0, vecTex, d_vec, channelDesc, numRows * sizeof(float)));
-	 
-	 CUDA_SAFE_CALL(cudaMemcpy(d_val, h_val,   numNonZeroes * sizeof(float),
-              cudaMemcpyHostToDevice));
-	 CUDA_SAFE_CALL(cudaMemcpy(d_vec, h_vec,   numRows* sizeof(float),
-              cudaMemcpyHostToDevice));
-    CUDA_SAFE_CALL(cudaMemcpy(d_cols, h_cols, numNonZeroes * sizeof(int),
-              cudaMemcpyHostToDevice));
-    CUDA_SAFE_CALL(cudaMemcpy(d_rowDelimiters, h_rowDelimiters,
-              (numRows+1) * sizeof(int), cudaMemcpyHostToDevice));
+	numNonZeroes = nItems;
+	CUDA_SAFE_CALL(cudaMalloc(&d_val,  numNonZeroes * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&d_cols, numNonZeroes * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMalloc(&d_vec,  numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&d_out,  numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&d_rowDelimiters, (numRows+1) * sizeof(int)));
 
-      
+	// Bind texture for position
+	cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<float>();
+	CUDA_SAFE_CALL(cudaBindTexture(0, vecTex, d_vec, channelDesc, numRows * sizeof(float)));
+
+	CUDA_SAFE_CALL(cudaMemcpy(d_val, h_val,   numNonZeroes * sizeof(float),
+		cudaMemcpyHostToDevice));
+	CUDA_SAFE_CALL(cudaMemcpy(d_vec, h_vec,   numRows* sizeof(float),
+		cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(d_cols, h_cols, numNonZeroes * sizeof(int),
+        cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(d_rowDelimiters, h_rowDelimiters,
+        (numRows+1) * sizeof(int), cudaMemcpyHostToDevice));
+		
 	return 0;
  }
 
 int SPMVcsr_start_mallocs(void *arg)
 {
-	t_kernel_stub *kstub = (t_kernel_stub *)arg;   
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_SPMV_params * params = (t_SPMV_params *)kstub->params;	
 	
-    int nItems;
+	numRows = params->numRows;
+    int nItems = params->nItems;
 
-     numRows = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
-     //nItems = (int)((double)numRows * (double)(numRows) * 0.000001); // 5% of entries will be non-zero
-	 //Data set 1
-     //nItems = numRows * numRows * 0.000005; // 5% of entries will be non-zero
-	 
-	 //Data set 2
-	 nItems = numRows * numRows / 14;
-	 
-     float maxval = 50.0;
-	 
-	 printf("Items per row =%d\n", (int)((double)nItems/(double)numRows));
-	 
-	 // Allocate and set up host data (only for scalar csr)
-     CUDA_SAFE_CALL(cudaMallocHost(&h_val, nItems * sizeof(float)));
-	 CUDA_SAFE_CALL(cudaMallocHost(&h_vec, numRows * sizeof(float)));
-     CUDA_SAFE_CALL(cudaMallocHost(&h_cols, nItems * sizeof(int)));
-     CUDA_SAFE_CALL(cudaMallocHost(&h_rowDelimiters, (numRows + 1) * sizeof(int)));
-	 CUDA_SAFE_CALL(cudaMallocHost(&h_out,  numRows * sizeof(float)));
-	 
-     fill(h_val, nItems, maxval);
-     initRandomMatrix_ver3(h_cols, h_rowDelimiters, nItems, numRows);
-	 fill(h_vec, numRows, maxval);
-	
+	//numRows = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
+	//nItems = (int)((double)numRows * (double)(numRows) * 0.000001); // 5% of entries will be non-zero
+	//Data set 1
+	//nItems = numRows * numRows * 0.000005; // 5% of entries will be non-zero
+
+	//Data set 2
+	//nItems = numRows * numRows / 14;
+
+	float maxval = 50.0;
+
+	//printf("Items per row =%d\n", (int)((double)nItems/(double)numRows));
+
+	// Allocate and set up host data (only for scalar csr)
+	CUDA_SAFE_CALL(cudaMallocHost(&h_val, nItems * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost(&h_vec, numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMallocHost(&h_cols, nItems * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMallocHost(&h_rowDelimiters, (numRows + 1) * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMallocHost(&h_out,  numRows * sizeof(float)));
+
+	fill(h_val, nItems, maxval);
+	initRandomMatrix_ver3(h_cols, h_rowDelimiters, nItems, numRows);
+	fill(h_vec, numRows, maxval);
+
 	// Allocate device memory
-	 numNonZeroes = nItems;
-     CUDA_SAFE_CALL(cudaMalloc(&d_val,  numNonZeroes * sizeof(float)));
-     CUDA_SAFE_CALL(cudaMalloc(&d_cols, numNonZeroes * sizeof(int)));
-     CUDA_SAFE_CALL(cudaMalloc(&d_vec,  numRows * sizeof(float)));
-     CUDA_SAFE_CALL(cudaMalloc(&d_out,  numRows * sizeof(float)));
-     CUDA_SAFE_CALL(cudaMalloc(&d_rowDelimiters, (numRows+1) * sizeof(int)));
-	 
-	 // Bind texture for position
-     cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<float>();
-     CUDA_SAFE_CALL(cudaBindTexture(0, vecTex, d_vec, channelDesc, numRows * sizeof(float)));
-	 
-	 return 0;
+	numNonZeroes = nItems;
+	CUDA_SAFE_CALL(cudaMalloc(&d_val,  numNonZeroes * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&d_cols, numNonZeroes * sizeof(int)));
+	CUDA_SAFE_CALL(cudaMalloc(&d_vec,  numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&d_out,  numRows * sizeof(float)));
+	CUDA_SAFE_CALL(cudaMalloc(&d_rowDelimiters, (numRows+1) * sizeof(int)));
+
+	// Bind texture for position
+	cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<float>();
+	CUDA_SAFE_CALL(cudaBindTexture(0, vecTex, d_vec, channelDesc, numRows * sizeof(float)));
+	
+	return 0;
 }
 
 //*************************************************/

@@ -32,6 +32,10 @@ typedef unsigned char uchar;
 
 #define TAG_MASK 0xFFFFFFFFU
 
+typedef struct {
+	uint byteCount256;
+} t_HST256_params;
+
 /*** histogram ***/	
 int launch_preemp_HST256(void *kstub);
 int launch_orig_HST256(void *kstub);

@@ -294,6 +294,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 */
 			
 		case SPMV_CSRscalar:
+			t_SPMV_params *SPMV_params;
+			SPMV_params = (t_SPMV_params *)calloc(1, sizeof(t_SPMV_params));
+			k_stub->params = (void *)SPMV_params;
 			
 			k_stub->launchCKEkernel = launch_preemp_SPMVcsr;
 			k_stub->launchORIkernel = launch_orig_SPMVcsr;
@@ -316,6 +319,14 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				printf("Error: Unknown device\n");
 				return -1;
 			}
+			
+			SPMV_params->numRows = k_stub->kconf.gridsize.x * k_stub->kconf.blocksize.x * k_stub->kconf.coarsening;
+			
+			//Data set 1
+			//SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows * 0.000005; // 5% of entries will be non-zero
+
+			//Data set 2
+			SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows / 14;
 			
 			break;
 
@@ -856,6 +867,16 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			break;
 			
 		case HST256:
+			t_HST256_params *HST256_params;
+			HST256_params = (t_HST256_params *)calloc(1, sizeof(t_HST256_params));
+			k_stub->params = (void *)HST256_params;
+			
+			//Data set 1 
+			//HST256_params->byteCount256 = 64 * 1048576 * 6;
+			
+			//Data set 2
+			HST256_params->byteCount256 = 64 * 1048576 * 6 * 6;
+	
 			k_stub->launchCKEkernel = launch_preemp_HST256;
 			k_stub->launchORIkernel = launch_orig_HST256;
 			k_stub->startKernel = HST256_start_kernel;
