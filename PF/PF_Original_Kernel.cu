@@ -24,18 +24,18 @@ using namespace std;
 
 #define HALO 1 // halo width along one direction when advancing to the next iteration
 
-int rows, cols;
-int* data;
-int** wall;
-int* result;
+// int rows, cols;
+// int* data;
+// int** wall;
+// int* result;
 #define M_SEED 9
-int pyramid_height;
+// int pyramid_height;
 
-int final_ret;
-int borderCols;
-int smallBlockCol;
-int blockCols;
-int *gpuWall, *gpuResult[2];
+// int final_ret;
+// int borderCols;
+// int smallBlockCol;
+// int blockCols;
+// int *gpuWall, *gpuResult[2];
 #define BLOCK_SIZE 256
 
 #define IN_RANGE(x, min, max)   ((x)>=(min) && (x)<=(max))
@@ -355,23 +355,24 @@ SMK_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gpuResu
 	}
 }
 
-void
-init()
-{
-	data = new int[rows*cols];
-	wall = new int*[rows];
-	for(int n=0; n<rows; n++)
-		wall[n]=data+cols*n;
-	result = new int[cols];
+void init(void *arg){
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_PF_params * params = (t_PF_params *)kstub->params;
+	
+	params->data = new int[params->rows * params->cols];
+	params->wall = new int*[params->rows];
+	for(int n=0; n < params->rows; n++)
+		params->wall[n]=params->data + params->cols * n;
+	params->result = new int[params->cols];
 	
 	int seed = M_SEED;
 	srand(seed);
 
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < params->rows; i++)
     {
-        for (int j = 0; j < cols; j++)
+        for (int j = 0; j < params->cols; j++)
         {
-            wall[i][j] = rand() % 10;
+            params->wall[i][j] = rand() % 10;
         }
     }
 
@@ -394,31 +395,31 @@ int PF_start_kernel(void *arg)
 	
 	t_PF_params * params = (t_PF_params *)kstub->params;
 	
-	cols = params->nCols;
-	rows = params->nRows;
-	pyramid_height = params->param_pyramid_height;
+	params->cols = params->nCols;
+	params->rows = params->nRows;
+	params->pyramid_height = params->param_pyramid_height;
 	
-	data = new int[rows*cols];
-	wall = new int*[rows];
-	result = new int[cols];
+	params->data = new int[params->rows*params->cols];
+	params->wall = new int*[params->rows];
+	params->result = new int[params->cols];
 	
-	init();
+	init(arg);
 
 	/* --------------- pyramid parameters --------------- */
-    borderCols = (pyramid_height)*HALO;
-    smallBlockCol = blocksize-(pyramid_height)*HALO*2;
-    blockCols = cols/smallBlockCol+((cols%smallBlockCol==0)?0:1);
+    params->borderCols = (params->pyramid_height)*HALO;
+    params->smallBlockCol = blocksize-(params->pyramid_height)*HALO*2;
+    params->blockCols = params->cols/params->smallBlockCol+((params->cols%params->smallBlockCol==0)?0:1);
 
     // printf("pyramidHeight: %d\ngridSize: [%d]\nborder:[%d]\nblockSize: %d\nblockGrid:[%d]\ntargetBlock:[%d]\n",\
 	// pyramid_height, cols, borderCols, blocksize, blockCols, smallBlockCol);
 	
-    int size = rows*cols;
+    int size = params->rows * params->cols;
 
-    cudaMalloc((void**)&gpuResult[0], sizeof(int)*cols);
-    cudaMalloc((void**)&gpuResult[1], sizeof(int)*cols);
-    cudaMemcpy(gpuResult[0], data, sizeof(int)*cols, cudaMemcpyHostToDevice);
-    cudaMalloc((void**)&gpuWall, sizeof(int)*(size-cols));
-    cudaMemcpy(gpuWall, data+cols, sizeof(int)*(size-cols), cudaMemcpyHostToDevice);
+    cudaMalloc((void**)&params->gpuResult[0], sizeof(int)*params->cols);
+    cudaMalloc((void**)&params->gpuResult[1], sizeof(int)*params->cols);
+    cudaMemcpy(params->gpuResult[0], params->data, sizeof(int)*params->cols, cudaMemcpyHostToDevice);
+    cudaMalloc((void**)&params->gpuWall, sizeof(int)*(size-params->cols));
+    cudaMemcpy(params->gpuWall, params->data+params->cols, sizeof(int)*(size-params->cols), cudaMemcpyHostToDevice);
 	
 	return 0;
 }
@@ -430,37 +431,37 @@ int PF_start_mallocs(void *arg)
 	
 	t_PF_params * params = (t_PF_params *)kstub->params;
 	
-	cols = params->nCols;
-	rows = params->nRows;
-	pyramid_height = params->param_pyramid_height;
+	params->cols = params->nCols;
+	params->rows = params->nRows;
+	params->pyramid_height = params->param_pyramid_height;
 
 	/* --------------- pyramid parameters --------------- */
-    borderCols = (pyramid_height)*HALO;
-    smallBlockCol = blocksize-(pyramid_height)*HALO*2;
-    blockCols = cols/smallBlockCol+((cols%smallBlockCol==0)?0:1);
+    params->borderCols = (params->pyramid_height)*HALO;
+    params->smallBlockCol = blocksize-(params->pyramid_height)*HALO*2;
+    params->blockCols = params->cols/params->smallBlockCol+((params->cols%params->smallBlockCol==0)?0:1);
 
     // printf("pyramidHeight: %d\ngridSize: [%d]\nborder:[%d]\nblockSize: %d\nblockGrid:[%d]\ntargetBlock:[%d]\n",\
 	// pyramid_height, cols, borderCols, blocksize, blockCols, smallBlockCol);
 	
-    int size = rows*cols;
+    int size = params->rows*params->cols;
 	
 #if defined(MEMCPY_SYNC) || defined(MEMCPY_ASYNC)
-	cudaMallocHost(&data, sizeof(int)*(rows*cols));
-	cudaMallocHost(&wall, sizeof(int)*rows);
-	cudaMallocHost(&result, sizeof(int)*cols);
+	cudaMallocHost(&params->data, sizeof(int)*(params->rows*params->cols));
+	cudaMallocHost(&params->wall, sizeof(int)*params->rows);
+	cudaMallocHost(&params->result, sizeof(int)*params->cols);
 
-	cudaMalloc((void**)&gpuResult[0], sizeof(int)*cols);
-    cudaMalloc((void**)&gpuResult[1], sizeof(int)*cols);
-	cudaMalloc((void**)&gpuWall, sizeof(int)*(size-cols));
+	cudaMalloc((void**)&params->gpuResult[0], sizeof(int)*params->cols);
+    cudaMalloc((void**)&params->gpuResult[1], sizeof(int)*params->cols);
+	cudaMalloc((void**)&params->gpuWall, sizeof(int)*(size-params->cols));
 #else
 	#ifdef MANAGED_MEM
 
-	cudaMallocManaged(&data, sizeof(int)*(rows, cols));
-	cudaMallocManaged(&wall, sizeof(int)*rows);
-	cudaMallocManaged(&result, sizeof(int)*cols);
+	cudaMallocManaged(&params->data, sizeof(int)*(params->rows, params->cols));
+	cudaMallocManaged(&params->wall, sizeof(int)*params->rows);
+	cudaMallocManaged(&params->result, sizeof(int)*params->cols);
 	
-	gpuResult[0] = data;
-	gpuWall = data+cols;
+	params->gpuResult[0] = params->data;
+	params->gpuWall = params->data+params->cols;
 	#else
 		printf("No transfer model: Exiting ...\n");
 		exit(-1);
@@ -468,13 +469,13 @@ int PF_start_mallocs(void *arg)
 #endif
 
 	// Verify that allocations succeeded
-    if (data == NULL || wall == NULL || result == NULL)
+    if (params->data == NULL || params->wall == NULL || params->result == NULL)
     {
         fprintf(stderr, "Failed to allocate host vectors!\n");
         exit(EXIT_FAILURE);
     }
 
-    init();
+    init(arg);
 
 	return 0;
 }
@@ -483,13 +484,14 @@ int PF_start_transfers(void *arg)
 {
 	cudaError_t err = cudaSuccess;
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_PF_params * params = (t_PF_params *)kstub->params;
 	
-	int size = rows*cols;
+	int size = params->rows * params->cols;
 	
 #ifdef MEMCPY_SYNC
-	enqueue_tcomamnd(tqueues, gpuResult[0], data, sizeof(int)*cols, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->gpuResult[0], params->data, sizeof(int)*params->cols, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
 
-	enqueue_tcomamnd(tqueues, gpuWall, data+cols, sizeof(int)*(size-cols), cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->gpuWall, params->data+params->cols, sizeof(int)*(size-params->cols), cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
 	
 	kstub->HtD_tranfers_finished = 1;
 
@@ -501,8 +503,8 @@ int PF_start_transfers(void *arg)
 	//enqueue_tcomamnd(tqueues, gpuResult[0], data, sizeof(int)*cols, cudaMemcpyHostToDevice, 0, NONBLOCKING, DATA, MEDIUM, kstub);
 	//enqueue_tcomamnd(tqueues, gpuWall, data+cols, sizeof(int)*(size-cols), cudaMemcpyHostToDevice, 0, NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
 
-	 err = cudaMemcpyAsync(gpuResult[0], data, sizeof(int)*cols, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
-	 err = cudaMemcpyAsync(gpuWall, data+cols, sizeof(int)*(size-cols), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	 err = cudaMemcpyAsync(params->gpuResult[0], params->data, sizeof(int)*params->cols, cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+	 err = cudaMemcpyAsync(params->gpuWall, params->data+params->cols, sizeof(int)*(size-params->cols), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 	
 	#else
 	#ifdef MANAGED_MEM
@@ -512,17 +514,17 @@ int PF_start_transfers(void *arg)
 	
 	if (p.concurrentManagedAccess)
 	{
-		err = cudaMemPrefetchAsync(data, sizeof(int)*(rows, cols), kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->data, sizeof(int)*(params->rows, params->cols), kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(wall, sizeof(int)*rows, kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->wall, sizeof(int)*params->rows, kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(result, sizeof(int)*cols, kstub->deviceId);
+		err = cudaMemPrefetchAsync(params->result, sizeof(int)*params->cols, kstub->deviceId);
 		if ( err != cudaSuccess) {
 			printf("Error in vAdd:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
@@ -558,14 +560,14 @@ int PF_start_transfers(void *arg)
 
 int PF_end_kernel(void *arg)
 {
-	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_PF_params * params = (t_PF_params *)kstub->params;
 	
 #ifdef MEMCPY_SYNC
 
 	cudaEventSynchronize(kstub->end_Exec);
 
-	enqueue_tcomamnd(tqueues, result, gpuResult[final_ret], sizeof(int)*cols, cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->result, params->gpuResult[params->final_ret], sizeof(int)*params->cols, cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
 	 
 #else
 	#ifdef MEMCPY_ASYNC
@@ -573,7 +575,7 @@ int PF_end_kernel(void *arg)
 
 	//enqueue_tcomamnd(tqueues, result, gpuResult[final_ret], sizeof(int)*cols, cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
 	
-	cudaMemcpyAsync(result, gpuResult[final_ret], sizeof(int)*cols, cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+	cudaMemcpyAsync(params->result, params->gpuResult[params->final_ret], sizeof(int)*params->cols, cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
 	#else
 		#ifdef MANAGED_MEM
 			cudaStreamSynchronize(*(kstub->execution_s)); // To be sure kernel execution has finished before processing output data
@@ -587,11 +589,12 @@ int PF_end_kernel(void *arg)
 int launch_orig_PF(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_PF_params * params = (t_PF_params *)kstub->params;
 	
 	// Setup execution parameters
     //dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	//dim3 dimBlock(BLOCK_SIZE);
-	dim3 dimGrid(blockCols);
+	dim3 dimGrid(params->blockCols);
 	
 	int src = 1, dst = 0, t = 0;
 	
@@ -600,14 +603,14 @@ int launch_orig_PF(void *arg)
 	dst = temp;
 	
 	original_pathFinderCUDA<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(
-		pyramid_height, 
-		gpuWall, gpuResult[src], gpuResult[dst],
-		cols,rows, t, borderCols);
+		params->pyramid_height, 
+		params->gpuWall, params->gpuResult[src], params->gpuResult[dst],
+		params->cols, params->rows, t, params->borderCols);
 		
 	// for the measurement fairness
 	//cudaDeviceSynchronize();
 	
-	final_ret = dst;
+	params->final_ret = dst;
 
 	return 0;
 }
@@ -615,6 +618,7 @@ int launch_orig_PF(void *arg)
 int launch_preemp_PF(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_PF_params * params = (t_PF_params *)kstub->params;
 	
 	// Setup execution parameters
     //dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
@@ -629,9 +633,9 @@ int launch_preemp_PF(void *arg)
 	
 	#ifdef SMT
 		SMT_pathFinderCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s) >>>(
-			pyramid_height, 
-			gpuWall, gpuResult[src], gpuResult[dst],
-			cols,rows, t, borderCols,
+			params->pyramid_height, 
+			params->gpuWall, params->gpuResult[src], params->gpuResult[dst],
+			params->cols, params->rows, t, params->borderCols,
 			
 			kstub->idSMs[0],
 			kstub->idSMs[1],
@@ -641,9 +645,9 @@ int launch_preemp_PF(void *arg)
 			&(kstub->gm_state[kstub->stream_index]));
 	#else
 		SMK_pathFinderCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s) >>>(
-			pyramid_height, 
-			gpuWall, gpuResult[src], gpuResult[dst],
-			cols,rows, t, borderCols,
+			params->pyramid_height, 
+			params->gpuWall, params->gpuResult[src], params->gpuResult[dst],
+			params->cols, params->rows, t, params->borderCols,
 			
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,
@@ -656,7 +660,7 @@ int launch_preemp_PF(void *arg)
 	// for the measurement fairness
 	//cudaDeviceSynchronize();
 	
-	final_ret = dst;
+	params->final_ret = dst;
 	
 	return 0;
 }

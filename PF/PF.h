@@ -3,6 +3,18 @@
 #include <semaphore.h> 			
 
 typedef struct {
+	int rows, cols;
+	int* data;
+	int** wall;
+	int* result;
+	int pyramid_height;
+	
+	int final_ret;
+	int borderCols;
+	int smallBlockCol;
+	int blockCols;
+	int *gpuWall, *gpuResult[2];
+	
 	int nRows;
 	int nCols;
 	int param_pyramid_height;
