@@ -54,6 +54,10 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 	switch (id) {
 
 		case BS:
+			t_BS_params *BS_params;
+			BS_params = (t_BS_params *)calloc(1, sizeof(t_BS_params));
+			k_stub->params = (void *)BS_params;
+			
 			k_stub->launchCKEkernel = launch_preemp_BS;
 			k_stub->launchORIkernel = launch_orig_BS;
 			k_stub->startKernel = BS_start_kernel_dummy;

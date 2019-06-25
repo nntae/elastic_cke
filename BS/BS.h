@@ -2,6 +2,30 @@
 #include <helper_cuda.h>  
 #include <semaphore.h> 
 
+typedef struct {
+	float
+    //Results calculated by CPU for reference
+    *h_CallResultCPU,
+    *h_PutResultCPU,
+    //CPU copy of GPU results
+    *h_CallResultGPU,
+    *h_PutResultGPU,
+    //CPU instance of input data
+    *h_StockPrice,
+    *h_OptionStrike,
+    *h_OptionYears;
+
+    //'d_' prefix - GPU (device) memory space
+    float
+    //Results calculated by GPU
+    *d_CallResult=NULL,
+    *d_PutResult=NULL,
+    //GPU instance of input data
+    *d_StockPrice=NULL,
+    *d_OptionStrike=NULL,
+    *d_OptionYears=NULL;
+} t_BS_params;
+
 /*__global__ void original_BlackScholesGPU(
     float *d_CallResult,
     float *d_PutResult,

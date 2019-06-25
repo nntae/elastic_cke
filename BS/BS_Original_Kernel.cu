@@ -453,7 +453,7 @@ float RandFloat(float low, float high)
 /// Global memory //////
 
 //'h_' prefix - CPU (host) memory space
-    float
+    /*float
     //Results calculated by CPU for reference
     *h_CallResultCPU,
     *h_PutResultCPU,
@@ -473,7 +473,7 @@ float RandFloat(float low, float high)
     //GPU instance of input data
     *d_StockPrice=NULL,
     *d_OptionStrike=NULL,
-    *d_OptionYears=NULL;
+    *d_OptionYears=NULL;*/
 
     double
     delta, ref, sum_delta, sum_ref, max_delta, L1norm;
@@ -493,6 +493,7 @@ float RandFloat(float low, float high)
 int BS_start_kernel_dummy(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_BS_params * params = (t_BS_params *)kstub->params;
 	
 	OPT_N = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
 	OPT_SZ = OPT_N * sizeof(float);
@@ -501,20 +502,20 @@ int BS_start_kernel_dummy(void *arg)
 
     //printf("Initializing data...\n");
     //printf("...allocating CPU memory for options.\n");
-    h_CallResultCPU = (float *)malloc(OPT_SZ);
-    h_PutResultCPU  = (float *)malloc(OPT_SZ);
-    h_CallResultGPU = (float *)malloc(OPT_SZ);
-    h_PutResultGPU  = (float *)malloc(OPT_SZ);
-    h_StockPrice    = (float *)malloc(OPT_SZ);
-    h_OptionStrike  = (float *)malloc(OPT_SZ);
-    h_OptionYears   = (float *)malloc(OPT_SZ);
+    params->h_CallResultCPU = (float *)malloc(OPT_SZ);
+    params->h_PutResultCPU  = (float *)malloc(OPT_SZ);
+    params->h_CallResultGPU = (float *)malloc(OPT_SZ);
+    params->h_PutResultGPU  = (float *)malloc(OPT_SZ);
+    params->h_StockPrice    = (float *)malloc(OPT_SZ);
+    params->h_OptionStrike  = (float *)malloc(OPT_SZ);
+    params->h_OptionYears   = (float *)malloc(OPT_SZ);
 		
     //printf("...allocating GPU memory for options.\n");
-    checkCudaErrors(cudaMalloc((void **)&d_CallResult,   OPT_SZ));
-    checkCudaErrors(cudaMalloc((void **)&d_PutResult,    OPT_SZ));
-    checkCudaErrors(cudaMalloc((void **)&d_StockPrice,   OPT_SZ));
-    checkCudaErrors(cudaMalloc((void **)&d_OptionStrike, OPT_SZ));
-    checkCudaErrors(cudaMalloc((void **)&d_OptionYears,  OPT_SZ));
+    checkCudaErrors(cudaMalloc((void **)&params->d_CallResult,   OPT_SZ));
+    checkCudaErrors(cudaMalloc((void **)&params->d_PutResult,    OPT_SZ));
+    checkCudaErrors(cudaMalloc((void **)&params->d_StockPrice,   OPT_SZ));
+    checkCudaErrors(cudaMalloc((void **)&params->d_OptionStrike, OPT_SZ));
+    checkCudaErrors(cudaMalloc((void **)&params->d_OptionYears,  OPT_SZ));
 	
     // printf("...generating input data in CPU mem.\n");
     srand(5347);
@@ -522,23 +523,23 @@ int BS_start_kernel_dummy(void *arg)
     //Generate options set
     for (int i = 0; i < OPT_N; i++)
     {
-        h_CallResultCPU[i] = 0.0f;
-        h_PutResultCPU[i]  = -1.0f;
-        h_StockPrice[i]    = RandFloat(5.0f, 30.0f);
-        h_OptionStrike[i]  = RandFloat(1.0f, 100.0f);
-        h_OptionYears[i]   = RandFloat(0.25f, 10.0f);
+        params->h_CallResultCPU[i] = 0.0f;
+        params->h_PutResultCPU[i]  = -1.0f;
+        params->h_StockPrice[i]    = RandFloat(5.0f, 30.0f);
+        params->h_OptionStrike[i]  = RandFloat(1.0f, 100.0f);
+        params->h_OptionYears[i]   = RandFloat(0.25f, 10.0f);
     }
 
     //printf("...copying input data to GPU mem.\n");
     //Copy options data to GPU memory for further processing
-    checkCudaErrors(cudaMemcpy(d_StockPrice,  h_StockPrice,   OPT_SZ, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(d_OptionStrike, h_OptionStrike,  OPT_SZ, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(d_OptionYears,  h_OptionYears,   OPT_SZ, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(params->d_StockPrice,  params->h_StockPrice,   OPT_SZ, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(params->d_OptionStrike, params->h_OptionStrike,  OPT_SZ, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(params->d_OptionYears,  params->h_OptionYears,   OPT_SZ, cudaMemcpyHostToDevice));
     //printf("Data init done.\n\n");
 	
 
-    checkCudaErrors(cudaMemset(d_CallResult, 0, OPT_SZ));
-    checkCudaErrors(cudaMemset(d_PutResult, 0, OPT_SZ));
+    checkCudaErrors(cudaMemset(params->d_CallResult, 0, OPT_SZ));
+    checkCudaErrors(cudaMemset(params->d_PutResult, 0, OPT_SZ));
     
 	return 0;
 }
@@ -546,6 +547,7 @@ int BS_start_kernel_dummy(void *arg)
 int BS_start_mallocs(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_BS_params * params = (t_BS_params *)kstub->params;
 	
 	OPT_N = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
 	OPT_SZ = OPT_N * sizeof(float);
@@ -555,40 +557,40 @@ int BS_start_mallocs(void *arg)
     //printf("Initializing data...\n");
     //printf("...allocating CPU memory for options.\n");
 #if defined(MEMCPY_SYNC) || defined(MEMCPY_ASYNC)
-	checkCudaErrors(cudaMallocHost(&h_CallResultCPU, OPT_SZ));
-	checkCudaErrors(cudaMallocHost(&h_PutResultCPU, OPT_SZ));
-	checkCudaErrors(cudaMallocHost(&h_CallResultGPU, OPT_SZ));
-	checkCudaErrors(cudaMallocHost(&h_PutResultGPU, OPT_SZ));
-	checkCudaErrors(cudaMallocHost(&h_StockPrice, OPT_SZ));
-	checkCudaErrors(cudaMallocHost(&h_OptionStrike, OPT_SZ));
-	checkCudaErrors(cudaMallocHost(&h_OptionYears, OPT_SZ));
+	checkCudaErrors(cudaMallocHost(&params->h_CallResultCPU, OPT_SZ));
+	checkCudaErrors(cudaMallocHost(&params->h_PutResultCPU, OPT_SZ));
+	checkCudaErrors(cudaMallocHost(&params->h_CallResultGPU, OPT_SZ));
+	checkCudaErrors(cudaMallocHost(&params->h_PutResultGPU, OPT_SZ));
+	checkCudaErrors(cudaMallocHost(&params->h_StockPrice, OPT_SZ));
+	checkCudaErrors(cudaMallocHost(&params->h_OptionStrike, OPT_SZ));
+	checkCudaErrors(cudaMallocHost(&params->h_OptionYears, OPT_SZ));
 	
 	//printf("...allocating GPU memory for options.\n");
-    checkCudaErrors(cudaMalloc((void **)&d_CallResult,   OPT_SZ));
-    checkCudaErrors(cudaMalloc((void **)&d_PutResult,    OPT_SZ));
-    checkCudaErrors(cudaMalloc((void **)&d_StockPrice,   OPT_SZ));
-    checkCudaErrors(cudaMalloc((void **)&d_OptionStrike, OPT_SZ));
-    checkCudaErrors(cudaMalloc((void **)&d_OptionYears,  OPT_SZ));  
+    checkCudaErrors(cudaMalloc((void **)&params->d_CallResult,   OPT_SZ));
+    checkCudaErrors(cudaMalloc((void **)&params->d_PutResult,    OPT_SZ));
+    checkCudaErrors(cudaMalloc((void **)&params->d_StockPrice,   OPT_SZ));
+    checkCudaErrors(cudaMalloc((void **)&params->d_OptionStrike, OPT_SZ));
+    checkCudaErrors(cudaMalloc((void **)&params->d_OptionYears,  OPT_SZ));  
 	
-	checkCudaErrors(cudaMemset(d_CallResult, 0, OPT_SZ/*, kstub->transfer_s[0]*/));
-    checkCudaErrors(cudaMemset(d_PutResult, 0, OPT_SZ/*, kstub->transfer_s[0])*/));
+	checkCudaErrors(cudaMemset(params->d_CallResult, 0, OPT_SZ/*, kstub->transfer_s[0]*/));
+    checkCudaErrors(cudaMemset(params->d_PutResult, 0, OPT_SZ/*, kstub->transfer_s[0])*/));
 		
 #else
 	#ifdef MANAGED_MEM
-	h_CallResultCPU = (float *)malloc(OPT_SZ);
-    h_PutResultCPU  = (float *)malloc(OPT_SZ);
+	params->h_CallResultCPU = (float *)malloc(OPT_SZ);
+    params->h_PutResultCPU  = (float *)malloc(OPT_SZ);
 	
-	cudaMallocManaged(&h_CallResultGPU, OPT_SZ);
-	cudaMallocManaged(&h_PutResultGPU, OPT_SZ);
-	cudaMallocManaged(&h_StockPrice, OPT_SZ);
-	cudaMallocManaged(&h_OptionStrike, OPT_SZ);
-	cudaMallocManaged(&h_OptionYears, OPT_SZ);
+	cudaMallocManaged(&params->h_CallResultGPU, OPT_SZ);
+	cudaMallocManaged(&params->h_PutResultGPU, OPT_SZ);
+	cudaMallocManaged(&params->h_StockPrice, OPT_SZ);
+	cudaMallocManaged(&params->h_OptionStrike, OPT_SZ);
+	cudaMallocManaged(&params->h_OptionYears, OPT_SZ);
 	
-	d_CallResult = h_CallResultGPU;
-    d_PutResult = h_PutResultGPU;
-    d_StockPrice = h_StockPrice;
-    d_OptionStrike = h_OptionStrike;
-	d_OptionYears = h_OptionYears;
+	params->d_CallResult = params->h_CallResultGPU;
+    params->d_PutResult = params->h_PutResultGPU;
+    params->d_StockPrice = params->h_StockPrice;
+    params->d_OptionStrike = params->h_OptionStrike;
+	params->d_OptionYears = params->h_OptionYears;
 	
 	#else
 	printf("No transfer model: Exiting ...\n");
@@ -603,11 +605,11 @@ int BS_start_mallocs(void *arg)
     //Generate options set
     for (int i = 0; i < OPT_N; i++)
     {
-        h_CallResultCPU[i] = 0.0f;
-        h_PutResultCPU[i]  = -1.0f;
-        h_StockPrice[i]    = RandFloat(5.0f, 30.0f);
-        h_OptionStrike[i]  = RandFloat(1.0f, 100.0f);
-        h_OptionYears[i]   = RandFloat(0.25f, 10.0f);
+        params->h_CallResultCPU[i] = 0.0f;
+        params->h_PutResultCPU[i]  = -1.0f;
+        params->h_StockPrice[i]    = RandFloat(5.0f, 30.0f);
+        params->h_OptionStrike[i]  = RandFloat(1.0f, 100.0f);
+        params->h_OptionYears[i]   = RandFloat(0.25f, 10.0f);
     }
 
 	return 0;
@@ -615,8 +617,8 @@ int BS_start_mallocs(void *arg)
 
 int BS_start_transfers(void *arg)
 {
-	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_BS_params * params = (t_BS_params *)kstub->params;
 	
 #ifdef MEMCPY_SYNC
 	//printf("...copying input data to GPU mem.\n");
@@ -630,9 +632,9 @@ int BS_start_transfers(void *arg)
 	HtD_data_transfer(d_OptionStrike, h_OptionStrike,  OPT_SZ, C_S);
 	HtD_data_transfer(d_OptionYears,  h_OptionYears,   OPT_SZ, C_S);*/
 	
-	enqueue_tcomamnd(tqueues, d_StockPrice, h_StockPrice, OPT_SZ, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
-	enqueue_tcomamnd(tqueues, d_OptionStrike, h_OptionStrike, OPT_SZ, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
-	enqueue_tcomamnd(tqueues, d_OptionYears, h_OptionYears, OPT_SZ, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->d_StockPrice, params->h_StockPrice, OPT_SZ, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->d_OptionStrike, params->h_OptionStrike, OPT_SZ, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->d_OptionYears, params->h_OptionYears, OPT_SZ, cudaMemcpyHostToDevice, 0, BLOCKING, DATA, LOW, kstub);
 
    // checkCudaErrors(cudaMemset(d_CallResult, 0, OPT_SZ));
    // checkCudaErrors(cudaMemset(d_PutResult, 0, OPT_SZ));
@@ -644,9 +646,9 @@ int BS_start_transfers(void *arg)
 	#ifdef MEMCPY_ASYNC	
 
 	
-	checkCudaErrors(cudaMemcpyAsync(d_StockPrice,  h_StockPrice,   OPT_SZ, cudaMemcpyHostToDevice, kstub->transfer_s[0]));
-    checkCudaErrors(cudaMemcpyAsync(d_OptionStrike, h_OptionStrike,  OPT_SZ, cudaMemcpyHostToDevice, kstub->transfer_s[0]));
-    checkCudaErrors(cudaMemcpyAsync(d_OptionYears,  h_OptionYears,   OPT_SZ, cudaMemcpyHostToDevice, kstub->transfer_s[0]));
+	checkCudaErrors(cudaMemcpyAsync(params->d_StockPrice,  params->h_StockPrice,   OPT_SZ, cudaMemcpyHostToDevice, kstub->transfer_s[0]));
+    checkCudaErrors(cudaMemcpyAsync(params->d_OptionStrike, params->h_OptionStrike,  OPT_SZ, cudaMemcpyHostToDevice, kstub->transfer_s[0]));
+    checkCudaErrors(cudaMemcpyAsync(params->d_OptionYears,  params->h_OptionYears,   OPT_SZ, cudaMemcpyHostToDevice, kstub->transfer_s[0]));
 	/*enqueue_tcomamnd(tqueues, d_StockPrice, h_StockPrice, OPT_SZ, cudaMemcpyHostToDevice, kstub->transfer_s[0], NONBLOCKING, DATA, MEDIUM, kstub);
 	enqueue_tcomamnd(tqueues, d_OptionStrike,  h_OptionStrike, OPT_SZ, cudaMemcpyHostToDevice, kstub->transfer_s[0], NONBLOCKING, DATA, MEDIUM, kstub);
 	enqueue_tcomamnd(tqueues, d_OptionYears, h_OptionYears, OPT_SZ, cudaMemcpyHostToDevice, kstub->transfer_s[0], NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);*/
@@ -672,27 +674,27 @@ int BS_start_transfers(void *arg)
 
 	if (p.concurrentManagedAccess)
 	{
-		err = cudaMemPrefetchAsync(h_CallResultGPU, OPT_SZ, kstub->deviceId, kstub->transfer_s[0]);
+		err = cudaMemPrefetchAsync(params->h_CallResultGPU, OPT_SZ, kstub->deviceId, kstub->transfer_s[0]);
 		if ( err != cudaSuccess) {
 			printf("Error in BS:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_PutResultGPU, OPT_SZ, kstub->deviceId, kstub->transfer_s[0]);
+		err = cudaMemPrefetchAsync(params->h_PutResultGPU, OPT_SZ, kstub->deviceId, kstub->transfer_s[0]);
 		if ( err != cudaSuccess) {
 			printf("Error in BS:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_StockPrice, OPT_SZ, kstub->deviceId, kstub->transfer_s[0]);
+		err = cudaMemPrefetchAsync(params->h_StockPrice, OPT_SZ, kstub->deviceId, kstub->transfer_s[0]);
 		if ( err != cudaSuccess) {
 			printf("Error in BS:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_OptionStrike, OPT_SZ, kstub->deviceId, kstub->transfer_s[0]);
+		err = cudaMemPrefetchAsync(params->h_OptionStrike, OPT_SZ, kstub->deviceId, kstub->transfer_s[0]);
 		if ( err != cudaSuccess) {
 			printf("Error in BS:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
 		}
-		err = cudaMemPrefetchAsync(h_OptionYears, OPT_SZ, kstub->deviceId, kstub->transfer_s[0]);
+		err = cudaMemPrefetchAsync(params->h_OptionYears, OPT_SZ, kstub->deviceId, kstub->transfer_s[0]);
 		if ( err != cudaSuccess) {
 			printf("Error in BS:cudaMemPrefetchAsync\n");
 			exit(EXIT_FAILURE);
@@ -717,6 +719,7 @@ int BS_start_transfers(void *arg)
 int BS_end_kernel_dummy(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_BS_params * params = (t_BS_params *)kstub->params;
 	
 #ifdef MEMCPY_SYNC
 	
@@ -729,8 +732,8 @@ int BS_end_kernel_dummy(void *arg)
 	/*DtH_data_transfer(h_CallResultGPU, d_CallResult, OPT_SZ, C_S);
 	DtH_data_transfer(h_PutResultGPU,  d_PutResult, OPT_SZ, C_S); */
 	
-	enqueue_tcomamnd(tqueues, h_CallResultGPU, d_CallResult, OPT_SZ, cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
-	enqueue_tcomamnd(tqueues, h_PutResultGPU, d_PutResult, OPT_SZ, cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->h_CallResultGPU, params->d_CallResult, OPT_SZ, cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
+	enqueue_tcomamnd(tqueues, params->h_PutResultGPU, params->d_PutResult, OPT_SZ, cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
 
 	
 #else
@@ -738,8 +741,8 @@ int BS_end_kernel_dummy(void *arg)
 
 	//cudaEventSynchronize(kstub->end_Exec);
 
-	checkCudaErrors(cudaMemcpyAsync(h_CallResultGPU, d_CallResult, OPT_SZ, cudaMemcpyDeviceToHost, kstub->transfer_s[1]));
-    checkCudaErrors(cudaMemcpyAsync(h_PutResultGPU,  d_PutResult,  OPT_SZ, cudaMemcpyDeviceToHost, kstub->transfer_s[1]));
+	checkCudaErrors(cudaMemcpyAsync(params->h_CallResultGPU, params->d_CallResult, OPT_SZ, cudaMemcpyDeviceToHost, kstub->transfer_s[1]));
+    checkCudaErrors(cudaMemcpyAsync(params->h_PutResultGPU,  params->d_PutResult,  OPT_SZ, cudaMemcpyDeviceToHost, kstub->transfer_s[1]));
 	cudaStreamSynchronize(kstub->transfer_s[1]);
 	
 	/*checkCudaErrors(cudaMemcpy(h_CallResultGPU, d_CallResult, OPT_SZ, cudaMemcpyDeviceToHost));
@@ -858,15 +861,15 @@ int BS_end_kernel_dummy(void *arg)
 
 int launch_orig_BS(void *arg)
 {
-	
-	t_kernel_stub *kstub = (t_kernel_stub *) arg;
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_BS_params * params = (t_BS_params *)kstub->params;
 	
 	original_BlackScholesGPU <<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(
-			d_CallResult,
-            d_PutResult,
-            d_StockPrice,
-            d_OptionStrike,
-            d_OptionYears,
+			params->d_CallResult,
+            params->d_PutResult,
+            params->d_StockPrice,
+            params->d_OptionStrike,
+            params->d_OptionYears,
             RISKFREE,
             VOLATILITY,
             OPT_N,
@@ -879,15 +882,16 @@ int launch_orig_BS(void *arg)
 int launch_preemp_BS(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_BS_params * params = (t_BS_params *)kstub->params;
 	
 	#ifdef SMT
 	
 	preemp_SMT_BlackScholesGPU<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
-			d_CallResult,
-            d_PutResult,
-            d_StockPrice,
-            d_OptionStrike,
-            d_OptionYears,
+			params->d_CallResult,
+            params->d_PutResult,
+            params->d_StockPrice,
+            params->d_OptionStrike,
+            params->d_OptionYears,
             RISKFREE,
             VOLATILITY,
             OPT_N,
@@ -901,11 +905,11 @@ int launch_preemp_BS(void *arg)
     );
 	#else
 	preemp_SMK_BlackScholesGPU<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution)>>>(
-			d_CallResult,
-            d_PutResult,
-            d_StockPrice,
-            d_OptionStrike,
-            d_OptionYears,
+			params->d_CallResult,
+            params->d_PutResult,
+            params->d_StockPrice,
+            params->d_OptionStrike,
+            params->d_OptionYears,
             RISKFREE,
             VOLATILITY,
             OPT_N,
