@@ -1666,7 +1666,7 @@ int GCEDD_start_transfers(void *arg)
 
 int GCEDD_end_kernel(void *arg)
 {
-	
+/*	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_CEDD_params * params = (t_CEDD_params *)kstub->params;
 	
@@ -1689,7 +1689,7 @@ int GCEDD_end_kernel(void *arg)
 		#endif
 	#endif
 #endif
-
+*/
 	return 0;
 }	
 
@@ -1735,3 +1735,86 @@ int GCEDD_end_kernel(void *arg)
 
     return 0;
 }*/
+
+int SCEDD_start_kernel(void *arg) 
+{
+	return 0;
+}
+
+int SCEDD_start_mallocs(void *arg)
+{
+	return 0;
+}
+
+int SCEDD_start_transfers(void *arg)
+{
+	return 0;
+}
+
+int SCEDD_end_kernel(void *arg)
+{
+	return 0;
+}	
+
+int NCEDD_start_kernel(void *arg) 
+{
+	return 0;
+}
+
+int NCEDD_start_mallocs(void *arg)
+{
+	return 0;
+}
+
+int NCEDD_start_transfers(void *arg)
+{
+	return 0;
+}
+
+int NCEDD_end_kernel(void *arg)
+{
+	return 0;
+}	
+
+int HCEDD_start_kernel(void *arg) 
+{
+	return 0;
+}
+
+int HCEDD_start_mallocs(void *arg)
+{
+	return 0;
+}
+
+int HCEDD_start_transfers(void *arg)
+{
+	return 0;
+}
+
+int HCEDD_end_kernel(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_CEDD_params * params = (t_CEDD_params *)kstub->params;
+	
+#ifdef MEMCPY_SYNC
+
+	cudaEventSynchronize(kstub->end_Exec);
+
+	enqueue_tcomamnd(tqueues, params->h_in_out[GPU_OUT_PROXY], params->out_CEDD, in_size, cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
+	 
+#else
+	#ifdef MEMCPY_ASYNC
+	printf("-->Comienzo de DtH para tarea %d\n", kstub->id);
+
+	//enqueue_tcomamnd(tqueues, h_in_out[GPU_OUT_PROXY], out_CEDD, in_size, cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
+	cudaMemcpyAsync(params->h_in_out[GPU_OUT_PROXY], params->out_CEDD, in_size, cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+
+	#else
+		#ifdef MANAGED_MEM
+			cudaStreamSynchronize(*(kstub->execution_s)); // To be sure kernel execution has finished before processing output data
+		#endif
+	#endif
+#endif
+
+	return 0;
+}	

@@ -41,6 +41,22 @@ int get_index(t_Kernel kid, int *index)
 			*index = 8;
 			break;
 			
+		case CCONV:
+			*index = 9;
+			break;
+			
+		case SCEDD:
+			*index = 10;
+			break;
+			
+		case NCEDD:
+			*index = 11;
+			break;
+			
+		case HCEDD:
+			*index = 12;
+			break;
+			
 		default:
 			printf("kid not supported\n");
 			return -1;
@@ -87,6 +103,22 @@ int kid_from_index(int index, char *skid)
 			
 		case 8:
 			strcpy(skid, "RCONV");
+			break;
+			
+		case 9:
+			strcpy(skid, "CCONV");
+			break;
+			
+		case 13:
+			strcpy(skid, "SCEDD");
+			break;
+			
+		case 14:
+			strcpy(skid, "NCEDD");
+			break;
+			
+		case 15:
+			strcpy(skid, "HCEDD");
 			break;
 			
 		case 17:

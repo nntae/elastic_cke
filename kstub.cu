@@ -551,6 +551,10 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		
 			k_stub->launchCKEkernel = launch_preemp_CCONV;
 			k_stub->launchORIkernel = launch_orig_CCONV;
+			k_stub->startKernel = CCONV_start_kernel;
+			k_stub->startMallocs = CCONV_start_mallocs;
+			k_stub->startTransfers = CCONV_start_transfers;
+			k_stub->endKernel = CCONV_end_kernel;
 			
 			if (strcmp(device_name, "Tesla K20c") == 0) {		
 				k_stub->kconf.numSMs = 13;
@@ -705,6 +709,11 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		
 			k_stub->launchCKEkernel = launch_preemp_SCEDD;
 			k_stub->launchORIkernel = launch_orig_SCEDD;
+			k_stub->startKernel = SCEDD_start_kernel;
+			k_stub->endKernel = SCEDD_end_kernel;
+
+			k_stub->startMallocs = SCEDD_start_mallocs;
+			k_stub->startTransfers = SCEDD_start_transfers;
 			
 			if (strcmp(device_name, "Tesla K20c") == 0) {			
 				k_stub->kconf.numSMs = 13;
@@ -770,6 +779,11 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		
 			k_stub->launchCKEkernel = launch_preemp_NCEDD;
 			k_stub->launchORIkernel = launch_orig_NCEDD;
+			k_stub->startKernel = NCEDD_start_kernel;
+			k_stub->endKernel = NCEDD_end_kernel;
+
+			k_stub->startMallocs = NCEDD_start_mallocs;
+			k_stub->startTransfers = NCEDD_start_transfers;
 			
 			if (strcmp(device_name, "Tesla K20c") == 0) {			
 				k_stub->kconf.numSMs = 13;
@@ -835,6 +849,11 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		
 			k_stub->launchCKEkernel = launch_preemp_HCEDD;
 			k_stub->launchORIkernel = launch_orig_HCEDD;
+			k_stub->startKernel = HCEDD_start_kernel;
+			k_stub->endKernel = HCEDD_end_kernel;
+
+			k_stub->startMallocs = HCEDD_start_mallocs;
+			k_stub->startTransfers = HCEDD_start_transfers;
 			
 			if (strcmp(device_name, "Tesla K20c") == 0) {			
 				k_stub->kconf.numSMs = 13;

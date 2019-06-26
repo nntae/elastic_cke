@@ -34,9 +34,15 @@ int launch_orig_RCONV(void *kstub);
 int RCONV_start_kernel(void *arg);
 int RCONV_end_kernel(void *arg);
 
+int RCONV_start_mallocs(void *arg);
+int RCONV_start_transfers(void *arg);
+
 //Cols
 int launch_preemp_CCONV(void *kstub);
 int launch_orig_CCONV(void *kstub);
 
-int RCONV_start_mallocs(void *arg);
-int RCONV_start_transfers(void *arg);
+int CCONV_start_kernel(void *arg);
+int CCONV_end_kernel(void *arg);
+
+int CCONV_start_mallocs(void *arg);
+int CCONV_start_transfers(void *arg);

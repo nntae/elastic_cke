@@ -829,6 +829,71 @@ int RCONV_start_transfers(void *arg)
 
 int RCONV_end_kernel(void *arg)
 {
+	/*
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_CONV_params * params = (t_CONV_params *)kstub->params;
+	
+#ifdef MEMCPY_SYNC
+
+	cudaEventSynchronize(kstub->end_Exec);
+
+	enqueue_tcomamnd(tqueues, params->h_OutputGPU, params->d_Output, imageW * imageH * sizeof(float), cudaMemcpyDeviceToHost, 0, BLOCKING, DATA, LOW, kstub);
+	 
+#else
+	#ifdef MEMCPY_ASYNC
+	printf("-->Comienzo de DtH para tarea %d\n", kstub->id);
+
+	//enqueue_tcomamnd(tqueues, h_OutputGPU, d_Output, imageW * imageH * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
+	cudaMemcpyAsync(params->h_OutputGPU, params->d_Output, imageW * imageH * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+	#else
+		#ifdef MANAGED_MEM
+			cudaStreamSynchronize(*(kstub->execution_s)); // To be sure kernel execution has finished before processing output data
+		#endif
+	#endif
+#endif
+*/
+	return 0;
+}	
+
+/*int RCONV_end_kernel(void *arg)
+{
+
+
+    checkCudaErrors(cudaFree(d_Buffer));
+    checkCudaErrors(cudaFree(d_Output));
+    checkCudaErrors(cudaFree(d_Input));
+    // free(h_OutputGPU);
+    // free(h_OutputCPU);
+    // free(h_Buffer);
+    // free(h_Input);
+    // free(h_Kernel);
+	
+	cudaFreeHost(h_OutputGPU);
+	cudaFreeHost(h_OutputCPU);
+    cudaFreeHost(h_Buffer);
+    cudaFreeHost(h_Input);
+    cudaFreeHost(h_Kernel);
+
+    return 0;
+}*/
+
+int CCONV_start_kernel(void *arg) 
+{	
+	return 0;
+}
+
+int CCONV_start_mallocs(void *arg)
+{
+	return 0;
+}
+
+int CCONV_start_transfers(void *arg)
+{
+	return 0;
+}
+
+int CCONV_end_kernel(void *arg)
+{
 	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_CONV_params * params = (t_CONV_params *)kstub->params;
@@ -854,25 +919,3 @@ int RCONV_end_kernel(void *arg)
 
 	return 0;
 }	
-
-/*int RCONV_end_kernel(void *arg)
-{
-
-
-    checkCudaErrors(cudaFree(d_Buffer));
-    checkCudaErrors(cudaFree(d_Output));
-    checkCudaErrors(cudaFree(d_Input));
-    // free(h_OutputGPU);
-    // free(h_OutputCPU);
-    // free(h_Buffer);
-    // free(h_Input);
-    // free(h_Kernel);
-	
-	cudaFreeHost(h_OutputGPU);
-	cudaFreeHost(h_OutputCPU);
-    cudaFreeHost(h_Buffer);
-    cudaFreeHost(h_Input);
-    cudaFreeHost(h_Kernel);
-
-    return 0;
-}*/
