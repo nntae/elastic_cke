@@ -186,8 +186,6 @@ int smt_coexec_prof(t_kernel_stub **kstub, int numSMs)
 	return 0;
 }
 
-
-
 int smk_coexec_prof(t_kernel_stub **kstub)
 {
 	
@@ -321,6 +319,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 		for (int j=i+1; j<num_kernels; j++) {
 			pair_kstubs[0] = kstubs[i];
 			pair_kstubs[1] = kstubs[j];
+			printf("Profiling smk %d %d\n", kstubs[i]->id, kstubs[j]->id);
 			smk_coexec_prof(pair_kstubs);
 		}
 	}
@@ -369,7 +368,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 			kid_from_index(kstubs[j]->id, skid1);
 			//printf("Best SMK real configuration for (%s,%s) -> (%d, %d) con s=%f\n", skid0, skid1, b0, b1, speedup);
 			//printf("Best SMK theoretical configuration for (%s,%s) -> (%d, %d) con s=%f\n\n", skid0, skid1, t_b0, t_b1, t_speedup);
-			printf("%s/%s \t %d-%d \t %d-%d \t %f \t %f \t %f\n", skid0, skid1, b0, b1, t_b0, t_b1, speedup, t_speedup, sp_smk[t_k]);  
+			printf("%s/%s \t %d/%d \t %d/%d \t %f \t %f \t %f\n", skid0, skid1, b0, b1, t_b0, t_b1, speedup, t_speedup, sp_smk[t_k]);  
 
 		}
 	}
@@ -411,7 +410,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 			kid_from_index(kstubs[j]->id, skid1);
 			//printf("Best SMT real configuration for (%s,%s) -> (%d, %d) con s=%f\n", skid0, skid1, sms, numSMs-sms, speedup);
 			//printf("Best SMT theoretical configuration for (%s,%s) -> (%d, %d) con s=%f\n\n", skid0, skid1, t_sms, numSMs-t_sms, t_speedup);
-			printf("%s/%s \t %d-%d \t %d-%d \t %f \t %f \t %f\n", skid0, skid1, sms, numSMs-sms, t_sms, numSMs-t_sms, speedup, t_speedup, sp[t_sms-1]);  
+			printf("%s/%s \t %d/%d \t %d/%d \t %f \t %f \t %f\n", skid0, skid1, sms, numSMs-sms, t_sms, numSMs-t_sms, speedup, t_speedup, sp[t_sms-1]);  
 			
 		}
 	}		

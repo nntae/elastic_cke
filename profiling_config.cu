@@ -104,6 +104,30 @@ int fill_coBlocks()
 		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
 	reverse_values(myinfo);
 	
+	//MM-SCEDD
+	
+	myinfo = fill_head(MM, SCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//MM-NCEDD
+	
+	myinfo = fill_head(MM, NCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//MM-HCEDD
+	
+	myinfo = fill_head(MM, HCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
 	//MM-SPMV_CSRscalar
 	
 	myinfo = fill_head(MM, SPMV_CSRscalar, 7);
@@ -178,6 +202,31 @@ int fill_coBlocks()
 		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
 	reverse_values(myinfo);
 	
+	//BS-SCEDD
+	
+	myinfo = fill_head(BS, SCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//BS-NCEDD
+	
+	myinfo = fill_head(BS, NCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//BS-HCEDD
+	
+	myinfo = fill_head(BS, HCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	
 	//BS-SPMV_CSRscalar
 	
 	myinfo = fill_head(BS, SPMV_CSRscalar, 7);
@@ -238,6 +287,30 @@ int fill_coBlocks()
 	//VA-GCEDD
 	
 	myinfo = fill_head(VA, GCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//MM-SCEDD
+	
+	myinfo = fill_head(VA, SCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//MM-NCEDD
+	
+	myinfo = fill_head(VA, NCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//MM-HCEDD
+	
+	myinfo = fill_head(VA, HCEDD, 7);
 	
 	for (int i=0; i<7;i++)
 		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
@@ -315,6 +388,30 @@ int fill_coBlocks()
 		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
 	reverse_values(myinfo);
 	
+	//SPMV_CSRscalar-SCEDD
+	
+	myinfo = fill_head(SPMV_CSRscalar, SCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//SPMV_CSRscalar-NCEDD
+	
+	myinfo = fill_head(SPMV_CSRscalar, NCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//SPMV_CSRscalar-HCEDD
+	
+	myinfo = fill_head(SPMV_CSRscalar, HCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
 	//SPMV_CSRscalar - RCONV
 	
 	myinfo = fill_head(SPMV_CSRscalar, RCONV, 13);
@@ -374,6 +471,30 @@ int fill_coBlocks()
 	for (int i=0; i<7;i++)
 		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
 	reverse_values(myinfo);
+	
+	//Reduction-SCEDD
+	
+	myinfo = fill_head(Reduction, SCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//Reduction-NCEDD
+	
+	myinfo = fill_head(Reduction, NCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//Reduction-HCEDD
+	
+	myinfo = fill_head(Reduction, HCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
 
 	// Reduction - RCONV 
 	
@@ -414,6 +535,30 @@ int fill_coBlocks()
 	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 3;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 2;
 	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
+	save_info = myinfo;
+	
+	//PF-SCEDD
+	
+	myinfo = fill_head(PF, SCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//PF-NCEDD
+	
+	myinfo = fill_head(PF, NCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//PF-HCEDD
+	
+	myinfo = fill_head(PF, HCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
 	reverse_values(myinfo);
 	
 	// PF - RCONV
@@ -456,6 +601,31 @@ int fill_coBlocks()
 	myinfo->pairs[5][0] = 24; myinfo->pairs[5][1] = 2;
 	myinfo->pairs[6][0] = 25; myinfo->pairs[6][1] = 1;
 	reverse_values(myinfo);
+	save_info = myinfo;
+	
+	//RCONV-SCEDD
+	
+	myinfo = fill_head(RCONV, SCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//RCONV-NCEDD
+	
+	myinfo = fill_head(RCONV, NCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//RCONV-HCEDD
+	
+	myinfo = fill_head(RCONV, HCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
 	
 	// RCONV - HST256
 	
@@ -487,6 +657,103 @@ int fill_coBlocks()
 	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 4;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 2;
 	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
+	reverse_values(myinfo);
+	save_info = myinfo;
+	
+	//GCEDD-SCEDD
+	
+	myinfo = fill_head(GCEDD, SCEDD, 7);
+
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 3;
+	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 2;
+	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
+	reverse_values(myinfo);
+	save_info = myinfo;
+	
+	//GCEDD-NCEDD
+	
+	myinfo = fill_head(GCEDD, NCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//GCEDD-HCEDD
+	
+	myinfo = fill_head(GCEDD, HCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	/////////////////////////////////////////////7777
+	
+	//HST256 - SCEDD
+	
+	myinfo = fill_head(HST256, SCEDD, 7);
+
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 4; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 5; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 6; myinfo->pairs[4][1] = 3;
+	myinfo->pairs[5][0] = 8; myinfo->pairs[5][1] = 2;
+	myinfo->pairs[6][0] = 9; myinfo->pairs[6][1] = 1;
+	reverse_values(myinfo);
+	save_info = myinfo;
+	
+	//HST256-NCEDD
+	
+	myinfo = fill_head(HST256, NCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	//HST256-HCEDD
+	
+	myinfo = fill_head(HST256, HCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	///////////////////////////////////////////////////////
+	
+	//SCEDD-NCEDD
+	
+	myinfo = fill_head(SCEDD, NCEDD, 7);
+
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 3;
+	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 2;
+	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
+	reverse_values(myinfo);
+	save_info = myinfo;
+	
+	//SCEDD-HCEDD
+	
+	myinfo = fill_head(SCEDD, HCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
+	reverse_values(myinfo);
+	
+	/////////////////////////////////////////
+	
+	// NCEDD - HCEDD
+	
+	myinfo = fill_head(NCEDD, HCEDD, 7);
+	
+	for (int i=0; i<7;i++)
+		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
 	reverse_values(myinfo);
 	
 	return 0;
@@ -521,6 +788,15 @@ int fill_solo()
 	
 	info_solo[HST256].num_configs=10; //max_nm_blocks_per_SM
 	info_solo[HST256].tpms = (double *)calloc(info_solo[HST256].num_configs, sizeof(double));
+	
+	info_solo[SCEDD].num_configs=8; //max_nm_blocks_per_SM
+	info_solo[SCEDD].tpms = (double *)calloc(info_solo[SCEDD].num_configs, sizeof(double));
+	
+	info_solo[NCEDD].num_configs=8; //max_nm_blocks_per_SM
+	info_solo[NCEDD].tpms = (double *)calloc(info_solo[NCEDD].num_configs, sizeof(double));
+	
+	info_solo[HCEDD].num_configs=8; //max_nm_blocks_per_SM
+	info_solo[HCEDD].tpms = (double *)calloc(info_solo[HCEDD].num_configs, sizeof(double));
 	
 	return 0;
 }
