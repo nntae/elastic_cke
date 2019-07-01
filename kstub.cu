@@ -580,6 +580,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				else{
 					if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
 						k_stub->kconf.numSMs = 28; 
+						k_stub->kconf.max_persistent_blocks = 12;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 8;
 						k_stub->kconf.gridsize.x = (CCONV_params->conv_rows / 16) * (CCONV_params->conv_cols / (8 * 8));
@@ -623,19 +624,19 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			break;
 			*/			
 		case GCEDD:
-			t_CEDD_params *GCEDD_params;
+			t_CEDD_params *CEDD_params;
 			
-			GCEDD_params = (t_CEDD_params *)calloc(1, sizeof(t_CEDD_params));
+			CEDD_params = (t_CEDD_params *)calloc(1, sizeof(t_CEDD_params));
 			
 			#ifdef DATA_SET_1
-			GCEDD_params->nRows=3072 * 2;
-			GCEDD_params->nCols=4608 * 2;
+			CEDD_params->nRows=3072 * 2;
+			CEDD_params->nCols=4608 * 2;
 			#else
-			GCEDD_params->nRows=4608 * 2.6;
-			GCEDD_params->nCols=4608 * 2.6;
+			CEDD_params->nRows=4608 * 2.6;
+			CEDD_params->nCols=4608 * 2.6;
 			#endif
 			
-			k_stub->params = (void *)GCEDD_params;
+			k_stub->params = (void *)CEDD_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_GCEDD;
 			k_stub->launchORIkernel = launch_orig_GCEDD;
@@ -650,9 +651,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
-				GCEDD_params->gridDimX = (GCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-				GCEDD_params->gridDimY = (GCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-				k_stub->kconf.gridsize.x = GCEDD_params->gridDimX * GCEDD_params->gridDimY;
+				CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+				CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+				k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 				k_stub->kconf.gridsize.y = 1; //Grid Linearization
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				k_stub->kconf.coarsening = 1;
@@ -663,9 +664,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.max_persistent_blocks = 8;
 					k_stub->kconf.blocksize.x = 16;
 					k_stub->kconf.blocksize.y = 16;
-					GCEDD_params->gridDimX = (GCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-					GCEDD_params->gridDimY = (GCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-					k_stub->kconf.gridsize.x = GCEDD_params->gridDimX * GCEDD_params->gridDimY;
+					CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+					CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+					k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
 					k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					k_stub->kconf.coarsening = 1;
@@ -676,9 +677,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 16;
-						GCEDD_params->gridDimX = (GCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-						GCEDD_params->gridDimY = (GCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-						k_stub->kconf.gridsize.x = GCEDD_params->gridDimX * GCEDD_params->gridDimY;
+						CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 1;
@@ -693,19 +694,24 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			break;
 			
 		case SCEDD:
-			t_CEDD_params *SCEDD_params;
+			// t_CEDD_params *SCEDD_params;
 			
-			SCEDD_params = (t_CEDD_params *)calloc(1, sizeof(t_CEDD_params));
+			// SCEDD_params = (t_CEDD_params *)calloc(1, sizeof(t_CEDD_params));
 			
-			#ifdef DATA_SET_1
-			SCEDD_params->nRows=3072 * 2;
-			SCEDD_params->nCols=4608 * 2;
-			#else
-			SCEDD_params->nRows=4608 * 2.6;
-			SCEDD_params->nCols=4608 * 2.6;
-			#endif
+			// #ifdef DATA_SET_1
+			// SCEDD_params->nRows=3072 * 2;
+			// SCEDD_params->nCols=4608 * 2;
+			// #else
+			// SCEDD_params->nRows=4608 * 2.6;
+			// SCEDD_params->nCols=4608 * 2.6;
+			// #endif
 			
-			k_stub->params = (void *)SCEDD_params;
+			// *SCEDD_params->h_in_out = *GCEDD_params->h_in_out;
+			// SCEDD_params->data_CEDD = GCEDD_params->data_CEDD;
+			// SCEDD_params->out_CEDD = GCEDD_params->out_CEDD;
+			// SCEDD_params->theta_CEDD = GCEDD_params->theta_CEDD;
+			
+			k_stub->params = (void *)CEDD_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_SCEDD;
 			k_stub->launchORIkernel = launch_orig_SCEDD;
@@ -720,9 +726,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
-				SCEDD_params->gridDimX = (SCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-				SCEDD_params->gridDimY = (SCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-				k_stub->kconf.gridsize.x = (SCEDD_params->gridDimX * SCEDD_params->gridDimY) / 1;
+				CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+				CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+				k_stub->kconf.gridsize.x = (CEDD_params->gridDimX * CEDD_params->gridDimY) / 1;
 				k_stub->kconf.gridsize.y = 1; //Grid Linearization
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				k_stub->kconf.coarsening = 1;
@@ -733,9 +739,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.max_persistent_blocks = 8;
 					k_stub->kconf.blocksize.x = 16;
 					k_stub->kconf.blocksize.y = 16;
-					SCEDD_params->gridDimX = (SCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-					SCEDD_params->gridDimY = (SCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-					k_stub->kconf.gridsize.x = SCEDD_params->gridDimX * SCEDD_params->gridDimY;
+					CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+					CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+					k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
 					k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					k_stub->kconf.coarsening = 1;
@@ -746,9 +752,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 16;
-						SCEDD_params->gridDimX = (SCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-						SCEDD_params->gridDimY = (SCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-						k_stub->kconf.gridsize.x = SCEDD_params->gridDimX * SCEDD_params->gridDimY;
+						CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 1;
@@ -763,19 +769,24 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			break;
 			
 		case NCEDD:
-			t_CEDD_params *NCEDD_params;
+			// t_CEDD_params *NCEDD_params;
 			
-			NCEDD_params = (t_CEDD_params *)calloc(1, sizeof(t_CEDD_params));
+			// NCEDD_params = (t_CEDD_params *)calloc(1, sizeof(t_CEDD_params));
 			
-			#ifdef DATA_SET_1
-			NCEDD_params->nRows=3072 * 2;
-			NCEDD_params->nCols=4608 * 2;
-			#else
-			NCEDD_params->nRows=4608 * 2.6;
-			NCEDD_params->nCols=4608 * 2.6;
-			#endif
+			// #ifdef DATA_SET_1
+			// NCEDD_params->nRows=3072 * 2;
+			// NCEDD_params->nCols=4608 * 2;
+			// #else
+			// NCEDD_params->nRows=4608 * 2.6;
+			// NCEDD_params->nCols=4608 * 2.6;
+			// #endif
 			
-			k_stub->params = (void *)NCEDD_params;
+			// *NCEDD_params->h_in_out = *GCEDD_params->h_in_out;
+			// NCEDD_params->data_CEDD = GCEDD_params->data_CEDD;
+			// NCEDD_params->out_CEDD = GCEDD_params->out_CEDD;
+			// NCEDD_params->theta_CEDD = GCEDD_params->theta_CEDD;
+			
+			k_stub->params = (void *)CEDD_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_NCEDD;
 			k_stub->launchORIkernel = launch_orig_NCEDD;
@@ -790,9 +801,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
-				NCEDD_params->gridDimX = (NCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-				NCEDD_params->gridDimY = (NCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-				k_stub->kconf.gridsize.x = NCEDD_params->gridDimX * NCEDD_params->gridDimY;
+				CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+				CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+				k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 				k_stub->kconf.gridsize.y = 1; //Grid Linearization
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				k_stub->kconf.coarsening = 1;
@@ -803,9 +814,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.max_persistent_blocks = 8;
 					k_stub->kconf.blocksize.x = 16;
 					k_stub->kconf.blocksize.y = 16;
-					NCEDD_params->gridDimX = (NCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-					NCEDD_params->gridDimY = (NCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-					k_stub->kconf.gridsize.x = NCEDD_params->gridDimX * NCEDD_params->gridDimY;
+					CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+					CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+					k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
 					k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					k_stub->kconf.coarsening = 1;
@@ -816,9 +827,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 16;
-						NCEDD_params->gridDimX = (NCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-						NCEDD_params->gridDimY = (NCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-						k_stub->kconf.gridsize.x = NCEDD_params->gridDimX * NCEDD_params->gridDimY;
+						CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 1;
@@ -833,19 +844,24 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			break;
 			
 		case HCEDD:
-			t_CEDD_params *HCEDD_params;
+			// t_CEDD_params *HCEDD_params;
 			
-			HCEDD_params = (t_CEDD_params *)calloc(1, sizeof(t_CEDD_params));
+			// HCEDD_params = (t_CEDD_params *)calloc(1, sizeof(t_CEDD_params));
 			
-			#ifdef DATA_SET_1
-			HCEDD_params->nRows=3072 * 2;
-			HCEDD_params->nCols=4608 * 2;
-			#else
-			HCEDD_params->nRows=4608 * 2.6;
-			HCEDD_params->nCols=4608 * 2.6;
-			#endif
+			// #ifdef DATA_SET_1
+			// HCEDD_params->nRows=3072 * 2;
+			// HCEDD_params->nCols=4608 * 2;
+			// #else
+			// HCEDD_params->nRows=4608 * 2.6;
+			// HCEDD_params->nCols=4608 * 2.6;
+			// #endif
 			
-			k_stub->params = (void *)HCEDD_params;
+			// *HCEDD_params->h_in_out = *GCEDD_params->h_in_out;
+			// HCEDD_params->data_CEDD = GCEDD_params->data_CEDD;
+			// HCEDD_params->out_CEDD = GCEDD_params->out_CEDD;
+			// HCEDD_params->theta_CEDD = GCEDD_params->theta_CEDD;
+			
+			k_stub->params = (void *)CEDD_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_HCEDD;
 			k_stub->launchORIkernel = launch_orig_HCEDD;
@@ -860,9 +876,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
-				HCEDD_params->gridDimX = (HCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-				HCEDD_params->gridDimY = (HCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-				k_stub->kconf.gridsize.x = HCEDD_params->gridDimX * HCEDD_params->gridDimY;
+				CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+				CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+				k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 				k_stub->kconf.gridsize.y = 1; //Grid Linearization
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				k_stub->kconf.coarsening = 1;
@@ -873,9 +889,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.max_persistent_blocks = 8;
 					k_stub->kconf.blocksize.x = 16;
 					k_stub->kconf.blocksize.y = 16;
-					HCEDD_params->gridDimX = (HCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-					HCEDD_params->gridDimY = (HCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-					k_stub->kconf.gridsize.x = HCEDD_params->gridDimX * HCEDD_params->gridDimY;
+					CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+					CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+					k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
 					k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					k_stub->kconf.coarsening = 1;
@@ -886,9 +902,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 16;
-						HCEDD_params->gridDimX = (HCEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-						HCEDD_params->gridDimY = (HCEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-						k_stub->kconf.gridsize.x = HCEDD_params->gridDimX * HCEDD_params->gridDimY;
+						CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 1;
