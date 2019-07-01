@@ -1085,11 +1085,11 @@ int main(int argc, char **argv)
 {
 	//launch_tasks_with_proxy_theoretical(2);
 	
-	int num_kernels = 12;
+	int num_kernels = 13;
 	t_Kernel kid[13];
 	
-	//kid[0]=GCEDD;
-	//kid[1]=SCEDD;
+	// kid[0]=GCEDD;
+	// kid[1]=SCEDD;
 	//kid[2]=NCEDD;
 	//kid[3]=HCEDD;
 
