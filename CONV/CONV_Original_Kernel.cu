@@ -312,7 +312,7 @@ int launch_orig_RCONV(void *arg)
 	original_rowsConvolutionCUDA<<<blocks, threads>>>(
 		params->d_Buffer, params->d_Input, imageW, imageH, imageW,
 		
-		params->gridDimY);
+		params->gridDimY[0]);
 
 	return 0;
 }
@@ -330,7 +330,7 @@ int launch_preemp_RCONV(void *arg)
 		SMT_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
 			
-			params->gridDimY,
+			params->gridDimY[0],
 			
 			kstub->idSMs[0],
 			kstub->idSMs[1],
@@ -342,7 +342,7 @@ int launch_preemp_RCONV(void *arg)
 		SMK_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
 			
-			params->gridDimY,
+			params->gridDimY[0],
 			
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,
@@ -616,7 +616,7 @@ int launch_orig_CCONV(void *arg)
 	original_colsConvolutionCUDA<<<blocks, threads>>>(
 		params->d_Output, params->d_Buffer, imageW, imageH, imageW,
 		
-		params->gridDimY);
+		params->gridDimY[1]);
 
 	return 0;
 }
@@ -634,7 +634,7 @@ int launch_preemp_CCONV(void *arg)
 		SMT_colsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Output, params->d_Buffer, imageW, imageH, imageW,
 			
-			params->gridDimY,
+			params->gridDimY[1],
 			
 			kstub->idSMs[0],
 			kstub->idSMs[1],
@@ -646,7 +646,7 @@ int launch_preemp_CCONV(void *arg)
 		SMK_colsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Output, params->d_Buffer, imageW, imageH, imageW,
 			
-			params->gridDimY,
+			params->gridDimY[1],
 			
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,

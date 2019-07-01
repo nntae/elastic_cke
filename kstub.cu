@@ -467,20 +467,20 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			break;
 			
 		case RCONV:
-			t_CONV_params *RCONV_params;
+			t_CONV_params *CONV_params;
 			
-			RCONV_params = (t_CONV_params *)calloc(1, sizeof(t_CONV_params));
+			CONV_params = (t_CONV_params *)calloc(1, sizeof(t_CONV_params));
 			
 			#ifdef DATA_SET_1
-			RCONV_params->conv_rows=6144;
-			RCONV_params->conv_cols=6144;
+			CONV_params->conv_rows=6144;
+			CONV_params->conv_cols=6144;
 			#else
-			RCONV_params->conv_rows=18048;
-			RCONV_params->conv_cols=18048;
+			CONV_params->conv_rows=18048;
+			CONV_params->conv_cols=18048;
 			#endif
 			
-			RCONV_params->gridDimY = RCONV_params->conv_cols / 4;
-			k_stub->params = (void *)RCONV_params;
+			CONV_params->gridDimY[0] = CONV_params->conv_cols / 4;
+			k_stub->params = (void *)CONV_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_RCONV;
 			k_stub->launchORIkernel = launch_orig_RCONV;
@@ -495,7 +495,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.max_persistent_blocks = 16;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 4;
-				k_stub->kconf.gridsize.x = (RCONV_params->conv_rows / (8 * 16)) * (RCONV_params->conv_cols / 4);
+				k_stub->kconf.gridsize.x = (CONV_params->conv_rows / (8 * 16)) * (CONV_params->conv_cols / 4);
 				k_stub->kconf.gridsize.y = 1; //Grid Linearization
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				k_stub->kconf.coarsening = 1;
@@ -507,7 +507,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.max_persistent_blocks = 32;
 					k_stub->kconf.blocksize.x = 16;
 					k_stub->kconf.blocksize.y = 4;
-					k_stub->kconf.gridsize.x = (RCONV_params->conv_rows / (8 * 16)) * (RCONV_params->conv_cols / 4);
+					k_stub->kconf.gridsize.x = (CONV_params->conv_rows / (8 * 16)) * (CONV_params->conv_cols / 4);
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
 					k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					k_stub->kconf.coarsening = 1;
@@ -519,7 +519,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.max_persistent_blocks = 23;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 4;
-						k_stub->kconf.gridsize.x = (RCONV_params->conv_rows / (8 * 16)) * (RCONV_params->conv_cols / 4);
+						k_stub->kconf.gridsize.x = (CONV_params->conv_rows / (8 * 16)) * (CONV_params->conv_cols / 4);
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 1;
@@ -534,20 +534,20 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			break;
 			
 		case CCONV:
-			t_CONV_params *CCONV_params;
+			// t_CONV_params *CONV_params;
 			
-			CCONV_params = (t_CONV_params *)calloc(1, sizeof(t_CONV_params));
+			// CONV_params = (t_CONV_params *)calloc(1, sizeof(t_CONV_params));
 			
-			#ifdef DATA_SET_1
-			CCONV_params->conv_rows=6144;
-			CCONV_params->conv_cols=6144;
-			#else
-			CCONV_params->conv_rows=18048;
-			CCONV_params->conv_cols=18048;
-			#endif
+			// #ifdef DATA_SET_1
+			// CONV_params->conv_rows=6144;
+			// CONV_params->conv_cols=6144;
+			// #else
+			// CONV_params->conv_rows=18048;
+			// CONV_params->conv_cols=18048;
+			// #endif
 			
-			CCONV_params->gridDimY = CCONV_params->conv_cols / (8 * 8);
-			k_stub->params = (void *)CCONV_params;
+			CONV_params->gridDimY[1] = CONV_params->conv_cols / (8 * 8);
+			k_stub->params = (void *)CONV_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_CCONV;
 			k_stub->launchORIkernel = launch_orig_CCONV;
@@ -561,7 +561,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.max_persistent_blocks = 9;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 8;
-				k_stub->kconf.gridsize.x = (CCONV_params->conv_rows / 16) * (CCONV_params->conv_cols / (8 * 8));
+				k_stub->kconf.gridsize.x = (CONV_params->conv_rows / 16) * (CONV_params->conv_cols / (8 * 8));
 				k_stub->kconf.gridsize.y = 1; //Grid Linearization
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				k_stub->kconf.coarsening = 1;
@@ -572,7 +572,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.max_persistent_blocks = 16;
 					k_stub->kconf.blocksize.x = 16;
 					k_stub->kconf.blocksize.y = 8;
-					k_stub->kconf.gridsize.x = (CCONV_params->conv_rows / 16) * (CCONV_params->conv_cols / (8 * 8));
+					k_stub->kconf.gridsize.x = (CONV_params->conv_rows / 16) * (CONV_params->conv_cols / (8 * 8));
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
 					k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					k_stub->kconf.coarsening = 1;
@@ -583,7 +583,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.max_persistent_blocks = 12;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 8;
-						k_stub->kconf.gridsize.x = (CCONV_params->conv_rows / 16) * (CCONV_params->conv_cols / (8 * 8));
+						k_stub->kconf.gridsize.x = (CONV_params->conv_rows / 16) * (CONV_params->conv_cols / (8 * 8));
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 1;
