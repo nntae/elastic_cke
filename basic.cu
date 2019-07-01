@@ -1085,15 +1085,15 @@ int main(int argc, char **argv)
 {
 	//launch_tasks_with_proxy_theoretical(2);
 	
-	int num_kernels = 4;
-	t_Kernel kid[12];
+	int num_kernels = 12;
+	t_Kernel kid[13];
 	
-	kid[0]=GCEDD;
-	kid[1]=SCEDD;
-	kid[2]=NCEDD;
-	kid[3]=HCEDD;
+	//kid[0]=GCEDD;
+	//kid[1]=SCEDD;
+	//kid[2]=NCEDD;
+	//kid[3]=HCEDD;
 
-	/*kid[0]=VA;
+	kid[0]=VA;
 	kid[1]=MM;
 	kid[2]=BS;
 	kid[3]=Reduction;
@@ -1106,7 +1106,7 @@ int main(int argc, char **argv)
 	kid[10]=NCEDD;
 	kid[11]=HCEDD;
 	kid[12]=CCONV;
-	*/
+	
 	all_profiling(kid, num_kernels, 2);
 
 	return 0;
