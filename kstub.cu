@@ -339,7 +339,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			#ifdef DATA_SET_1
 			SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows * 0.000005; // 5% of entries will be non-zero
 			#else
-			SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows / 14;
+			SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows / 20;
 			#endif
 			
 			SPMV_params->numNonZeroes = SPMV_params->nItems;
@@ -477,8 +477,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			CONV_params->conv_rows=6144;
 			CONV_params->conv_cols=6144;
 			#else
-			CONV_params->conv_rows=18048;
-			CONV_params->conv_cols=18048;
+			CONV_params->conv_rows=17408;
+			CONV_params->conv_cols=17408;
 			#endif
 			
 			CONV_params->gridDimY[0] = CONV_params->conv_cols / 4;
