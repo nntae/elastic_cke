@@ -320,9 +320,11 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
 					k_stub->kconf.numSMs = 28;
 					k_stub->kconf.max_persistent_blocks = 16;
-					k_stub->kconf.blocksize.x = 128;
+					k_stub->kconf.blocksize.x = 32;
+					//k_stub->kconf.blocksize.x = 128;
 					k_stub->kconf.blocksize.y = 1;
-					k_stub->kconf.gridsize.x = k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks * k_stub->kconf.blocksize.x ;//At least one row per thread when all thread
+					k_stub->kconf.gridsize.x =  k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks * k_stub->kconf.blocksize.x / 2;
+					//k_stub->kconf.gridsize.x = k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks * k_stub->kconf.blocksize.x ;//At least one row per thread when all thread
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
 					k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					k_stub->kconf.coarsening = 1;
