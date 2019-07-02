@@ -796,6 +796,7 @@ int fill_coBlocks()
 	
 	// CCONV - Reduction
 	 
+	myinfo = fill_head(CCONV, Reduction, 6);
 	
 	for (int i=0; i<6;i++)
 		memcpy(myinfo->pairs[i], save_info->pairs[i], 2 * sizeof(int)); 
@@ -843,11 +844,11 @@ int fill_coBlocks()
 	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 12;
 	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 11;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 10;
-	myinfo->pairs[6][0] = 7; myinfo->pairs[0][1] = 9;
-	myinfo->pairs[7][0] = 8; myinfo->pairs[1][1] = 8;
-	myinfo->pairs[8][0] = 9; myinfo->pairs[2][1] = 7;
-	myinfo->pairs[9][0] = 10; myinfo->pairs[3][1] = 6;
-	myinfo->pairs[10][0] = 11; myinfo->pairs[4][1] = 5;
+	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 9;
+	myinfo->pairs[7][0] = 8; myinfo->pairs[7][1] = 8;
+	myinfo->pairs[8][0] = 9; myinfo->pairs[8][1] = 7;
+	myinfo->pairs[9][0] = 10; myinfo->pairs[9][1] = 6;
+	myinfo->pairs[10][0] = 11; myinfo->pairs[10][1] = 5;
 	reverse_values(myinfo);	
 	
 	//CCONV - RCONV
@@ -860,11 +861,11 @@ int fill_coBlocks()
 	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 18;
 	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 16;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 14;
-	myinfo->pairs[6][0] = 7; myinfo->pairs[0][1] = 12;
-	myinfo->pairs[7][0] = 8; myinfo->pairs[1][1] = 9;
-	myinfo->pairs[8][0] = 9; myinfo->pairs[2][1] = 7;
-	myinfo->pairs[9][0] = 10; myinfo->pairs[3][1] = 5;
-	myinfo->pairs[10][0] = 11; myinfo->pairs[4][1] = 3;
+	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 12;
+	myinfo->pairs[7][0] = 8; myinfo->pairs[7][1] = 9;
+	myinfo->pairs[8][0] = 9; myinfo->pairs[8][1] = 7;
+	myinfo->pairs[9][0] = 10; myinfo->pairs[9][1] = 5;
+	myinfo->pairs[10][0] = 11; myinfo->pairs[10][1] = 3;
 	reverse_values(myinfo);	
 	
 	
@@ -878,11 +879,11 @@ int fill_coBlocks()
 	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 7;
 	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 6;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 5;
-	myinfo->pairs[6][0] = 7; myinfo->pairs[0][1] = 5;
-	myinfo->pairs[7][0] = 8; myinfo->pairs[1][1] = 4;
-	myinfo->pairs[8][0] = 9; myinfo->pairs[2][1] = 3;
-	myinfo->pairs[9][0] = 10; myinfo->pairs[3][1] = 2;
-	myinfo->pairs[10][0] = 11; myinfo->pairs[4][1] = 1;
+	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 5;
+	myinfo->pairs[7][0] = 8; myinfo->pairs[7][1] = 4;
+	myinfo->pairs[8][0] = 9; myinfo->pairs[8][1] = 3;
+	myinfo->pairs[9][0] = 10; myinfo->pairs[9][1] = 2;
+	myinfo->pairs[10][0] = 11; myinfo->pairs[10][1] = 1;
 	reverse_values(myinfo);	
 	
 	

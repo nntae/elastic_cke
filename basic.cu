@@ -1088,10 +1088,12 @@ int main(int argc, char **argv)
 	int num_kernels = 13;
 	t_Kernel kid[13];
 	
-	// kid[0]=GCEDD;
-	// kid[1]=SCEDD;
-	//kid[2]=NCEDD;
-	//kid[3]=HCEDD;
+	kid[0]=GCEDD;
+	kid[1]=SCEDD;
+	kid[2]=NCEDD;
+	kid[3]=HCEDD;
+	kid[4]=RCONV;
+	kid[5]=CCONV;
 
 	kid[0]=VA;
 	kid[1]=MM;
