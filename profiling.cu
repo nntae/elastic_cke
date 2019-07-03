@@ -38,6 +38,24 @@ int solo_execution_prof(t_kernel_stub *kstub, double *tpms)
 	return 0;
 }
 
+int solo_original(t_kernel_stub *kstub, double *exectime_s)
+{
+	struct timespec now;
+	
+	clock_gettime(CLOCK_REALTIME, &now);
+	double time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	
+	kstub->launchORIkernel(kstub);
+	cudaDeviceSynchronize();
+	
+	clock_gettime(CLOCK_REALTIME, &now);
+	double time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	
+	*exectime_s = time2 - time1;
+	
+	return 0;
+}
+
 int smt_solo_prof(t_kernel_stub *kstub, int numSMs)
 {
 	struct timespec now;
@@ -76,6 +94,7 @@ int smk_solo_prof(t_kernel_stub *kstub)
 {
 	struct timespec now;
 	int idSMs[2];
+	double time1, time2;
 		
 	idSMs[0]=0;idSMs[1]=kstub->kconf.numSMs-1;
 	kstub->idSMs = idSMs;	
@@ -87,13 +106,13 @@ int smk_solo_prof(t_kernel_stub *kstub)
 		kstub->kconf.max_persistent_blocks = block; // Limit the max number of blocks per SM
 			
 		clock_gettime(CLOCK_REALTIME, &now);
-		double time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+		time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
 	
 		(kstub->launchCKEkernel)(kstub);
 		cudaDeviceSynchronize();
 
 		clock_gettime(CLOCK_REALTIME, &now);
-		double time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+		time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
 	
 		info->tpms[block-1] = (double)kstub->total_tasks/((time2-time1)*1000.0);
 	
@@ -102,7 +121,9 @@ int smk_solo_prof(t_kernel_stub *kstub)
 		
 		cudaDeviceSynchronize();
 	
-	}
+	} 
+	
+	//printf("Kernel=%d time=%f\n", kstub->id, time2-time1);
 	
 	return 0;
 }
@@ -303,10 +324,23 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 	// make HtD transfers of all kernels
 	make_transfers(kstubs, num_kernels);
 	
-	// Solo SMK profiling 
+	// Solo original profiling
+	double *exectime_s = (double *)calloc(num_kernels, sizeof(double));
+	for (int i=0; i<num_kernels; i++)
+		solo_original(kstubs[i], &exectime_s[i]);
 	
+	// Solo SMK profiling
 	for (int i=0; i<num_kernels; i++)
 		smk_solo_prof(kstubs[i]);
+	
+	printf("Overhead SMK wrt original\n");
+	for (int i=0; i<num_kernels; i++) {
+		t_solo *info = &info_solo[kstubs[i]->id];
+		double smk_time = (double)kstubs[i]->total_tasks / info->tpms[info->num_configs-1] / 1000.0 ;
+		printf("K=%d Ori=%f SMK=%f Over=%f\n", i, exectime_s[i], smk_time, smk_time/exectime_s[i]);
+	}
+	
+	return 0;
 	
 	// Solo SMT profiling
 	for (int i=0; i<num_kernels; i++)
@@ -319,7 +353,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 		for (int j=i+1; j<num_kernels; j++) {
 			pair_kstubs[0] = kstubs[i];
 			pair_kstubs[1] = kstubs[j];
-			printf("Profiling smk %d %d\n", kstubs[i]->id, kstubs[j]->id);
+			//printf("Profiling smk %d %d\n", kstubs[i]->id, kstubs[j]->id);
 			smk_coexec_prof(pair_kstubs);
 		}
 	}
