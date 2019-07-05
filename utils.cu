@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include "elastic_kernel.h"
 
-int get_index(t_Kernel kid, int *index)
+t_solo_performance *sperf;
+
+/*int get_index(t_Kernel kid, int *index)
 {
 	switch (kid)
 	{
@@ -63,7 +65,7 @@ int get_index(t_Kernel kid, int *index)
 	}
 	
 	return 0;
-}
+}*/
 
 int kid_from_index(int index, char *skid)
 {
@@ -134,12 +136,7 @@ int kid_from_index(int index, char *skid)
 	return 0;
 }
 
-t_cke_performance **perf, **th_perf;
-int *max_num_block;	
-
-t_solo_performance *sperf;
-
-int initialize_performance()
+/*int initialize_performance()
 {
 	
 	int num_kernels = 9;
@@ -159,7 +156,7 @@ int initialize_performance()
 	for (int i=0; i<num_kernels; i++)
 		perf[i] = (t_cke_performance *)calloc(num_kernels, sizeof(t_cke_performance));
 		
-	/** MM **/
+	// MM 
 	
 	perf[0][0].id[0]=MM;	perf[0][0].id[1]=MM;			perf[0][0].blocks[0]=4;	perf[0][0].blocks[1]=4; perf[0][0].speedup=0.90;
 	perf[0][1].id[0]=MM;	perf[0][1].id[1]=BS;			perf[0][1].blocks[0]=5;	perf[0][1].blocks[1]=3; perf[0][1].speedup=1.16;
@@ -171,7 +168,7 @@ int initialize_performance()
 	perf[0][7].id[0]=MM;	perf[0][7].id[1]=HST256;		perf[0][7].blocks[0]=4;	perf[0][7].blocks[1]=5; perf[0][7].speedup=1.03;
 	perf[0][8].id[0]=MM;	perf[0][8].id[1]=RCONV;			perf[0][8].blocks[0]=6;	perf[0][8].blocks[1]=8; perf[0][8].speedup=1.23;
 	
-	/** BS **/
+	//	BS 
 	perf[1][0].id[0]=BS;	perf[1][0].id[1]=MM;			perf[1][0].blocks[0]=3;	perf[1][0].blocks[1]=5; perf[1][0].speedup=1.16;
 	perf[1][1].id[0]=BS;	perf[1][1].id[1]=BS;			perf[1][1].blocks[0]=4;	perf[1][1].blocks[1]=4; perf[1][1].speedup=0.90;
 	perf[1][2].id[0]=BS;	perf[1][2].id[1]=VA;			perf[1][2].blocks[0]=5;	perf[1][2].blocks[1]=3; perf[1][2].speedup=1.04;
@@ -182,7 +179,7 @@ int initialize_performance()
 	perf[1][7].id[0]=BS;	perf[1][7].id[1]=HST256;		perf[1][7].blocks[0]=2;	perf[1][7].blocks[1]=8; perf[1][7].speedup=0.97;
 	perf[1][8].id[0]=BS;	perf[1][8].id[1]=RCONV;			perf[1][8].blocks[0]=7;	perf[1][8].blocks[1]=4; perf[1][8].speedup=1.09;
 	
-	/** VA **/
+	// VA 
 	perf[2][0].id[0]=VA;	perf[2][0].id[1]=MM;			perf[2][0].blocks[0]=2;	perf[2][0].blocks[1]=6; 	perf[2][0].speedup=1.21;
 	perf[2][1].id[0]=VA;	perf[2][1].id[1]=BS;			perf[2][1].blocks[0]=3;	perf[2][1].blocks[1]=5; 	perf[2][1].speedup=1.04;
 	perf[2][2].id[0]=VA;	perf[2][2].id[1]=VA;			perf[2][2].blocks[0]=4;	perf[2][2].blocks[1]=4; 	perf[2][2].speedup=0.9;
@@ -193,7 +190,7 @@ int initialize_performance()
 	perf[2][7].id[0]=VA;	perf[2][7].id[1]=HST256;		perf[2][7].blocks[0]=4;	perf[2][7].blocks[1]=5; 	perf[2][7].speedup=1.00;
 	perf[2][8].id[0]=VA;	perf[2][8].id[1]=RCONV;			perf[2][8].blocks[0]=7;	perf[2][8].blocks[1]=4; 	perf[2][8].speedup=0.97;
 	
-	/** RED	**/
+	// RED	
 	perf[3][0].id[0]=Reduction;		perf[3][0].id[1]=MM;			perf[3][0].blocks[0]=5;	perf[3][0].blocks[1]=3; 	perf[3][0].speedup=1.13;
 	perf[3][1].id[0]=Reduction;		perf[3][1].id[1]=BS;			perf[3][1].blocks[0]=4;	perf[3][1].blocks[1]=4; 	perf[3][1].speedup=1.26;
 	perf[3][2].id[0]=Reduction;		perf[3][2].id[1]=VA;			perf[3][2].blocks[0]=5;	perf[3][2].blocks[1]=3; 	perf[3][2].speedup=1.59;
@@ -204,7 +201,7 @@ int initialize_performance()
 	perf[3][7].id[0]=Reduction;		perf[3][7].id[1]=HST256;		perf[3][7].blocks[0]=5;	perf[3][7].blocks[1]=4; 	perf[3][7].speedup=1.13;
 	perf[3][8].id[0]=Reduction;		perf[3][8].id[1]=RCONV;			perf[3][8].blocks[0]=6;	perf[3][8].blocks[1]=8; 	perf[3][8].speedup=1.36;
 	
-	/** PF **/
+	// PF 
 	perf[4][0].id[0]=PF;	perf[4][0].id[1]=MM;			perf[4][0].blocks[0]=5;	perf[4][0].blocks[1]=3; 	perf[4][0].speedup=1.05;
 	perf[4][1].id[0]=PF;	perf[4][1].id[1]=BS;			perf[4][1].blocks[0]=5;	perf[4][1].blocks[1]=3; 	perf[4][1].speedup=1.13;
 	perf[4][2].id[0]=PF;	perf[4][2].id[1]=VA;			perf[4][2].blocks[0]=6;	perf[4][2].blocks[1]=2; 	perf[4][2].speedup=1.24;
@@ -215,7 +212,7 @@ int initialize_performance()
 	perf[4][7].id[0]=PF;	perf[4][7].id[1]=HST256;		perf[4][7].blocks[0]=5;	perf[4][7].blocks[1]=4; 	perf[4][7].speedup=1.13;
 	perf[4][8].id[0]=PF;	perf[4][8].id[1]=RCONV;			perf[4][8].blocks[0]=6;	perf[4][8].blocks[1]=8; 	perf[4][8].speedup=1.30;
 	
-	/** GCEDD **/
+	// GCEDD 
 	perf[5][0].id[0]=GCEDD;	perf[5][0].id[1]=MM;			perf[5][0].blocks[0]=1;	perf[5][0].blocks[1]=7; 	perf[5][0].speedup=0.98;
 	perf[5][1].id[0]=GCEDD;	perf[5][1].id[1]=BS;			perf[5][1].blocks[0]=7;	perf[5][1].blocks[1]=1; 	perf[5][1].speedup=0.95;
 	perf[5][2].id[0]=GCEDD;	perf[5][2].id[1]=VA;			perf[5][2].blocks[0]=7;	perf[5][2].blocks[1]=1; 	perf[5][2].speedup=0.99;
@@ -226,7 +223,7 @@ int initialize_performance()
 	perf[5][7].id[0]=GCEDD;	perf[5][7].id[1]=HST256;		perf[5][7].blocks[0]=7;	perf[5][7].blocks[1]=1; 	perf[5][7].speedup=0.91;
 	perf[5][8].id[0]=GCEDD;	perf[5][8].id[1]=RCONV;			perf[5][8].blocks[0]=25;perf[5][8].blocks[1]=1; 	perf[5][8].speedup=0.97;
 	
-	/*SPMV */
+	//SPMV 
 	perf[6][0].id[0]=SPMV_CSRscalar;		perf[6][0].id[1]=MM;			perf[6][0].blocks[0]=4;	perf[6][0].blocks[1]=6; 	perf[6][0].speedup=1.29;
 	perf[6][1].id[0]=SPMV_CSRscalar;		perf[6][1].id[1]=BS;			perf[6][1].blocks[0]=8;	perf[6][1].blocks[1]=4; 	perf[6][1].speedup=1.05;
 	perf[6][2].id[0]=SPMV_CSRscalar;		perf[6][2].id[1]=VA;			perf[6][2].blocks[0]=12;perf[6][2].blocks[1]=2; 	perf[6][2].speedup=1.00;
@@ -237,7 +234,7 @@ int initialize_performance()
 	perf[6][7].id[0]=SPMV_CSRscalar;		perf[6][7].id[1]=HST256;		perf[6][7].blocks[0]=8;	perf[6][7].blocks[1]=5; 	perf[6][7].speedup=1.08;
 	perf[6][8].id[0]=SPMV_CSRscalar;		perf[6][8].id[1]=RCONV;			perf[6][8].blocks[0]=15;perf[6][8].blocks[1]=2; 	perf[6][8].speedup=0.97;
 	
-	/*HST256 */
+	//HST256 
 	perf[7][0].id[0]=HST256;		perf[7][0].id[1]=MM;			perf[7][0].blocks[0]=5;	perf[7][0].blocks[1]=4; 	perf[7][0].speedup=1.02;
 	perf[7][1].id[0]=HST256;		perf[7][1].id[1]=BS;			perf[7][1].blocks[0]=8;	perf[7][1].blocks[1]=2; 	perf[7][1].speedup=0.97;
 	perf[7][2].id[0]=HST256;		perf[7][2].id[1]=VA;			perf[7][2].blocks[0]=5;	perf[7][2].blocks[1]=4; 	perf[7][2].speedup=1.00;
@@ -248,7 +245,7 @@ int initialize_performance()
 	perf[7][7].id[0]=HST256;		perf[7][7].id[1]=HST256;		perf[7][7].blocks[0]=5;	perf[7][7].blocks[1]=5; 	perf[7][7].speedup=0.9;
 	perf[7][8].id[0]=HST256;		perf[7][8].id[1]=RCONV;			perf[7][8].blocks[0]=9;	perf[7][8].blocks[1]=7; 	perf[7][8].speedup=1.06;
 	
-	/*RCONV */
+	// RCONV 
 	perf[8][0].id[0]=RCONV;		perf[8][0].id[1]=MM;			perf[8][0].blocks[0]=8;	perf[8][0].blocks[1]=6; 	perf[8][0].speedup=1.22;
 	perf[8][1].id[0]=RCONV;		perf[8][1].id[1]=BS;			perf[8][1].blocks[0]=4;	perf[8][1].blocks[1]=7; 	perf[8][1].speedup=1.08;
 	perf[8][2].id[0]=RCONV;		perf[8][2].id[1]=VA;			perf[8][2].blocks[0]=4;	perf[8][2].blocks[1]=7; 	perf[8][2].speedup=0.97;
@@ -262,8 +259,8 @@ int initialize_performance()
 	
 	return 0;
 }
-
-
+*/
+/*
 int initialize_theoretical_performance()
 {
 	
@@ -273,7 +270,7 @@ int initialize_theoretical_performance()
 	for (int i=0; i<num_kernels; i++)
 		th_perf[i] = (t_cke_performance *)calloc(num_kernels, sizeof(t_cke_performance));
 		
-	/** MM **/
+	// MM 
 	
 	th_perf[0][0].id[0]=MM;	th_perf[0][0].id[1]=MM;			th_perf[0][0].blocks[0]=4;	th_perf[0][0].blocks[1]=4; th_perf[0][0].speedup=1.0;
 	th_perf[0][1].id[0]=MM;	th_perf[0][1].id[1]=BS;			th_perf[0][1].blocks[0]=4;	th_perf[0][1].blocks[1]=4; th_perf[0][1].speedup=1.60;
@@ -285,7 +282,7 @@ int initialize_theoretical_performance()
 	th_perf[0][7].id[0]=MM;	th_perf[0][7].id[1]=HST256;		th_perf[0][7].blocks[0]=6;	th_perf[0][7].blocks[1]=2; th_perf[0][7].speedup=1.32;
 	th_perf[0][8].id[0]=MM;	th_perf[0][8].id[1]=RCONV;			th_perf[0][8].blocks[0]=6;	th_perf[0][8].blocks[1]=8; th_perf[0][8].speedup=1.94;
 	
-	/** BS **/
+	// BS 
 	th_perf[1][0].id[0]=BS;	th_perf[1][0].id[1]=MM;			th_perf[1][0].blocks[0]=4;	th_perf[1][0].blocks[1]=4; th_perf[1][0].speedup=1.60;
 	th_perf[1][1].id[0]=BS;	th_perf[1][1].id[1]=BS;			th_perf[1][1].blocks[0]=4;	th_perf[1][1].blocks[1]=4; th_perf[1][1].speedup=1.00;
 	th_perf[1][2].id[0]=BS;	th_perf[1][2].id[1]=VA;			th_perf[1][2].blocks[0]=5;	th_perf[1][2].blocks[1]=3; th_perf[1][2].speedup=1.87;
@@ -296,7 +293,7 @@ int initialize_theoretical_performance()
 	th_perf[1][7].id[0]=BS;	th_perf[1][7].id[1]=HST256;		th_perf[1][7].blocks[0]=6;	th_perf[1][7].blocks[1]=2; th_perf[1][7].speedup=1.34;
 	th_perf[1][8].id[0]=BS;	th_perf[1][8].id[1]=RCONV;			th_perf[1][8].blocks[0]=6;	th_perf[1][8].blocks[1]=8; th_perf[1][8].speedup=1.97;
 	
-	/** VA **/
+	// VA 
 	th_perf[2][0].id[0]=VA;	th_perf[2][0].id[1]=MM;			th_perf[2][0].blocks[0]=3;	th_perf[2][0].blocks[1]=5; 	th_perf[2][0].speedup=1.82;
 	th_perf[2][1].id[0]=VA;	th_perf[2][1].id[1]=BS;			th_perf[2][1].blocks[0]=5;	th_perf[2][1].blocks[1]=3; 	th_perf[2][1].speedup=1.87;
 	th_perf[2][2].id[0]=VA;	th_perf[2][2].id[1]=VA;			th_perf[2][2].blocks[0]=4;	th_perf[2][2].blocks[1]=4; 	th_perf[2][2].speedup=1.00;
@@ -307,7 +304,7 @@ int initialize_theoretical_performance()
 	th_perf[2][7].id[0]=VA;	th_perf[2][7].id[1]=HST256;		th_perf[2][7].blocks[0]=5;	th_perf[2][7].blocks[1]=4; 	th_perf[2][6].speedup=1.66;
 	th_perf[2][8].id[0]=VA;	th_perf[2][8].id[1]=RCONV;			th_perf[2][8].blocks[0]=5;	th_perf[2][8].blocks[1]=12; 	th_perf[2][7].speedup=2.00;
 	
-	/** RED	**/
+	// RED	
 	th_perf[3][0].id[0]=Reduction;		th_perf[3][0].id[1]=MM;			th_perf[3][0].blocks[0]=5;	th_perf[3][0].blocks[1]=3; 	th_perf[3][0].speedup=1.48;
 	th_perf[3][1].id[0]=Reduction;		th_perf[3][1].id[1]=BS;			th_perf[3][1].blocks[0]=5;	th_perf[3][1].blocks[1]=3; 	th_perf[3][1].speedup=1.55;
 	th_perf[3][2].id[0]=Reduction;		th_perf[3][2].id[1]=VA;			th_perf[3][2].blocks[0]=5;	th_perf[3][2].blocks[1]=3; 	th_perf[3][2].speedup=1.80;
@@ -318,7 +315,7 @@ int initialize_theoretical_performance()
 	th_perf[3][7].id[0]=Reduction;		th_perf[3][7].id[1]=HST256;		th_perf[3][7].blocks[0]=5;	th_perf[3][7].blocks[1]=4; 	th_perf[3][7].speedup=1.48;
 	th_perf[3][8].id[0]=Reduction;		th_perf[3][8].id[1]=RCONV;			th_perf[3][8].blocks[0]=6;	th_perf[3][8].blocks[1]=8; 	th_perf[3][8].speedup=1.91;
 	
-	/** PF **/
+	// PF 
 	th_perf[4][0].id[0]=PF;	th_perf[4][0].id[1]=MM;			th_perf[4][0].blocks[0]=4;	th_perf[4][0].blocks[1]=4; 	th_perf[4][0].speedup=1.30;
 	th_perf[4][1].id[0]=PF;	th_perf[4][1].id[1]=BS;			th_perf[4][1].blocks[0]=5;	th_perf[4][1].blocks[1]=3; 	th_perf[4][1].speedup=1.37;
 	th_perf[4][2].id[0]=PF;	th_perf[4][2].id[1]=VA;			th_perf[4][2].blocks[0]=5;	th_perf[4][2].blocks[1]=3; 	th_perf[4][2].speedup=1.61;
@@ -329,7 +326,7 @@ int initialize_theoretical_performance()
 	th_perf[4][7].id[0]=PF;	th_perf[4][7].id[1]=HST256;		th_perf[4][7].blocks[0]=5;	th_perf[4][7].blocks[1]=4; 	th_perf[4][7].speedup=1.30;
 	th_perf[4][8].id[0]=PF;	th_perf[4][8].id[1]=RCONV;			th_perf[4][8].blocks[0]=6;	th_perf[4][8].blocks[1]=8; 	th_perf[4][8].speedup=1.76;
 	
-	/** GCEDD **/
+	// GCEDD 
 	th_perf[5][0].id[0]=GCEDD;	th_perf[5][0].id[1]=MM;			th_perf[5][0].blocks[0]=5;	th_perf[5][0].blocks[1]=3; 	th_perf[5][0].speedup=1.41;
 	th_perf[5][1].id[0]=GCEDD;	th_perf[5][1].id[1]=BS;			th_perf[5][1].blocks[0]=5;	th_perf[5][1].blocks[1]=3; 	th_perf[5][1].speedup=1.49;
 	th_perf[5][2].id[0]=GCEDD;	th_perf[5][2].id[1]=VA;			th_perf[5][2].blocks[0]=6;	th_perf[5][2].blocks[1]=2; 	th_perf[5][2].speedup=1.75;
@@ -340,7 +337,7 @@ int initialize_theoretical_performance()
 	th_perf[5][7].id[0]=GCEDD;	th_perf[5][7].id[1]=HST256;		th_perf[5][7].blocks[0]=5;	th_perf[5][7].blocks[1]=4;		th_perf[5][7].speedup=1.42;
 	th_perf[5][8].id[0]=GCEDD;	th_perf[5][8].id[1]=RCONV;			th_perf[5][8].blocks[0]=6; th_perf[5][8].blocks[1]=8; 	th_perf[5][8].speedup=1.86;
 	
-	/*SPMV */
+	// SPMV 
 	th_perf[6][0].id[0]=SPMV_CSRscalar;		th_perf[6][0].id[1]=MM;			th_perf[6][0].blocks[0]=4;	th_perf[6][0].blocks[1]=6; 	th_perf[6][0].speedup=1.97;
 	th_perf[6][1].id[0]=SPMV_CSRscalar;		th_perf[6][1].id[1]=BS;			th_perf[6][1].blocks[0]=4;	th_perf[6][1].blocks[1]=6; 	th_perf[6][1].speedup=2.00;
 	th_perf[6][2].id[0]=SPMV_CSRscalar;		th_perf[6][2].id[1]=VA;			th_perf[6][2].blocks[0]=10;th_perf[6][2].blocks[1]=3; 	th_perf[6][2].speedup=2.07;
@@ -351,7 +348,7 @@ int initialize_theoretical_performance()
 	th_perf[6][7].id[0]=SPMV_CSRscalar;		th_perf[6][7].id[1]=HST256;		th_perf[6][7].blocks[0]=5;	th_perf[6][7].blocks[1]=7; 	th_perf[6][7].speedup=1.97;
 	th_perf[6][8].id[0]=SPMV_CSRscalar;		th_perf[6][8].id[1]=RCONV;			th_perf[6][8].blocks[0]=7; th_perf[6][8].blocks[1]=18; 	th_perf[6][8].speedup=2.00;
 	
-	/*HST256 */
+	// HST256
 	th_perf[7][0].id[0]=HST256;		th_perf[7][0].id[1]=MM;			th_perf[7][0].blocks[0]=2;	th_perf[7][0].blocks[1]=6; 	th_perf[7][0].speedup=1.32;
 	th_perf[7][1].id[0]=HST256;		th_perf[7][1].id[1]=BS;			th_perf[7][1].blocks[0]=2;	th_perf[7][1].blocks[1]=6; 	th_perf[7][1].speedup=1.34;
 	th_perf[7][2].id[0]=HST256;		th_perf[7][2].id[1]=VA;			th_perf[7][2].blocks[0]=5;	th_perf[7][2].blocks[1]=4; 	th_perf[7][2].speedup=1.00;
@@ -362,7 +359,7 @@ int initialize_theoretical_performance()
 	th_perf[7][7].id[0]=HST256;		th_perf[7][7].id[1]=HST256;		th_perf[7][7].blocks[0]=5;	th_perf[7][7].blocks[1]=5; 	th_perf[7][7].speedup=1.00;
 	th_perf[7][8].id[0]=HST256;		th_perf[7][8].id[1]=RCONV;			th_perf[7][8].blocks[0]=8;	th_perf[7][8].blocks[1]=6; 	th_perf[7][8].speedup=1.91;
 	
-	/*RCONV */
+	// RCONV 
 	th_perf[8][0].id[0]=RCONV;		th_perf[8][0].id[1]=MM;			th_perf[8][0].blocks[0]=8;	th_perf[8][0].blocks[1]=6; 	th_perf[8][0].speedup=1.94;
 	th_perf[8][1].id[0]=RCONV;		th_perf[8][1].id[1]=BS;			th_perf[8][1].blocks[0]=8;	th_perf[8][1].blocks[1]=6; 	th_perf[8][1].speedup=1.94;
 	th_perf[8][2].id[0]=RCONV;		th_perf[8][2].id[1]=VA;			th_perf[8][2].blocks[0]=12;th_perf[8][2].blocks[1]=5; 	th_perf[8][2].speedup=2.00;
@@ -376,7 +373,8 @@ int initialize_theoretical_performance()
 	
 	return 0;
 }
-
+*/
+/*
 int get_best_partner(t_Kernel *kid, int *k_done, int num_kernels, t_Kernel curr_kid, t_Kernel *next_kid, int *index_next, int *b0, int *b1)
 {
 	int index1, index2, save_index2;
@@ -411,8 +409,9 @@ int get_best_partner(t_Kernel *kid, int *k_done, int num_kernels, t_Kernel curr_
 	
 	return 0;
 	
-}
+}*/
 
+/*
 int get_best_partner_theoretical(t_Kernel curr_kid, t_Kernel *kid, int *k_done, float **bad_partner, int num_kernels, t_Kernel *select_kid, int *select_index, int *b0, int *b1)
 {
 	int index1, index2, save_index2;
@@ -446,8 +445,9 @@ int get_best_partner_theoretical(t_Kernel curr_kid, t_Kernel *kid, int *k_done, 
 	}
 	
 	return 0;
-}
+}*/
 
+/*
 int get_last_kernel (t_Kernel kid, int *num_blocks)
 {
 	int index2;
@@ -457,7 +457,7 @@ int get_last_kernel (t_Kernel kid, int *num_blocks)
 	
 	return 0;
 }
-	
+	*/
 int initialize_solo_performance()
 {
 	int num_kernels = 9;
@@ -477,6 +477,7 @@ int initialize_solo_performance()
 	return 0;
 }
 
+
 double get_solo_perf(t_Kernel id)
 {
 	
@@ -491,9 +492,11 @@ double get_solo_perf(t_Kernel id)
 	return 0;
 }
 
+
+/*
 int get_max_blocks(t_Kernel kid)
 {
 	int index;
 	get_index(kid, &index);
 	return max_num_block[index];
-}
+}*/

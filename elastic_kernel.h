@@ -260,12 +260,30 @@ typedef struct{ // Configuration of number og blocks per kernel in coexection an
 	int **pairs;
 	double **tpms;
 }
-t_coBlocks;
+t_smk_coBlocks;
+
+typedef struct{ // Configuration of number og blocks per kernel in coexection and task per ms achieved
+	t_Kernel kid[2];
+	int num_configs;
+	int **pairs;
+	double **tpms;
+}
+t_smt_coBlocks;
 
 typedef struct{
 	int num_configs;
 	double *tpms;
-} t_solo;
+} t_smk_solo;
+
+typedef struct{
+	int num_configs;
+	double *tpms;
+} t_smt_solo;
+
+typedef struct {
+	int pairs[2];
+	int speedup;
+}t_co_speedup;
 
 
 int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_t *transfer_s, cudaStream_t *preemp_s);
@@ -306,8 +324,21 @@ int get_max_blocks(t_Kernel kid);
 
 int make_transfers(t_kernel_stub **kstubs, int num_kernels);
 int all_profiling(t_Kernel *kid, int num_kernels, int deviceId);
-int fill_coBlocks();
-int fill_solo();
+int smk_fill_coBlocks();
+int smk_fill_solo();
+
+int create_sched(t_sched *sched);
+int create_kstreams(t_kernel_stub *kstub, t_kstreams *kstr);
+int create_coexec(t_kcoexec *coexec, int num_kernels);
+int kernel_in_coexec(t_kcoexec *coexec, t_kstreams *kstr, int *pos);
+int add_kernel_for_coexecution(t_kcoexec *coexec, t_sched * sched, t_kstreams *kstr, int num_streams, int pos);
+int rem_kernel_from_coexecution(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr);
+int evict_streams(t_kstreams *kstr, int num_streams);
+int add_streams_to_kernel(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr, int num_streams);
+int launch_coexec(t_kcoexec *coexec);
+int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int *kernelid, double *speedup);
+int add_streams_to_kernel(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr, int num_streams);
+int greedy_coexecution(int deviceId);
 
 #ifdef ZEROCOPY
 int launch_proxy(void *arg);

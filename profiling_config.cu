@@ -6,15 +6,14 @@
 #include <helper_cuda.h>   
 #include "elastic_kernel.h"
 
-t_coBlocks info_coBlocks[Number_of_Kernels-1][Number_of_Kernels-1];
+t_smk_coBlocks smk_info_coBlocks[Number_of_Kernels-1][Number_of_Kernels-1]; // Pair of blocks per SM for two kernels in SMK coexecution. Also room for achieved tpms
+t_smk_solo smk_info_solo[Number_of_Kernels-1]; // Max num of blocks per SM for each kernel. Also room to store tpms per each blocj value using SMK with solo version
 
-t_solo info_solo[Number_of_Kernels-1];
-
-t_coBlocks *fill_head(t_Kernel k1, t_Kernel k2, int num_configs)
+t_smk_coBlocks *fill_head(t_Kernel k1, t_Kernel k2, int num_configs)
 {
-	t_coBlocks *myinfo;
+	t_smk_coBlocks *myinfo;
 	
-	myinfo = &info_coBlocks[k1][k2];
+	myinfo = &smk_info_coBlocks[k1][k2];
 	myinfo->kid[0] = k1; myinfo->kid[1] = k2; 
 	myinfo->num_configs = num_configs;
 	
@@ -28,9 +27,9 @@ t_coBlocks *fill_head(t_Kernel k1, t_Kernel k2, int num_configs)
 	return myinfo;
 }
 
-int reverse_values(t_coBlocks *info)
+int reverse_values(t_smk_coBlocks *info)
 {
-	t_coBlocks *new_info = fill_head(info->kid[1], info->kid[0], info->num_configs);
+	t_smk_coBlocks *new_info = fill_head(info->kid[1], info->kid[0], info->num_configs);
 	
 	for (int i=0; i < info->num_configs; i++) {
 		new_info->pairs[i][0] = info->pairs[i][1];
@@ -40,14 +39,16 @@ int reverse_values(t_coBlocks *info)
 	return 0;
 }
 
-int fill_coBlocks()
+// Number of assigned blocks when two concurrent kernels are allocated in a SM fir Titan X Pascal: SMK approach
+ 
+int smk_fill_coBlocks()
 {
 	
-	memset (info_coBlocks, 0, (Number_of_Kernels-1) * (Number_of_Kernels-1) * sizeof(t_coBlocks));
-	t_coBlocks *myinfo, *save_info;
+	memset (smk_info_coBlocks, 0, (Number_of_Kernels-1) * (Number_of_Kernels-1) * sizeof(t_smk_coBlocks));
+	t_smk_coBlocks *myinfo, *save_info;
 	
 	//MM-BS
-	/*myinfo = &info_coBlocks[MM][BS];
+	/*myinfo = &smk_info_coBlocks[MM][BS];
 	myinfo->kid[0] = MM; myinfo->kid[1] = BS; 
 	myinfo->num_configs = 7;
 	
@@ -537,6 +538,8 @@ int fill_coBlocks()
 	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
 	save_info = myinfo;
 	
+	reverse_values(myinfo);
+	
 	//PF-SCEDD
 	
 	myinfo = fill_head(PF, SCEDD, 7);
@@ -890,47 +893,48 @@ int fill_coBlocks()
 	return 0;
 }
 
-int fill_solo()
+// Max number of blocks that can be assigned to a SM in Titan X Pascal
+int smk_fill_solo()
 {
 	
-	info_solo[MM].num_configs=8; //max_nm_blocks_per_SM
-	info_solo[MM].tpms = (double *)calloc(info_solo[MM].num_configs, sizeof(double));
+	smk_info_solo[MM].num_configs=8; //max_nm_blocks_per_SM
+	smk_info_solo[MM].tpms = (double *)calloc(smk_info_solo[MM].num_configs, sizeof(double));
 	
-	info_solo[BS].num_configs=8; //max_nm_blocks_per_SM
-	info_solo[BS].tpms = (double *)calloc(info_solo[BS].num_configs, sizeof(double));
+	smk_info_solo[BS].num_configs=8; //max_nm_blocks_per_SM
+	smk_info_solo[BS].tpms = (double *)calloc(smk_info_solo[BS].num_configs, sizeof(double));
 	
-	info_solo[VA].num_configs=8; //max_nm_blocks_per_SM
-	info_solo[VA].tpms = (double *)calloc(info_solo[VA].num_configs, sizeof(double));
+	smk_info_solo[VA].num_configs=8; //max_nm_blocks_per_SM
+	smk_info_solo[VA].tpms = (double *)calloc(smk_info_solo[VA].num_configs, sizeof(double));
 	
-	info_solo[SPMV_CSRscalar].num_configs=16; //max_nm_blocks_per_SM
-	info_solo[SPMV_CSRscalar].tpms = (double *)calloc(info_solo[SPMV_CSRscalar].num_configs, sizeof(double));
+	smk_info_solo[SPMV_CSRscalar].num_configs=16; //max_nm_blocks_per_SM
+	smk_info_solo[SPMV_CSRscalar].tpms = (double *)calloc(smk_info_solo[SPMV_CSRscalar].num_configs, sizeof(double));
 	
-	info_solo[Reduction].num_configs=8; //max_nm_blocks_per_SM
-	info_solo[Reduction].tpms = (double *)calloc(info_solo[Reduction].num_configs, sizeof(double));
+	smk_info_solo[Reduction].num_configs=8; //max_nm_blocks_per_SM
+	smk_info_solo[Reduction].tpms = (double *)calloc(smk_info_solo[Reduction].num_configs, sizeof(double));
 	
-	info_solo[PF].num_configs=8; //max_nm_blocks_per_SM
-	info_solo[PF].tpms = (double *)calloc(info_solo[PF].num_configs, sizeof(double));
+	smk_info_solo[PF].num_configs=8; //max_nm_blocks_per_SM
+	smk_info_solo[PF].tpms = (double *)calloc(smk_info_solo[PF].num_configs, sizeof(double));
 	
-	info_solo[RCONV].num_configs=25; //max_nm_blocks_per_SM
-	info_solo[RCONV].tpms = (double *)calloc(info_solo[RCONV].num_configs, sizeof(double));
+	smk_info_solo[RCONV].num_configs=25; //max_nm_blocks_per_SM
+	smk_info_solo[RCONV].tpms = (double *)calloc(smk_info_solo[RCONV].num_configs, sizeof(double));
 	
-	info_solo[GCEDD].num_configs=8; //max_nm_blocks_per_SM
-	info_solo[GCEDD].tpms = (double *)calloc(info_solo[GCEDD].num_configs, sizeof(double));
+	smk_info_solo[GCEDD].num_configs=8; //max_nm_blocks_per_SM
+	smk_info_solo[GCEDD].tpms = (double *)calloc(smk_info_solo[GCEDD].num_configs, sizeof(double));
 	
-	info_solo[HST256].num_configs=10; //max_nm_blocks_per_SM
-	info_solo[HST256].tpms = (double *)calloc(info_solo[HST256].num_configs, sizeof(double));
+	smk_info_solo[HST256].num_configs=10; //max_nm_blocks_per_SM
+	smk_info_solo[HST256].tpms = (double *)calloc(smk_info_solo[HST256].num_configs, sizeof(double));
 	
-	info_solo[SCEDD].num_configs=8; //max_nm_blocks_per_SM
-	info_solo[SCEDD].tpms = (double *)calloc(info_solo[SCEDD].num_configs, sizeof(double));
+	smk_info_solo[SCEDD].num_configs=8; //max_nm_blocks_per_SM
+	smk_info_solo[SCEDD].tpms = (double *)calloc(smk_info_solo[SCEDD].num_configs, sizeof(double));
 	
-	info_solo[NCEDD].num_configs=8; //max_nm_blocks_per_SM
-	info_solo[NCEDD].tpms = (double *)calloc(info_solo[NCEDD].num_configs, sizeof(double));
+	smk_info_solo[NCEDD].num_configs=8; //max_nm_blocks_per_SM
+	smk_info_solo[NCEDD].tpms = (double *)calloc(smk_info_solo[NCEDD].num_configs, sizeof(double));
 	
-	info_solo[HCEDD].num_configs=8; //max_nm_blocks_per_SM
-	info_solo[HCEDD].tpms = (double *)calloc(info_solo[HCEDD].num_configs, sizeof(double));
+	smk_info_solo[HCEDD].num_configs=8; //max_nm_blocks_per_SM
+	smk_info_solo[HCEDD].tpms = (double *)calloc(smk_info_solo[HCEDD].num_configs, sizeof(double));
 	
-	info_solo[CCONV].num_configs=12; //max_nm_blocks_per_SM
-	info_solo[CCONV].tpms = (double *)calloc(info_solo[CCONV].num_configs, sizeof(double));
+	smk_info_solo[CCONV].num_configs=12; //max_nm_blocks_per_SM
+	smk_info_solo[CCONV].tpms = (double *)calloc(smk_info_solo[CCONV].num_configs, sizeof(double));
 	
 	
 	
