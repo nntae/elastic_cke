@@ -122,7 +122,7 @@ all: build
 
 build: basic
 
-reduction_original.o: Reduction/reduction_original.cu Reduction/reduction_original_kernel.h elastic_kernel.h
+reduction_original.o: Reduction/reduction_original.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
 BS_Original_Kernel.o: BS/BS_Original_Kernel.cu elastic_kernel.h

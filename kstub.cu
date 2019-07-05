@@ -357,6 +357,10 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startMallocs = reduce_start_mallocs;
 			k_stub->startTransfers = reduce_start_transfers;
 			k_stub->endKernel = reduce_end_kernel;
+			
+			// reduction_params->size = 1<<24;
+			// reduction_params->size *= 50;
+			reduction_params->size = 802816000 / 2;
 		
 			if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
 					k_stub->kconf.numSMs = 28;
@@ -366,12 +370,14 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					#ifdef DATA_SET_1
 					k_stub->kconf.gridsize.x =  64*28*8;
 					#else
-					k_stub->kconf.gridsize.x =  640*28*8; // 64 * number_of_permanent_blocks, a ver que tal
+					//k_stub->kconf.gridsize.x =  640*28*8; // 64 * number_of_permanent_blocks, a ver que tal
+					k_stub->kconf.gridsize.x =  64 * 7;
 					#endif
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
-					k_stub->total_tasks = k_stub->kconf.gridsize.x;
-					k_stub->kconf.coarsening = 20;
-			}
+					k_stub->kconf.coarsening = 10;
+					// k_stub->total_tasks = k_stub->kconf.gridsize.x;
+					k_stub->total_tasks = reduction_params->size / (k_stub->kconf.blocksize.x * 2 * k_stub->kconf.coarsening);
+			} 
 			else{
 				printf("Error: Unknown device\n");
 				return -1;
@@ -477,8 +483,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			CONV_params->conv_rows=6144;
 			CONV_params->conv_cols=6144;
 			#else
-			CONV_params->conv_rows=17408;
-			CONV_params->conv_cols=17408;
+			CONV_params->conv_rows=14784;
+			CONV_params->conv_cols=14784;
 			#endif
 			
 			CONV_params->gridDimY[0] = CONV_params->conv_cols / 4;
@@ -928,7 +934,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			#ifdef DATA_SET_1
 			HST256_params->byteCount256 = 64 * 1048576 * 6;
 			#else
-			HST256_params->byteCount256 = 64 * 1048576 * 6 * 6;
+			HST256_params->byteCount256 = 64 * 1048576 * 6 * 5;
 			#endif
 	
 			k_stub->launchCKEkernel = launch_preemp_HST256;
