@@ -97,6 +97,7 @@ preemp_SMK_spmv_csr_scalar_kernel(const float * __restrict__ val,
 						State *status
 					   )
 {
+	int myRow;
 	
 	__shared__ int s_bid, s_index;
 	
@@ -124,9 +125,10 @@ preemp_SMK_spmv_csr_scalar_kernel(const float * __restrict__ val,
 		if (s_bid >= num_subtask || s_bid == -1) /* If all subtasks have been executed */
 			return;
 		
-		for (int iter=0; iter<iter_per_subtask; iter++) {
+		//for (int iter=0; iter<iter_per_subtask; iter++) {
 	
-			int myRow = s_bid * blockDim.x * iter_per_subtask + iter * blockDim.x + threadIdx.x;
+			myRow = s_bid * blockDim.x + threadIdx.x;
+			//int myRow = s_bid * blockDim.x * iter_per_subtask + iter * blockDim.x + threadIdx.x;
 			texReaderSP vecTexReader;
 
 			if (myRow < dim)
@@ -140,7 +142,7 @@ preemp_SMK_spmv_csr_scalar_kernel(const float * __restrict__ val,
 				}
 				out[myRow] = t;
 			}
-		}
+		//}
 	}
 }
 
@@ -159,7 +161,7 @@ preemp_SMT_spmv_csr_scalar_kernel(const float * __restrict__ val,
 						State *status
 					   )
 {
-	
+	int myRow;
 	__shared__ int s_bid;
 	
 	unsigned int SM_id = get_smid_SPMV();
@@ -189,9 +191,10 @@ preemp_SMT_spmv_csr_scalar_kernel(const float * __restrict__ val,
 			return;
 		}
 		
-		for (int iter=0; iter<iter_per_subtask; iter++) {
+		//for (int iter=0; iter<iter_per_subtask; iter++) {
 	
-			int myRow = s_bid * blockDim.x * iter_per_subtask + iter * blockDim.x + threadIdx.x;
+			myRow = s_bid * blockDim.x + threadIdx.x;
+			//int myRow = s_bid * blockDim.x * iter_per_subtask + iter * blockDim.x + threadIdx.x;
 			texReaderSP vecTexReader;
 
 			//if (blockIdx.x==0 && threadIdx.x==0)
@@ -209,7 +212,7 @@ preemp_SMT_spmv_csr_scalar_kernel(const float * __restrict__ val,
 				//if (blockIdx.x==0 && threadIdx.x==0)
 				//	printf("Result=%f\n", t);
 			}
-		}
+		//}
 	}
 }
 

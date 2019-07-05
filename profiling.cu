@@ -51,18 +51,21 @@ int solo_execution_prof(t_kernel_stub *kstub, double *tpms)
 
 int solo_original(t_kernel_stub *kstub, double *exectime_s)
 {
-	struct timespec now;
+	cudaEvent_t start, stop;
+	float elapsedTime;
 	
-	clock_gettime(CLOCK_REALTIME, &now);
-	double time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	cudaEventCreate(&start);
+	cudaEventRecord(start, 0);
 	
 	kstub->launchORIkernel(kstub);
-	cudaDeviceSynchronize();
 	
-	clock_gettime(CLOCK_REALTIME, &now);
-	double time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	cudaEventCreate(&stop);
+	cudaEventRecord(stop,0);
+	cudaEventSynchronize(stop);
+
+	cudaEventElapsedTime(&elapsedTime, start, stop);
 	
-	*exectime_s = time2 - time1;
+	*exectime_s = (double)elapsedTime/1000;
 	
 	return 0;
 }

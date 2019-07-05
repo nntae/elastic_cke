@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <algorithm>
+
 #include "../cudacommon.h"
 #include <cassert>
 #include <cuda.h>
@@ -8,79 +11,454 @@
 #include <semaphore.h>
 #include "../elastic_kernel.h"
 #include "reduction.h"
-#include "reduction_original_kernel.h" // Warning: needs scheduler.h because State definition
 
-extern t_tqueue *tqueues;
+__device__ uint get_smid_reduction(void) {
+	uint ret;
 
-// ****************************************************************************
-// Function: reduceCPU
-//
-// Purpose:
-//   Simple cpu reduce routine to verify device results
-//
-// Arguments:
-//   data : the input data
-//   size : size of the input data
-//
-// Returns:  sum of the data
-//
-// Programmer: Kyle Spafford
-// Creation: August 13, 2009
-//
-// Modifications:
-//
-// ****************************************************************************
-template <class T>
-T reduceCPU(const T *data, unsigned long int size)
-{
-    T sum = 0;
-    for (unsigned long int i = 0; i < size; i++)
-    {
-        sum += data[i];
-    }
-    return sum;
+	asm("mov.u32 %0, %smid;" : "=r"(ret) );
+
+	return ret;
 }
 
+// Reduction Kernel
+// Kernel has been changed to increase the number of blocks. Now, one block
+//   only reduces 2*blockDim.x elements
+__global__ void
+reduce(float *g_idata, float *g_odata, unsigned int n)
+{
+	extern __shared__ float sdata[];
 
-//*************************************************/
-// Memory Allocation
-//*************************************************/
+	// perform first level of reduction,
+	// reading from global memory, writing to shared memory
+	unsigned int tid = threadIdx.x;
+	//unsigned int i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+	unsigned int i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+	unsigned int gridSize = blockDim.x*2*gridDim.x;
 
-// float *h_idata, *h_odata;
-// float *d_idata, *d_odata;
+	//float mySum = (i < n) ? g_idata[i] : 0;
+	float mySum = 0;
 
-unsigned long int nItems = 32*32*1024*1024; // Maximum size without overflow
-int nBlocks = 64;
-int blockSize = 256;
-int smem_size = blockSize * sizeof(float);
+	// if (i + blockDim.x < n)
+		// mySum += g_idata[i+blockDim.x];
+	
+	while(i < n){
+		mySum += g_idata[i];
+		
+		if(i + blockDim.x < n)
+			mySum += g_idata[i+blockDim.x];
+
+		i += gridSize;
+	}
+
+	sdata[tid] = mySum;
+	__syncthreads();
+
+	// do reduction in shared mem
+	if ((blockDim.x >= 512) && (tid < 256))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid + 256];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >= 256) &&(tid < 128))
+	{
+			sdata[tid] = mySum = mySum + sdata[tid + 128];
+	}
+
+	 __syncthreads();
+
+	if ((blockDim.x >= 128) && (tid <  64))
+	{
+	   sdata[tid] = mySum = mySum + sdata[tid +  64];
+	}
+
+	__syncthreads();
+
+#if (__CUDA_ARCH__ >= 300 )
+	if ( tid < 32 )
+	{
+		// Fetch final intermediate sum from 2nd warp
+		if (blockDim.x >=  64) mySum += sdata[tid + 32];
+		// Reduce final warp using shuffle
+		for (int offset = warpSize/2; offset > 0; offset /= 2) 
+		{
+			mySum += __shfl_down(mySum, offset);
+		}
+	}
+#else
+	// fully unroll reduction within a single warp
+	if ((blockDim.x >=  64) && (tid < 32))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid + 32];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >=  32) && (tid < 16))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid + 16];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >=  16) && (tid <  8))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid +  8];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >=   8) && (tid <  4))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid +  4];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >=   4) && (tid <  2))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid +  2];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >=   2) && ( tid <  1))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid +  1];
+	}
+
+	__syncthreads();
+#endif
+
+	// write result for this block to global mem
+	if (tid == 0) g_odata[blockIdx.x] += mySum;
+}
+
+// Reduction Kernel
+__global__ void
+preemp_SMT_reduce_kernel(float *g_idata, float *g_odata, unsigned int n,
+		int SIMD_min,
+		int SIMD_max,
+		unsigned long int num_subtask,
+		int iter_per_subtask,
+		int *cont_subtask,
+		State *status)
+{
+	__shared__ int s_bid;
+
+	unsigned int SM_id = get_smid_reduction();
+	
+	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
+			return;
+			
+	//extern __shared__ float sdata[];
+	//float mySum = 0;
+		
+	while (1){
+		
+		/********** Task Id calculation *************/
+		if (threadIdx.x == 0) {
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else
+				s_bid = atomicAdd(cont_subtask, 1);
+		}
+		
+		__syncthreads();
+		
+		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
+			return;
+		}
+		
+		extern __shared__ float sdata[];
+
+		// perform first level of reduction,
+		// reading from global memory, writing to shared memory
+		unsigned int tid = threadIdx.x;
+		//unsigned int i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+		unsigned int i = s_bid * (blockDim.x * 2) + threadIdx.x;
+		unsigned int gridSize = blockDim.x * 2 * num_subtask;
+
+		//float mySum = (i < n) ? g_idata[i] : 0;
+		float mySum = 0;
+
+		// if (i + blockDim.x < n)
+			// mySum += g_idata[i+blockDim.x];
+		
+		int cont = 0;
+		
+		while(i < n && cont < iter_per_subtask){
+			mySum += g_idata[i];
+			
+			if(i + blockDim.x < n)
+				mySum += g_idata[i+blockDim.x];
+
+			i += gridSize;
+			cont++;
+		}
+
+		sdata[tid] = mySum;
+		__syncthreads();
+
+		// do reduction in shared mem
+		if ((blockDim.x >= 512) && (tid < 256))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid + 256];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >= 256) &&(tid < 128))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid + 128];
+		}
+
+		 __syncthreads();
+
+		if ((blockDim.x >= 128) && (tid <  64))
+		{
+		   sdata[tid] = mySum = mySum + sdata[tid +  64];
+		}
+
+		__syncthreads();
+
+	#if (__CUDA_ARCH__ >= 300 )
+		if ( tid < 32 )
+		{
+			// Fetch final intermediate sum from 2nd warp
+			if (blockDim.x >=  64) mySum += sdata[tid + 32];
+			// Reduce final warp using shuffle
+			for (int offset = warpSize/2; offset > 0; offset /= 2) 
+			{
+				mySum += __shfl_down(mySum, offset);
+			}
+		}
+	#else
+		// fully unroll reduction within a single warp
+		if ((blockDim.x >=  64) && (tid < 32))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid + 32];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=  32) && (tid < 16))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid + 16];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=  16) && (tid <  8))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid +  8];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=   8) && (tid <  4))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid +  4];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=   4) && (tid <  2))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid +  2];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=   2) && ( tid <  1))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid +  1];
+		}
+
+		__syncthreads();
+	#endif
+
+		// write result for this block to global mem
+		if (tid == 0) g_odata[s_bid % 448] += mySum;
+	}
+}
+
+// Reduction Kernel
+__global__ void
+preemp_SMK_reduce_kernel(float *g_idata, float *g_odata, unsigned int n,
+		int max_blocks_per_SM, 
+		unsigned long int num_subtask,
+		int iter_per_subtask,
+		int *cont_SM,
+		int *cont_subtask,
+		State *status)
+{
+	__shared__ int s_bid, s_index;
+	
+	unsigned int SM_id = get_smid_reduction();
+	
+	if (threadIdx.x == 0)  
+		s_index = atomicAdd(&cont_SM[SM_id],1);
+	
+	__syncthreads();
+
+	if (s_index > max_blocks_per_SM)
+		return;
+	
+	while (1){
+		
+		/********** Task Id calculation *************/
+		if (threadIdx.x == 0) {
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else
+				s_bid = atomicAdd(cont_subtask, 1);
+		}
+		__syncthreads();
+		
+		if (s_bid >= num_subtask || s_bid == -1) /* If all subtasks have been executed */
+			return;
+			
+		extern __shared__ float sdata[];
+
+		// perform first level of reduction,
+		// reading from global memory, writing to shared memory
+		unsigned int tid = threadIdx.x;
+		//unsigned int i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+		unsigned int i = s_bid*(blockDim.x*2) + threadIdx.x;
+		unsigned int gridSize = blockDim.x*2*num_subtask;
+
+		//float mySum = (i < n) ? g_idata[i] : 0;
+		float mySum = 0;
+
+		// if (i + blockDim.x < n)
+			// mySum += g_idata[i+blockDim.x];
+		
+		while(i < n){
+			mySum += g_idata[i];
+			
+			if(i + blockDim.x < n)
+				mySum += g_idata[i+blockDim.x];
+
+			i += gridSize;
+		}
+
+		sdata[tid] = mySum;
+		__syncthreads();
+
+		// do reduction in shared mem
+		if ((blockDim.x >= 512) && (tid < 256))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid + 256];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >= 256) &&(tid < 128))
+		{
+				sdata[tid] = mySum = mySum + sdata[tid + 128];
+		}
+
+		 __syncthreads();
+
+		if ((blockDim.x >= 128) && (tid <  64))
+		{
+		   sdata[tid] = mySum = mySum + sdata[tid +  64];
+		}
+
+		__syncthreads();
+
+	#if (__CUDA_ARCH__ >= 300 )
+		if ( tid < 32 )
+		{
+			// Fetch final intermediate sum from 2nd warp
+			if (blockDim.x >=  64) mySum += sdata[tid + 32];
+			// Reduce final warp using shuffle
+			for (int offset = warpSize/2; offset > 0; offset /= 2) 
+			{
+				mySum += __shfl_down(mySum, offset);
+			}
+		}
+	#else
+		// fully unroll reduction within a single warp
+		if ((blockDim.x >=  64) && (tid < 32))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid + 32];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=  32) && (tid < 16))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid + 16];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=  16) && (tid <  8))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid +  8];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=   8) && (tid <  4))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid +  4];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=   4) && (tid <  2))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid +  2];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=   2) && ( tid <  1))
+		{
+			sdata[tid] = mySum = mySum + sdata[tid +  1];
+		}
+
+		__syncthreads();
+	#endif
+
+		// write result for this block to global mem
+		if (tid == 0) g_odata[s_bid] = mySum;
+	}
+}
 
 int reduce_start_kernel(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_reduction_params * params = (t_reduction_params *)kstub->params;
 	
-	nBlocks = kstub->kconf.gridsize.x;
-	blockSize =	kstub->kconf.blocksize.x;
-    nItems = nBlocks*blockSize*2;
-	smem_size = blockSize * sizeof(float);
+	params->smem_size = (kstub->kconf.blocksize.x <= 32) ? 2 * kstub->kconf.blocksize.x * sizeof(float) : kstub->kconf.blocksize.x * sizeof(float);
+	// params->size = 1<<24;
+	// params->size *= 50;
 	
-	// Allocate and set up host data (assuming T data is float)
-	CUDA_SAFE_CALL(cudaMallocHost((void**)&params->h_idata, nItems * sizeof(float)));
-    CUDA_SAFE_CALL(cudaMallocHost((void**)&params->h_odata, nBlocks * sizeof(float)));
+	unsigned int bytes = params->size * sizeof(float);
 
-	for(long int i = 0; i < nItems; i++)
-    {
-        params->h_idata[i] = ((float) (i % 2)/100000); //Fill with some pattern
-    }
+	params->h_idata = (float *) malloc(bytes);
 
-	// Allocate device memory
-	CUDA_SAFE_CALL(cudaMalloc((void**)&params->d_idata, nItems * sizeof(float)));
-    CUDA_SAFE_CALL(cudaMalloc((void**)&params->d_odata, nBlocks * sizeof(float)));
-	
-	// Transfer data from host to device
-	CUDA_SAFE_CALL(cudaMemcpy(params->d_idata, params->h_idata, nItems*sizeof(float), cudaMemcpyHostToDevice));
+	for (int i=0; i<params->size; i++)
+	{
+		// Keep the numbers small so we don't get truncation error in the sum
+		params->h_idata[i] = (rand() & 0xFF);
+	}
 
-  
+	// allocate mem for the result on host side
+	params->h_odata = (float *) malloc(kstub->kconf.gridsize.x*sizeof(float));
+
+	// allocate device memory and data
+	params->d_idata = NULL;
+	params->d_odata = NULL;
+
+	checkCudaErrors(cudaMalloc((float **) &params->d_idata, bytes));
+	checkCudaErrors(cudaMalloc((float **) &params->d_odata, kstub->kconf.gridsize.x*sizeof(float)));
+
 	return 0;
  }
 
@@ -89,117 +467,87 @@ int reduce_start_mallocs(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_reduction_params * params = (t_reduction_params *)kstub->params;
 	
-	nBlocks = kstub->kconf.gridsize.x;
-	blockSize =	kstub->kconf.blocksize.x;
-    nItems = kstub->total_tasks*blockSize*2;
-	smem_size = blockSize * sizeof(float);
+	params->smem_size = (kstub->kconf.blocksize.x <= 32) ? 2 * kstub->kconf.blocksize.x * sizeof(float) : kstub->kconf.blocksize.x * sizeof(float);
+	// params->size = 1<<24;
+	// params->size *= 50;
+	
+	unsigned int bytes = params->size * sizeof(float);
 
-	//printf("\tWorking with %d items, reduced with %d (%d) blocks\n", nItems, nBlocks, kstub->kconf.coarsening);
+	params->h_idata = (float *)malloc(bytes);
 
-	// Allocate and set up host data (assuming T data is float)
-	CUDA_SAFE_CALL(cudaMallocHost((void**)&params->h_idata, nItems * sizeof(float)));
-    CUDA_SAFE_CALL(cudaMallocHost((void**)&params->h_odata, nBlocks * sizeof(float)));
+	for (int i=0; i<params->size; i++)
+	{
+		// Keep the numbers small so we don't get truncation error in the sum
+		params->h_idata[i] = (rand() & 0xFF);
+	}
 
-	for(unsigned long int i = 0; i < nItems; i++)
-    {
-        params->h_idata[i] = ((float) (i % 2)/100000); //Fill with some pattern
-        //h_idata[i] = (float) (i % 2); //Fill with some pattern
-    }
+	// allocate mem for the result on host side
+	params->h_odata = (float *) malloc(kstub->kconf.gridsize.x*sizeof(float));
 
-	// Allocate device memory
-	CUDA_SAFE_CALL(cudaMalloc((void**)&params->d_idata, nItems * sizeof(float)));
-    CUDA_SAFE_CALL(cudaMalloc((void**)&params->d_odata, nBlocks * sizeof(float)));
+	// allocate device memory and data
+	params->d_idata = NULL;
+	params->d_odata = NULL;
+
+	checkCudaErrors(cudaMalloc((float **) &params->d_idata, bytes));
+	checkCudaErrors(cudaMalloc((float **) &params->d_odata, kstub->kconf.gridsize.x*sizeof(float)));
 
 	return 0;
 }
-
-//*************************************************/
-// HtD Transfers
-//*************************************************/
 
 int reduce_start_transfers(void *arg){
 	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_reduction_params * params = (t_reduction_params *)kstub->params;
-
-#if defined(MEMCPY_ASYNC)
-
-	//enqueue_tcomamnd(tqueues, d_idata, h_idata, nItems * sizeof(float), cudaMemcpyHostToDevice, 
-	// kstub->transfer_s[0], NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(params->d_idata, params->h_idata, nItems * sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
 	
+	unsigned int bytes = params->size * sizeof(float);
+
+#if defined(MEMCPY_ASYNC)	
+	checkCudaErrors(cudaMemcpyAsync(params->d_idata, params->h_idata, bytes, cudaMemcpyHostToDevice, kstub->transfer_s[0]));
+	checkCudaErrors(cudaMemcpyAsync(params->d_odata, params->h_odata, kstub->kconf.gridsize.x*sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]));
 #else
-
-	CUDA_SAFE_CALL(cudaMemcpy(params->d_idata, params->h_idata,   nItems * sizeof(float),
-              cudaMemcpyHostToDevice));
-
+	checkCudaErrors(cudaMemcpy(params->d_idata, params->h_idata, bytes, cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMemcpy(params->d_odata, params->h_odata, kstub->kconf.gridsize.x*sizeof(float), cudaMemcpyHostToDevice));
 #endif
       
 	return 0;
 }
-
-//*************************************************/
-// DtH transfers and deallocation
-//*************************************************/
 
 int reduce_end_kernel(void *arg)
 {
 
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_reduction_params * params = (t_reduction_params *)kstub->params;
+	
+	unsigned int bytes = params->size * sizeof(float);
 
 #if defined(MEMCPY_ASYNC)
 	cudaEventSynchronize(kstub->end_Exec);
 
-	//enqueue_tcomamnd(tqueues, h_odata, d_odata, nBlocks * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(params->h_odata, params->d_odata, nBlocks * sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
-#else
-	
+	//checkCudaErrors(cudaMemcpyAsync(params->h_idata, params->d_idata, bytes, cudaMemcpyDeviceToHost, kstub->transfer_s[1]));
+	checkCudaErrors(cudaMemcpyAsync(params->h_odata, params->d_odata, kstub->kconf.gridsize.x*sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1]));
+#else	
 	cudaEventSynchronize(kstub->end_Exec);
 	
-	CUDA_SAFE_CALL(cudaMemcpy(params->h_odata, params->d_odata, nBlocks * sizeof(float),
-                  cudaMemcpyDeviceToHost));
-				 		 
-	CUDA_SAFE_CALL(cudaFree(params->d_idata));
-	CUDA_SAFE_CALL(cudaFree(params->d_odata));
-
+	//checkCudaErrors(cudaMemcpy(params->h_idata, params->d_idata, bytes, cudaMemcpyDeviceToHost));
+	checkCudaErrors(cudaMemcpy(params->h_odata, params->d_odata, kstub->kconf.gridsize.x*sizeof(float), cudaMemcpyDeviceToHost));			 		 
 #endif
 
-	// Compute results on CPU
-	// cudaDeviceSynchronize();
-	// float dev_result = 0;
-	// for (int i=0; i<nBlocks; i++)
-	// {
-		// dev_result += h_odata[i];
-	// }
+	free(params->h_idata);
+	free(params->h_odata);
 
-	// // compute reference solution
-	// float cpu_result = reduceCPU<float>(h_idata, nItems);
-	// double threshold = 1.0e-2;
-	// float diff = fabs(dev_result - cpu_result);
-
-	// if (diff < threshold)
-		// printf("Test passed\n");
-	// else
-		// printf("Test failed: %f (%f - %f)\n", diff, dev_result, cpu_result);
-
-	cudaFree(params->h_idata);
-	cudaFree(params->h_odata);
+	checkCudaErrors(cudaFree(params->d_idata));
+	checkCudaErrors(cudaFree(params->d_odata));
 	
 	return 0;
 }
 	
-
 int launch_orig_reduce(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_reduction_params * params = (t_reduction_params *)kstub->params;
-
-	dim3 threads = dim3(blockSize, 1, 1);
-	dim3 blocks = dim3(nBlocks, 1, 1);
 	
-	reduce<<<blocks, threads, smem_size>>>
-                (params->d_idata, params->d_odata, nItems);			
+	reduce<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x, params->smem_size>>>
+		(params->d_idata, params->d_odata, params->size);			
 	
 	return 0;
 }
@@ -209,129 +557,32 @@ int launch_preemp_reduce(void *arg)
 	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_reduction_params * params = (t_reduction_params *)kstub->params;
-	dim3 threads = dim3(kstub->kconf.blocksize.x, 1, 1);
-	dim3 blocks = dim3(kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, 1, 1);
 
 	#ifdef SMT
 
-	preemp_SMT_reduce_kernel<<<blocks, threads, smem_size, *(kstub->execution_s)>>>
-			(params->d_idata, params->d_odata, nItems,
-			kstub->idSMs[0],
-			kstub->idSMs[1],
-			kstub->total_tasks,
-			kstub->kconf.coarsening,
-			kstub->d_executed_tasks,
-			&(kstub->gm_state[kstub->stream_index])
+	preemp_SMT_reduce_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->smem_size, *(kstub->execution_s)>>>
+		(params->d_idata, params->d_odata, params->size,
+		kstub->idSMs[0],
+		kstub->idSMs[1],
+		kstub->total_tasks,
+		kstub->kconf.coarsening,
+		kstub->d_executed_tasks,
+		&(kstub->gm_state[kstub->stream_index])
 	);
 
 	#else
 
-	preemp_SMK_reduce_kernel<<<blocks, threads, smem_size, *(kstub->execution_s)>>>
-			(params->d_idata, params->d_odata, nItems, 
-			kstub->num_blocks_per_SM,
-			kstub->total_tasks,
-			kstub->kconf.coarsening,
-			kstub->d_SMs_cont,
-			kstub->d_executed_tasks,
-			&(kstub->gm_state[kstub->stream_index])
+	preemp_SMK_reduce_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->smem_size, *(kstub->execution_s)>>>
+		(params->d_idata, params->d_odata, params->size, 
+		kstub->num_blocks_per_SM,
+		kstub->total_tasks,
+		kstub->kconf.coarsening,
+		kstub->d_SMs_cont,
+		kstub->d_executed_tasks,
+		&(kstub->gm_state[kstub->stream_index])
 	);	
 
 	#endif
 	
-	return 0;
-}
-
-// A testing routine
-int reduce_test(t_Kernel *kernel_id, float *tHtD, float *tK, float *tDtH)
-{
-	
-	int nsteps = 2;
-	float t1 = 0, t2 = 0, t3 = 0;
-	int devId = 5;
-	
-	cudaSetDevice(devId);
-    cudaDeviceProp deviceProp;
-    cudaGetDeviceProperties(&deviceProp, devId);
-	printf("Device=%s\n", deviceProp.name);
-	
-	t_kernel_stub **kstub = (t_kernel_stub **)calloc(1, sizeof(t_kernel_stub *));
-	t_reduction_params * params = (t_reduction_params *)kstub[0]->params;
-
-	create_stubinfo(&kstub[0], devId, kernel_id[0], 0, 0);
-	void *arg = kstub[0];
-	
-
-	cudaEvent_t profileStart1, profileEnd1, profileStart2, profileEnd2, profileStart3, profileEnd3;
-	CUDA_SAFE_CALL(cudaEventCreate(&profileStart1));
-    CUDA_SAFE_CALL(cudaEventCreate(&profileEnd1));
-	CUDA_SAFE_CALL(cudaEventCreate(&profileStart2));
-    CUDA_SAFE_CALL(cudaEventCreate(&profileEnd2));
-	CUDA_SAFE_CALL(cudaEventCreate(&profileStart3));
-    CUDA_SAFE_CALL(cudaEventCreate(&profileEnd3));
-
-	tHtD[0] = 0;
-	tK[0] = 0;
-	tDtH[0] = 0;
-
-    // Enqueue start event
-	for ( int j = 0; j < nsteps; j++ )
-	{
-		reduce_start_mallocs(arg);
-
-		cudaDeviceSynchronize();
-		checkCudaErrors(cudaEventRecord(profileStart1, 0));
-		// Transfer data from host to device
-		CUDA_SAFE_CALL(cudaMemcpy(params->d_idata, params->h_idata,   nItems * sizeof(float), cudaMemcpyHostToDevice));
-		checkCudaErrors(cudaEventRecord(profileEnd1, 0));
-
-	    // Wait for the kernel to complete
-		cudaDeviceSynchronize();
-        checkCudaErrors(cudaEventElapsedTime(&t1, profileStart1, profileEnd1));
-		tHtD[0] += t1;
-		
-		checkCudaErrors(cudaEventRecord(profileStart2, 0));
-		launch_orig_reduce(arg);
-		checkCudaErrors(cudaEventRecord(profileEnd2, 0));
-
-		cudaDeviceSynchronize();
-        checkCudaErrors(cudaEventElapsedTime(&t2, profileStart2, profileEnd2));
-		tK[0] += t2;
-
-		checkCudaErrors(cudaEventRecord(profileStart3, 0));
-		CUDA_SAFE_CALL(cudaMemcpy(params->h_odata, params->d_odata, nBlocks * sizeof(float), cudaMemcpyDeviceToHost));	
-		checkCudaErrors(cudaEventRecord(profileEnd3, 0));
-
-		cudaDeviceSynchronize();
-        checkCudaErrors(cudaEventElapsedTime(&t3, profileStart3, profileEnd3));
-		tDtH[0] += t3;
-		
-		// Compute results on CPU
-		unsigned long int i = 0;
-		float dev_result = 0;
-		for (i=0; i<nBlocks; i++)
-		{
-			dev_result += params->h_odata[i];
-		}
-		
-		float cpu_result = 0;
-		for (i = 0; i < nItems; i++ )
-			cpu_result += params->h_idata[i];
-		//reduceCPU<float>(h_idata, nItems);
-		double threshold = 5.0e-2;
-		float diff = fabs(dev_result - cpu_result)/dev_result;
-
-		if (diff < threshold)
-			printf("Test passed\n");
-		else
-			printf("Test failed: %d items - %f (%f - %f)\n", i, diff, dev_result, cpu_result);
-
-		cudaFree(params->h_idata);
-		cudaFree(params->h_odata);
-	}
-
-	tHtD[0] /= nsteps;
-	tK[0] /= nsteps;
-	tDtH[0] /= nsteps;
-
 	return 0;
 }
