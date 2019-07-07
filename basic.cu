@@ -372,6 +372,7 @@ int create_sched(t_sched *sched)
 	return 0;
 }
 
+/*
 int launch_tasks_with_proxy(int deviceId)
 {	
 	cudaError_t err;
@@ -406,7 +407,7 @@ int launch_tasks_with_proxy(int deviceId)
 	kid = (t_Kernel *)calloc(num_kernels, sizeof(t_Kernel));
 	//kid[0]=MM; kid[1]=VA; kid[2]=BS; kid[3]=PF;
 	kid[0]=BS; kid[1]=Reduction; kid[2]=VA; kid[3]=PF; //kid[4]=MM;
-	/** Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands*/
+	// Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands
 	cudaStream_t *transfers_s;
 	transfers_s = (cudaStream_t *)calloc(2, sizeof(cudaStream_t));
 	
@@ -423,7 +424,7 @@ int launch_tasks_with_proxy(int deviceId)
 	//int max_cke_kernels = 2;
 	//create_stream_pool(max_cke_kernels*MAX_STREAMS_PER_KERNEL, &pool);
 	
-	/** Create stubs ***/
+	// Create stubs 
 	kstubs = (t_kernel_stub **)calloc(num_kernels, sizeof(t_kernel_stub*));
 	for (int i=0; i<num_kernels; i++)
 		create_stubinfo(&kstubs[i], deviceId, kid[i], transfers_s, &preemp_s);
@@ -445,17 +446,6 @@ int launch_tasks_with_proxy(int deviceId)
 	//t_Kernel curr_kid = MM; // Id of the first kernel in coexec
 	
 	int *k_select = (int *)calloc(num_kernels, sizeof(int));
-	
-	/*int i;
-	for (i=0; i<num_kernels; i++)
-		if (kid[i] == curr_kid && k_select[i] == 0){
-			k_select[i] = 1; //Mask kernel to avoid the relaunch of a kernel
-		}
-	
-	if (i>= num_kernels){
-		printf("Error: first kernel not found\n");
-		return -1;
-	}*/
 	
 	// Launch proxy
 	launch_generic_proxy((void *)&sched);	// Launch proxy
@@ -506,8 +496,8 @@ int launch_tasks_with_proxy(int deviceId)
 			}
 			else {
 				//add_streams(coexec.kstr[0], b0 - coexec.kstr[0]->num_streams); // More streams are added
-				coexec.kstr[0]->kstub->d_executed_tasks = sched.gm_cont_tasks; /* Remaping to zero-copy*/
-				coexec.kstr[0]->kstub->gm_state = sched.kernel_evict; /*Remaping to zero-copy */
+				coexec.kstr[0]->kstub->d_executed_tasks = sched.gm_cont_tasks; // Remaping to zero-copy
+				coexec.kstr[0]->kstub->gm_state = sched.kernel_evict; // Remaping to zero-copy 
 				launch_SMK_kernel(coexec.kstr[0], b0 - coexec.kstr[0]->num_streams); // Those new streams are launched
 			}
 			
@@ -529,14 +519,14 @@ int launch_tasks_with_proxy(int deviceId)
 			}
 			else{
 				//add_streams(&pool, coexec.kstr[0], b0 - coexec.kstr[0]->num_streams);
-				coexec.kstr[0]->kstub->d_executed_tasks = sched.gm_cont_tasks; /* Remaping to zero-copy*/
-				coexec.kstr[0]->kstub->gm_state = sched.kernel_evict; /*Remaping to zero-copy */
+				coexec.kstr[0]->kstub->d_executed_tasks = sched.gm_cont_tasks; // Remaping to zero-copy
+				coexec.kstr[0]->kstub->gm_state = sched.kernel_evict; //Remaping to zero-copy 
 				launch_SMK_kernel(coexec.kstr[0], b0 - coexec.kstr[0]->num_streams);
 			}
 	
 			//add_streams(&pool, coexec.kstr[1], b1); // Second kernel is launched for the fist time: streams are added
-			coexec.kstr[1]->kstub->d_executed_tasks = sched.gm_cont_tasks+1; /* Remaping to zero-copy*/
-			coexec.kstr[1]->kstub->gm_state = sched.kernel_evict+1; /*Remaping to zero-copy */
+			coexec.kstr[1]->kstub->d_executed_tasks = sched.gm_cont_tasks+1; // Remaping to zero-copy
+			coexec.kstr[1]->kstub->gm_state = sched.kernel_evict+1; // Remaping to zero-copy 
 			launch_SMK_kernel(coexec.kstr[1], b1);
 		}
 	
@@ -550,7 +540,7 @@ int launch_tasks_with_proxy(int deviceId)
 		if (cont_kernels_finished >= num_kernels) // Check if last kernel has finished
 			break; 
 	
-		if (kernel_id == 1){ /* If second kernel finishes*/
+		if (kernel_id == 1){ // If second kernel finishes
 		
 			//k_select[index_new_kernel] = 1; // Remove from further processing
 		
@@ -574,7 +564,7 @@ int launch_tasks_with_proxy(int deviceId)
 	sched.kernel_evict_zc[0] =  PROXY_EVICT;
 	cudaDeviceSynchronize();
 	return 0;
-}
+}*/
 
 int kernel_in_coexec(t_kcoexec *coexec, t_kstreams *kstr, int *pos)
 {
@@ -842,7 +832,7 @@ int launch_coexec(t_kcoexec *coexec)
 	return 0;
 }
 */
-
+/*
 int find_first_kernel( int *k_done, int *index, int num_kernels)
 {
 	int i;
@@ -857,7 +847,8 @@ int find_first_kernel( int *k_done, int *index, int num_kernels)
 	
 	return 0;
 }
-
+*/
+/*
 int launch_tasks_with_proxy_theoretical(int deviceId)
 {	
 	cudaError_t err;
@@ -894,7 +885,7 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 	kid = (t_Kernel *)calloc(num_kernels, sizeof(t_Kernel));
 	//kid[0]=MM; kid[1]=HST256; kid[2]=Reduction; kid[3]=PF; kid[4]=VA; kid[5]=BS; kid[6]=SPMV_CSRscalar; kid[7]=GCEDD; kid[8]=RCONV;
 	kid[0]=MM; kid[1]=BS; kid[2]=VA;kid[3]=MM; kid[4]=VA;
-	/** Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands*/
+	/// Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands
 	cudaStream_t *transfers_s;
 	transfers_s = (cudaStream_t *)calloc(2, sizeof(cudaStream_t));
 	
@@ -906,7 +897,7 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 	cudaStream_t preemp_s;
 	checkCudaErrors(cudaStreamCreateWithFlags(&preemp_s, cudaStreamNonBlocking)); 
 	
-	/** Create stubs ***/
+	// Create stubs 
 	kstubs = (t_kernel_stub **)calloc(num_kernels, sizeof(t_kernel_stub*));
 	for (int i=0; i<num_kernels; i++)
 		create_stubinfo(&kstubs[i], deviceId, kid[i], transfers_s, &preemp_s);
@@ -942,7 +933,7 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 	
 	// Select initial kernel
 	int task_index = 0; // Index of the kernel in the array with ready kernels: Arbitrarily we choode the first one
-	//k_done[task_index] = 1; // Kernel removed from pending kernels*/
+	//k_done[task_index] = 1; // Kernel removed from pending kernels
 	 
 	int kernel_idx; // Position of kernel in coexec struc
 	double speedup; 
@@ -955,7 +946,7 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 			
 			find_first_kernel(k_done, &task_index, num_kernels); // Index in k_done
 			if (task_index == -1)
-				break; // Exit: no remaining kernels*/
+				break; // Exit: no remaining kernels
 			k_done[task_index] = 1;
 		}
 			
@@ -995,17 +986,6 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 		// Execute kernels (launching streams) in coexec structure
 		launch_coexec(&coexec);		
 		
-		/*t_kstreams *kstr = coexec.kstr[1]; 
-		int total_streams=3, num_streams=3, index;
-		for (int i=0; i<num_streams; i++){
-			index = total_streams-1-i; // Start with the last streams
-			kstr->kstub->h_state[index] = TOEVICT;
-			printf("--> Evicting stream %d(%d) of kernel %d\n", index, total_streams, kstr->kstub->id);
-		}
-		cudaMemcpyAsync(&kstr->kstub->gm_state[0],  &kstr->kstub->h_state[0], 1 * sizeof(State), cudaMemcpyHostToDevice, *(kstr->kstub->preemp_s));  // Signal TOEVICT State
-	
-		break;
-		*/
 		// Wait for termination condition
 		
 		wait_for_kernel_termination_with_proxy(&sched, &coexec, &kernel_idx, &speedup);
@@ -1080,22 +1060,20 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 	
 	return 0;
 }
-
+*/
 int main(int argc, char **argv)
 {
 	//launch_tasks_with_proxy_theoretical(2);
 	
-	int num_kernels = 13;
+	int num_kernels = 4;
 	t_Kernel kid[13];
-	
-	kid[0]=GCEDD;
-	kid[1]=SCEDD;
-	kid[2]=NCEDD;
-	kid[3]=HCEDD;
-	kid[4]=RCONV;
-	kid[5]=CCONV;
 
 	kid[0]=VA;
+	kid[1]=MM;
+	kid[2]=RCONV;
+	kid[3]=CCONV;
+	
+	/*kid[0]=VA;
 	kid[1]=MM;
 	kid[2]=BS;
 	kid[3]=Reduction;
@@ -1107,9 +1085,11 @@ int main(int argc, char **argv)
 	kid[9]=SCEDD;
 	kid[10]=NCEDD;
 	kid[11]=HCEDD;
-	kid[12]=CCONV;
+	kid[12]=CCONV;*/
 	
 	all_profiling(kid, num_kernels, 2);
+	
+	greedy_coexecution(2);
 
 	return 0;
 }

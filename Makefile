@@ -173,7 +173,10 @@ profiling_config.o: profiling_config.cu elastic_kernel.h
 utils.o: utils.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
-basic: utils.o kstub.o basic.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
+schedulers.o: schedulers.cu elastic_kernel.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+	
+basic: schedulers.o utils.o kstub.o basic.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
 run: build
