@@ -374,7 +374,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.gridsize.x =  64 * 7;
 					#endif
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
-					k_stub->kconf.coarsening = 10;
+					k_stub->kconf.coarsening = 2;
 					// k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					k_stub->total_tasks = reduction_params->size / (k_stub->kconf.blocksize.x * 2 * k_stub->kconf.coarsening);
 			} 
