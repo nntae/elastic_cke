@@ -950,7 +950,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 192;
 				k_stub->kconf.gridsize.x  = 240;
-				k_stub->total_tasks = k_stub->kconf.gridsize.x * 24;
+				k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				//k_stub->total_tasks = (64 * 1048576)/k_stub->kconf.blocksize.x + (((64 * 1048576)%k_stub->kconf.blocksize.x==0)?0:1);
 				k_stub->kconf.coarsening = 1;
 			}
@@ -960,7 +960,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.max_persistent_blocks = 10;
 					k_stub->kconf.blocksize.x = 192;
 					k_stub->kconf.gridsize.x  = 240;
-					k_stub->total_tasks = k_stub->kconf.gridsize.x * 24;
+					k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					//k_stub->total_tasks = (64 * 1048576)/k_stub->kconf.blocksize.x + (((64 * 1048576)%k_stub->kconf.blocksize.x==0)?0:1);
 					k_stub->kconf.coarsening = 1;
 				}
@@ -970,7 +970,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.max_persistent_blocks = 10;
 						k_stub->kconf.blocksize.x = 192;
 						k_stub->kconf.gridsize.x  = 240;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x * 24;
+						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						//k_stub->total_tasks = (64 * 1048576)/k_stub->kconf.blocksize.x + (((64 * 1048576)%k_stub->kconf.blocksize.x==0)?0:1);
 						k_stub->kconf.coarsening = 1;
 					}

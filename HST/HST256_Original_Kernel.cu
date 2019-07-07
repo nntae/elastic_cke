@@ -25,7 +25,7 @@ using namespace std;
 // uint  *d_Histogram256;
 // uint byteCount256;
 
-static const uint PARTIAL_HISTOGRAM256_COUNT = 240 * 24;
+static const uint PARTIAL_HISTOGRAM256_COUNT = 240;
 //static uint *d_PartialHistograms256;
 
 extern t_tqueue *tqueues;
@@ -318,8 +318,7 @@ int HST256_start_mallocs(void *arg)
     {
         params->h_Data256[i] = rand() % 256;
     }
-	
-	params->d_Data256 = params->h_Data256;
+
 	#else
 		printf("No transfer model: Exiting ...\n");
 		exit(-1);
