@@ -20,34 +20,78 @@ t_smt_coBlocks info_tpmsSMT[Number_of_Kernels-1][Number_of_Kernels-1]; //tpms of
 t_co_speedup smk_speedup[Number_of_Kernels-1][Number_of_Kernels-1];
 t_co_speedup smt_speedup[Number_of_Kernels-1][Number_of_Kernels-1];
 
-/*
-int solo_execution_prof(t_kernel_stub *kstub, double *tpms)
-{	
-	struct timespec now;
-	int idSMs[2];
-	
-	idSMs[0]=0;idSMs[1]=kstub->kconf.numSMs-1;
-	kstub->idSMs = idSMs;
-	
-	clock_gettime(CLOCK_REALTIME, &now);
- 	double time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-	
-	(kstub->launchCKEkernel)(kstub);
-	cudaDeviceSynchronize();
 
-	clock_gettime(CLOCK_REALTIME, &now);
- 	double time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+int save_profling_tables()
+{
+	FILE *fp;
 	
-	*tpms = (double)kstub->total_tasks/((time2-time1)*1000.0);
+	if ((fp = fopen("profiling_table.bin", "w")) == NULL) {
+		printf("Cannot create file\n");
+		return -1;
+	}
 	
+	// Number of kernels 
 	
+	int n = Number_of_Kernels-1;
+	fwrite (&n, 1, sizeof(int), fp);
 	
-	int exec_tasks=0;
-	cudaMemcpyAsync(kstub->d_executed_tasks, &exec_tasks, sizeof(int), cudaMemcpyHostToDevice, *kstub->preemp_s);
+	// Save t_smk_solo smk_info_solo[]
+	for (int i=0; i<n; i++){
+		fwrite(&smk_info_solo[i].num_configs, 1, sizeof(int), fp);
+		fwrite(smk_info_solo[i].tpms, smk_info_solo[i].num_configs, sizeof(double), fp);
+	}
+	
+	// sAve t_smt_solo smt_info_solo
+	for (int i=0; i<n; i++){
+		fwrite(&smt_info_solo[i].num_configs, 1, sizeof(int), fp);
+		fwrite(smt_info_solo[i].tpms, smt_info_solo[i].num_configs, sizeof(double), fp);
+	}
+	
+	//Save t_smk_coBlocks smk_info_coBlocks
+	
+	for (int i=0; i<n; i++)
+		for (int j=0; j<n; j++) {
+			fwrite(smk_info_coBlocks[i][j].kid, 2, sizeof(t_Kernel), fp);
+			fwrite(&smk_info_coBlocks[i][j].num_configs, 1, sizeof(int), fp);
+			for (int k=0; k<smk_info_coBlocks[i][j].num_configs; k++)
+				fwrite(smk_info_coBlocks[i][j].pairs[k], 2, sizeof(int), fp);
+			for (int k=0; k<smk_info_coBlocks[i][j].num_configs; k++)
+				fwrite(smk_info_coBlocks[i][j].tpms[k], 2, sizeof(double), fp);
+		}
+		
+	// Save t_smt_coBlocks info_tpmsSMT
+	
+	for (int i=0; i<n; i++)
+		for (int j=0; j<n; j++) {
+			fwrite(info_tpmsSMT[i][j].kid, 2, sizeof(t_Kernel), fp);
+			fwrite(&info_tpmsSMT[i][j].num_configs, 1, sizeof(int), fp);
+			for (int k=0; k<info_tpmsSMT[i][j].num_configs; k++)
+				fwrite(info_tpmsSMT[i][j].pairs[k], 2, sizeof(int), fp);
+			for (int k=0; k<info_tpmsSMT[i][j].num_configs; k++)
+				fwrite(info_tpmsSMT[i][j].tpms[k], 2, sizeof(double), fp);
+		}
+	
+	// Save t_co_speedup smk_speedup
+
+	for (int i=0; i<n; i++)
+		for (int j=0; j<n; j++) {
+			fwrite(smk_speedup[i][j].pairs, 2, sizeof(int), fp);
+			fwrite(&smk_speedup[i][j].speedup, 1, sizeof(double), fp);
+		}
+		
+	// Save t_co_speedup smt_speedup
+
+	for (int i=0; i<n; i++)
+		for (int j=0; j<n; j++) {
+			fwrite(smt_speedup[i][j].pairs, 2, sizeof(int), fp);
+			fwrite(&smt_speedup[i][j].speedup, 1, sizeof(double), fp);
+		}
+		
+	fclose(fp);
 	
 	return 0;
 }
-*/
+
 
 int solo_original(t_kernel_stub *kstub, double *exectime_s)
 {
@@ -470,7 +514,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 			// Reverse
 			smk_speedup[kstubs[j]->id][kstubs[i]->id].pairs[0] = b1;
 			smk_speedup[kstubs[j]->id][kstubs[i]->id].pairs[1] = b0;
-			smk_speedup[kstubs[i]->id][kstubs[j]->id].speedup = speedup;
+			smk_speedup[kstubs[j]->id][kstubs[i]->id].speedup = speedup;
 			
 			kid_from_index(kstubs[i]->id, skid0);
 			kid_from_index(kstubs[j]->id, skid1);
@@ -524,7 +568,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 			// Reverse
 			smt_speedup[kstubs[j]->id][kstubs[i]->id].pairs[0] = numSMs-(sms);
 			smt_speedup[kstubs[j]->id][kstubs[i]->id].pairs[1] = sms;
-			smt_speedup[kstubs[i]->id][kstubs[j]->id].speedup = speedup;
+			smt_speedup[kstubs[j]->id][kstubs[i]->id].speedup = speedup;
 			
 			kid_from_index(kstubs[i]->id, skid0);
 			kid_from_index(kstubs[j]->id, skid1);
@@ -535,6 +579,8 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 		}
 	}
 
+	save_profling_tables();
+	
 	printf("\n\n");
 	
 	free(sp);

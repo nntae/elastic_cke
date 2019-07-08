@@ -6,26 +6,146 @@
 #include <helper_cuda.h>   
 #include "elastic_kernel.h"
 
-// Tables to store results for solo exectuions
-extern t_smk_solo smk_info_solo[Number_of_Kernels-1]; // 
-extern t_smt_solo smt_info_solo[Number_of_Kernels-1];
-
-// Tables to store coexecution results
-
-extern t_smk_coBlocks smk_info_coBlocks[Number_of_Kernels-1][Number_of_Kernels-1];
-extern t_smt_coBlocks info_tpmsSMT[Number_of_Kernels-1][Number_of_Kernels-1]; //tpms of each kernel in coexection
-
-// Table to store better speedups in coexecution
-
-extern t_co_speedup smk_speedup[Number_of_Kernels-1][Number_of_Kernels-1];
-extern t_co_speedup smt_speedup[Number_of_Kernels-1][Number_of_Kernels-1];
-
+// Applications is composed of one or several kernels
 typedef struct{
 	int num_kernels;
 	int index;
 	t_Kernel kid[8]; // Max: 8 kernels per application
 	t_kernel_stub* kstubs[8]; // One kernel stub per kernel
 }t_application;
+
+
+// Tables to store results for solo exectuions
+t_smk_solo *smk_solo; // 
+t_smt_solo *smt_solo;
+
+// Tables to store coexecution results
+t_smk_coBlocks **smk_conc;
+t_smt_coBlocks **smt_conc; //tpms of each kernel in coexection
+
+// Table to store better speedups in coexecution
+
+t_co_speedup **smk_best_sp;
+t_co_speedup **smt_best_sp;
+
+int read_profling_tables()
+{
+	FILE *fp;
+	
+	if ((fp = fopen("profiling_table.bin", "r")) == NULL) {
+		printf("Cannot read file\n");
+		return -1;
+	}
+	
+	// Number of kernels 
+	int n = Number_of_Kernels-1;
+	fread (&n, 1, sizeof(int), fp);
+	
+	// Create t_smk_solo smk_info_solo[]
+	smk_solo = (t_smk_solo *)calloc(n, sizeof(t_smk_solo));
+	
+	// Load t_smk_solo smk_solo[]
+	for (int i=0; i<n; i++){
+		fread(&smk_solo[i].num_configs, 1, sizeof(int), fp);
+		smk_solo[i].tpms = (double *)calloc(smk_solo[i].num_configs, sizeof(double));
+		fread(smk_solo[i].tpms, smk_solo[i].num_configs, sizeof(double), fp);
+	}
+	
+	// Create t_smt_solo smt_solo[]
+	smt_solo = (t_smt_solo *)calloc(n, sizeof(t_smt_solo));
+	
+	// Load t_smt_solo smt_info_solo
+	for (int i=0; i<n; i++){
+		fread(&smt_solo[i].num_configs, 1, sizeof(int), fp);
+		smt_solo[i].tpms = (double *)calloc(smt_solo[i].num_configs, sizeof(double));
+		fread(smt_solo[i].tpms, smt_solo[i].num_configs, sizeof(double), fp);
+	}
+	
+	// Create t_smk_coBlocks smk_conc
+
+	smk_conc = (t_smk_coBlocks **)calloc(n, sizeof(t_smk_coBlocks *));
+	for (int i=0; i<n; i++)
+		smk_conc[i] = (t_smk_coBlocks *)calloc(n, sizeof(t_smk_coBlocks));
+	
+	//Load t_smk_coBlocks smk_conc
+	
+	for (int i=0; i<n; i++)
+		for (int j=0; j<n; j++) {
+			fread(smk_conc[i][j].kid, 2, sizeof(t_Kernel), fp);
+			fread(&smk_conc[i][j].num_configs, 1, sizeof(int), fp);
+			
+			smk_conc[i][j].pairs = (int **)calloc(smk_conc[i][j].num_configs, sizeof(int *));
+			for (int k=0; k<smk_conc[i][j].num_configs; k++)
+				smk_conc[i][j].pairs[k] = (int *)calloc(2, sizeof(int));
+			for (int k=0; k<smk_conc[i][j].num_configs; k++)
+				fread(smk_conc[i][j].pairs[k], 2, sizeof(int), fp);
+			
+			smk_conc[i][j].tpms = (double **)calloc(smk_conc[i][j].num_configs, sizeof(double *));
+			for (int k=0; k<smk_conc[i][j].num_configs; k++)
+				smk_conc[i][j].tpms[k] = (double *)calloc(2, sizeof(double));
+			for (int k=0; k<smk_conc[i][j].num_configs; k++)
+				fread(smk_conc[i][j].tpms[k], 2, sizeof(double), fp);
+		}
+		
+	// Create t_smt_coBlocks smt_conc
+
+	smt_conc = (t_smt_coBlocks **)calloc(n, sizeof(t_smt_coBlocks *));
+	for (int i=0; i<n; i++)
+		smt_conc[i] = (t_smt_coBlocks *)calloc(n, sizeof(t_smt_coBlocks));
+	
+	//Load t_smt_coBlocks smt_conc
+	
+	for (int i=0; i<n; i++)
+		for (int j=0; j<n; j++) {
+			fread(smt_conc[i][j].kid, 2, sizeof(t_Kernel), fp);
+			fread(&smt_conc[i][j].num_configs, 1, sizeof(int), fp);
+			
+			smt_conc[i][j].pairs = (int **)calloc(smt_conc[i][j].num_configs, sizeof(int *));
+			for (int k=0; k<smt_conc[i][j].num_configs; k++)
+				smt_conc[i][j].pairs[k] = (int *)calloc(2, sizeof(int));
+			for (int k=0; k<smt_conc[i][j].num_configs; k++)
+				fread(smt_conc[i][j].pairs[k], 2, sizeof(int), fp);
+			
+			smt_conc[i][j].tpms = (double **)calloc(smt_conc[i][j].num_configs, sizeof(double *));
+			for (int k=0; k<smt_conc[i][j].num_configs; k++)
+				smt_conc[i][j].tpms[k] = (double *)calloc(2, sizeof(double));
+			for (int k=0; k<smt_conc[i][j].num_configs; k++)
+				fread(smt_conc[i][j].tpms[k], 2, sizeof(double), fp);
+		}
+		
+	// Create t_co_speedup smk_best_sp
+	
+	smk_best_sp = (t_co_speedup **)calloc(n, sizeof(t_co_speedup *));
+	for (int i=0; i<n; i++)
+		smk_best_sp[i] = (t_co_speedup *)calloc(n, sizeof(t_co_speedup));
+	
+	// Load t_co_speedup smk_best_sp
+
+	for (int i=0; i<n; i++)
+		for (int j=0; j<n; j++) {
+			fread(smk_best_sp[i][j].pairs, 2, sizeof(int), fp);
+			fread(&smk_best_sp[i][j].speedup, 1, sizeof(double), fp);
+		}
+		
+	// Create t_co_speedup smt_best_sp
+	
+	smt_best_sp = (t_co_speedup **)calloc(n, sizeof(t_co_speedup *));
+	for (int i=0; i<n; i++)
+		smt_best_sp[i] = (t_co_speedup *)calloc(n, sizeof(t_co_speedup));
+	
+	// Load t_co_speedup smt_best_sp
+
+	for (int i=0; i<n; i++)
+		for (int j=0; j<n; j++) {
+			fread(smt_best_sp[i][j].pairs, 2, sizeof(int), fp);
+			fread(&smt_best_sp[i][j].speedup, 1, sizeof(double), fp);
+		}
+		
+	fclose(fp);
+	
+	return 0;
+}
+
 
 int alloc_HtD_tranfers(t_application *applications, int num_applications)
 {
@@ -67,6 +187,7 @@ int assing_kstreams(t_kernel_stub *kstub, t_kstreams *kstr)
 {
 	kstr->kstub = kstub;
 	kstr->num_streams = 0;
+	kstr->save_cont_tasks = 0;
 	
 	return 0;
 }
@@ -81,7 +202,7 @@ int new_get_best_partner(t_Kernel curr_kid, t_Kernel *kid, State *k_done, float 
 	
 	for (int i=0; i<num_applications; i++){ // For the remainning kernels 
 		if (k_done[i] == READY){ // If kernel has not been executed 
-			t_co_speedup *info = &smk_speedup[curr_kid][kid[i]];
+			t_co_speedup *info = &smk_best_sp[curr_kid][kid[i]];
 			if (info->speedup > best_perf) { // Search for best partnet (highest speedup in coexec) among ready kernels
 				best_perf = info->speedup;
 				best_index = i;
@@ -93,11 +214,11 @@ int new_get_best_partner(t_Kernel curr_kid, t_Kernel *kid, State *k_done, float 
 	if (best_perf >=MIN_SPEEDUP) {
 		*select_kid = best_kid;
 		*select_index = best_index;
-		*b0 = smk_speedup[curr_kid][best_kid].pairs[0];
-		*b1 = smk_speedup[curr_kid][best_kid].pairs[1];
+		*b0 = smk_best_sp[curr_kid][best_kid].pairs[0];
+		*b1 = smk_best_sp[curr_kid][best_kid].pairs[1];
 	}else{
 		*select_kid = EMPTY; // Indicate no coexecution 
-		*b0 = smk_info_solo[curr_kid].num_configs; // If performace is low the running kernel is executed with all the blocks
+		*b0 = smk_solo[curr_kid].num_configs; // If performace is low the running kernel is executed with all the blocks
 	}
 	
 	return 0;
@@ -140,8 +261,8 @@ int greedy_coexecution(int deviceId)
 	t_sched sched;
 	create_sched(&sched);
 	
-	// Load coexecution tables
-
+	// Load profilinf tables
+	read_profling_tables();
 	
 	// Aplications
 	int num_applications=3;
@@ -278,7 +399,7 @@ int greedy_coexecution(int deviceId)
 		launch_coexec(&coexec);		
 		
 		// Wait for termination condition
-		
+	
 		wait_for_kernel_termination_with_proxy(&sched, &coexec, &kernel_idx, &speedup);
 		
 		//if (coexec.num_kernels == 1) 
@@ -295,17 +416,20 @@ int greedy_coexecution(int deviceId)
 			rem_kernel_from_coexecution(&coexec, &sched, coexec.kstr[1]); //Remove second kernel for coexec struct
 			
 			// Add new exectuing streams to first kernel (in coexec struct) so that it will run the maximum number of streams
-			add_streams_to_kernel(&coexec, &sched, coexec.kstr[0], smk_info_solo[coexec.kstr[0]->kstub->id].num_configs - coexec.kstr[0]->num_streams);
+			add_streams_to_kernel(&coexec, &sched, coexec.kstr[0], smk_solo[coexec.kstr[0]->kstub->id].num_configs - coexec.kstr[0]->num_streams);
 			
 			launch_coexec(&coexec); // Launch new streams of first kernel
 			
-			wait_for_kernel_termination_with_proxy(&sched, &coexec, &kernel_idx, &speedup); // Wait first kernel to finish
+			wait_for_kernel_termination_with_proxy(&sched, &coexec, &kernel_idx, &speedup); // Wait first kernel to finish, kernel_idx.->index in coexec
+			
+			int kind = coexec.queue_index[0]; // Save index in ready list of the finished kernel
 			
 			// Update coexec: remove first kernel
 			rem_kernel_from_coexecution(&coexec, &sched, coexec.kstr[0]);
 			
 			// If application has more kernels activate the next one
-			int kind = coexec.queue_index[0]; // Kernel index in ready list
+			 // Kernel index in ready list
+	
 			if (applications[kind].index + 1 < applications[kind].num_kernels) {
 				applications[kind].index++;
 				kid[kind] = applications[kind].kid[applications[kind].index]; // get ID of new kernel
@@ -318,16 +442,15 @@ int greedy_coexecution(int deviceId)
 		}
 		else
 		{
-			//if (coexec.num_kernels == 2){
-			//  bad_partner[coexec.kstr[0]->kstub->id][coexec.kstr[1]->kstub->id] = 0; //speedup; // Annotate bad partner
-			//	bad_partner[coexec.kstr[1]->kstub->id][coexec.kstr[0]->kstub->id] = 0; //speedup;
-			//}
 			
+			int kind = coexec.queue_index[kernel_idx]; // Save index in ready list of the finished kernel
+
 			// Remove finished kernel
 			rem_kernel_from_coexecution(&coexec, &sched, coexec.kstr[kernel_idx]);
 			
 			// If application has more kernels activate the next one
-			int kind = coexec.queue_index[0]; // Kernel index in ready list
+			if (kid[kind] == MM)
+				printf("Aqui\n");
 			if (applications[kind].index + 1 < applications[kind].num_kernels) {
 				applications[kind].index++;
 				kid[kind] = applications[kind].kid[applications[kind].index]; // get ID of new kernel

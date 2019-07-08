@@ -10,6 +10,8 @@
 
 //typedef enum {Free, Busy} t_strStatus;
 
+extern t_smk_solo *smk_solo; 
+
 int create_coexec(t_kcoexec *coexec, int num_kernels)
 {
 	coexec->num_kernels = 0;
@@ -175,13 +177,17 @@ int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int 
 				if (pending_streams[i] == 0 ) {//All the streams of a kernel have finished
 					printf("Kernel %d terminado con pending %d. El otro %d\n", info->kstr[i]->kstub->id, pending_streams[i], pending_streams[(i+1) % 2]); 
 					info->kstr[i]->num_streams=0;
+					
 					*kernelid = i;
 					*speedup = s;
 					free(pending_streams);
-					for (int i=0; i<info->num_kernels; i++)
-						free(mask[i]);
+					for (int j=0; j<info->num_kernels; j++)
+						free(mask[j]);
 					free(mask);
+					if (info->kstr[i]->kstub->id == 8)
+						printf("Aqui\n");
 					return 0;
+					
 				}
 			}
 		}
@@ -198,14 +204,17 @@ int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int 
 			for (int i = 0; i < MAX_NUM_COEXEC_KERNELS; i++) {
 				if (info->kstr[i] != NULL) {
 					task_per_second[i] = (curr_executed_tasks[i] - prev_executed_tasks[i]) / (curr_time - init_time);
-					printf("Kid=%d tpms=%f\n", info->kstr[i]->kstub->id, task_per_second[i]/1000);
+					//printf("Kid=%d tpms=%f\n", info->kstr[i]->kstub->id, task_per_second[i]/1000);
 				}
 			}
 			if (info->num_kernels == 2) { // Compare with serial ejecucion only when two kernels are running
-				double t0 = task_per_second[0]/(get_solo_perf(info->kstr[0]->kstub->id)*1000);
-				double t1 = task_per_second[1]/(get_solo_perf(info->kstr[1]->kstub->id)*1000);
+				t_Kernel idk0, idk1;
+				idk0 = info->kstr[0]->kstub->id;
+				idk1 = info->kstr[1]->kstub->id;
+				double t0 = task_per_second[0]/(smk_solo[idk0].tpms[smk_solo[idk0].num_configs-1] *1000);
+				double t1 = task_per_second[1]/(smk_solo[idk1].tpms[smk_solo[idk1].num_configs-1] *1000);
 				s = t0+t1;
-				printf("Speedup = %f \n", s); 
+				//printf("Speedup = %f \n", s); 
 				
 				if ( s < MIN_SPEEDUP) {
 					free(pending_streams);
@@ -1065,15 +1074,15 @@ int main(int argc, char **argv)
 {
 	//launch_tasks_with_proxy_theoretical(2);
 	
-	int num_kernels = 4;
+	int num_kernels = 13;
 	t_Kernel kid[13];
 
-	kid[0]=VA;
+	/*kid[0]=VA;
 	kid[1]=MM;
 	kid[2]=RCONV;
-	kid[3]=CCONV;
+	kid[3]=CCONV;*/
 	
-	/*kid[0]=VA;
+	kid[0]=VA;
 	kid[1]=MM;
 	kid[2]=BS;
 	kid[3]=Reduction;
@@ -1085,9 +1094,9 @@ int main(int argc, char **argv)
 	kid[9]=SCEDD;
 	kid[10]=NCEDD;
 	kid[11]=HCEDD;
-	kid[12]=CCONV;*/
+	kid[12]=CCONV;
 	
-	all_profiling(kid, num_kernels, 2);
+	//all_profiling(kid, num_kernels, 2);
 	
 	greedy_coexecution(2);
 

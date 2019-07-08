@@ -282,7 +282,7 @@ typedef struct{
 
 typedef struct {
 	int pairs[2];
-	int speedup;
+	double speedup;
 }t_co_speedup;
 
 
