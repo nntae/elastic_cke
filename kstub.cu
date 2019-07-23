@@ -323,8 +323,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.blocksize.x = 32;
 					//k_stub->kconf.blocksize.x = 128;
 					k_stub->kconf.blocksize.y = 1;
-					k_stub->kconf.gridsize.x =  k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks * k_stub->kconf.blocksize.x / 2;
-					//k_stub->kconf.gridsize.x = k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks * k_stub->kconf.blocksize.x ;//At least one row per thread when all thread
+					//->esto estaba antes k_stub->kconf.gridsize.x =  k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks * k_stub->kconf.blocksize.x / 2;
+					k_stub->kconf.gridsize.x = k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks * k_stub->kconf.blocksize.x ;//One row per thread when all thread in original version
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
 					k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					k_stub->kconf.coarsening = 1;
@@ -334,12 +334,14 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				return -1;
 			}
 			
-			SPMV_params->numRows = k_stub->kconf.gridsize.x * k_stub->kconf.blocksize.x * k_stub->kconf.coarsening;
+			// Esto estaba antes --> SPMV_params->numRows = k_stub->kconf.gridsize.x * k_stub->kconf.blocksize.x * k_stub->kconf.coarsening;
+			SPMV_params->numRows = k_stub->kconf.gridsize.x * k_stub->kconf.coarsening;
 			
 			#ifdef DATA_SET_1
-			SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows * 0.000005; // 5% of entries will be non-zero
+			SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows * 0.05; // 5% of entries will be non-zero
 			#else
-			SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows / 20;
+			//--> ESto habia antes SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows / 20;
+			SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows * 0.3; // 30 % entries
 			#endif
 			
 			SPMV_params->numNonZeroes = SPMV_params->nItems;

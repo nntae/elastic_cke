@@ -92,6 +92,19 @@ int save_profling_tables()
 	return 0;
 }
 
+int make_transfers(t_kernel_stub **kstubs, int num_kernels)
+{
+	for (int i=0; i<num_kernels; i++) {
+		
+		// Data allocation and transfers
+	
+		(kstubs[i]->startMallocs)((void *)(kstubs[i]));
+		(kstubs[i]->startTransfers)((void *)(kstubs[i]));
+	
+	}
+	
+	return 0;
+}
 
 int solo_original(t_kernel_stub *kstub, double *exectime_s)
 {
@@ -174,6 +187,8 @@ int smk_solo_prof(t_kernel_stub *kstub)
 		time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
 	
 		info->tpms[block-1] = (double)kstub->total_tasks/((time2-time1)*1000.0);
+		
+		printf("Executinf %f\n", time2-time1);
 	
 		int exec_tasks=0;
 		cudaMemcpyAsync(kstub->d_executed_tasks, &exec_tasks, sizeof(int), cudaMemcpyHostToDevice, *kstub->preemp_s); // Reset task counter
@@ -579,7 +594,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 		}
 	}
 
-	save_profling_tables();
+	//save_profling_tables();
 	
 	printf("\n\n");
 	

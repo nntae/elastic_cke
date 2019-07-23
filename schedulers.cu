@@ -449,13 +449,11 @@ int greedy_coexecution(int deviceId)
 			rem_kernel_from_coexecution(&coexec, &sched, coexec.kstr[kernel_idx]);
 			
 			// If application has more kernels activate the next one
-			if (kid[kind] == MM)
-				printf("Aqui\n");
 			if (applications[kind].index + 1 < applications[kind].num_kernels) {
 				applications[kind].index++;
-				kid[kind] = applications[kind].kid[applications[kind].index]; // get ID of new kernel
-				k_done[kind] = READY; // Set ready
-				assing_kstreams(applications[kind].kstubs[applications[kind].index], &kstr[kind]);
+				kid[kind] = applications[kind].kid[applications[kind].index]; // get ID of new kernel and write in in kid list
+				k_done[kind] = READY; // Set the new kernel ready
+				assing_kstreams(applications[kind].kstubs[applications[kind].index], &kstr[kind]); // Assing new kernel to application kstreams
 			}
 			else
 				k_done[kind] = DONE; // Otherwise, application has finished

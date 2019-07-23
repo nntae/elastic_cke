@@ -8,8 +8,6 @@
 
 /** Launch a kernel using a set of streams. Each stream will run NUM_SMs blocks (for SMK execution **/
 
-//typedef enum {Free, Busy} t_strStatus;
-
 extern t_smk_solo *smk_solo; 
 
 int create_coexec(t_kcoexec *coexec, int num_kernels)
@@ -321,19 +319,7 @@ int evict_streams_ver2(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr, int 
 	return 0;
 }
 
-int make_transfers(t_kernel_stub **kstubs, int num_kernels)
-{
-	for (int i=0; i<num_kernels; i++) {
-		
-		// Data allocation and transfers
-	
-		(kstubs[i]->startMallocs)((void *)(kstubs[i]));
-		(kstubs[i]->startTransfers)((void *)(kstubs[i]));
-	
-	}
-	
-	return 0;
-}
+
 
 int all_nocke_execution(t_kernel_stub **kstubs, int num_kernels)
 {	
@@ -1096,9 +1082,9 @@ int main(int argc, char **argv)
 	kid[11]=HCEDD;
 	kid[12]=CCONV;
 	
-	//all_profiling(kid, num_kernels, 2);
+	all_profiling(kid, num_kernels, 2);
 	
-	greedy_coexecution(2);
+	//greedy_coexecution(2);
 
 	return 0;
 }

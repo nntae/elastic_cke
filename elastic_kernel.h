@@ -340,6 +340,11 @@ int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int 
 int add_streams_to_kernel(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr, int num_streams);
 int greedy_coexecution(int deviceId);
 
+int smk_solo_prof(t_kernel_stub *kstub);
+
+//PROF
+int prof_BS(void * arg);
+
 #ifdef ZEROCOPY
 int launch_proxy(void *arg);
 #endif

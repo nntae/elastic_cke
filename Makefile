@@ -120,7 +120,7 @@ GENCODE_FLAGS   := $(GENCODE_SM61)
 # Target rules
 all: build
 
-build: basic
+build: basic solo_exec prof_conc
 
 reduction_original.o: Reduction/reduction_original.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
@@ -176,13 +176,25 @@ utils.o: utils.cu elastic_kernel.h
 schedulers.o: schedulers.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
+solo_exec.o: solo_exec.cu elastic_kernel.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+	
+prof_conc.o: prof_conc.cu elastic_kernel.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+	
 basic: schedulers.o utils.o kstub.o basic.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
+	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
+	
+solo_exec: solo_exec.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
+	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
+	
+prof_conc: prof_conc.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
 run: build
 	./basic
 
 clean:
-	rm -f basic  *.o
+	rm -f basic  solo_exec prof_conc *.o
 
 clobber: clean

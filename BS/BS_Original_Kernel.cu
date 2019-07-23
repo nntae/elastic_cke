@@ -211,6 +211,94 @@ __global__ void preemp_SMK_BlackScholesGPU(
 		//	return;
 	}
 }
+
+__device__ void delay()
+{
+	clock_t t_ini;
+	
+	t_ini= clock();
+	
+	while (clock()-t_ini <100000);
+	
+}
+
+__global__ void profiling_BlackScholesGPU(
+    float *d_CallResult_1,
+    float *d_PutResult_1,
+    float *d_StockPrice_1,
+    float *d_OptionStrike_1,
+    float *d_OptionYears_1,
+    float Riskfree,
+    float Volatility,
+    int optN,
+	int num_subtask,
+	int iter_per_subtask,
+	int *cont_SM,
+	int *cont_subtask,
+	State *status
+)
+
+{
+	__shared__ int s_bid, CTA_cont;
+	
+	unsigned int SM_id = get_smid();
+	
+	if (SM_id >= 8){ /* Only blocks executing in first 8 SM  are used for profiling */ 
+		//delay();
+		return;
+	}
+	
+	if (threadIdx.x == 0) 
+		CTA_cont = atomicAdd(&cont_SM[SM_id], 1);
+	
+	__syncthreads();
+	
+	if (CTA_cont-1 > SM_id) {/* Only one block makes computaion in SM0, two blocks in SM1 and so on */
+		//delay();
+		return;
+	}
+	
+//	if (threadIdx.x == 0)
+//		printf ("SM=%d CTA = %d\n", SM_id, CTA_cont);
+	
+	while (1){
+		
+		/********** Task Id calculation *************/
+		if (threadIdx.x == 0) {
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else
+				s_bid = atomicAdd(cont_subtask, 1);
+		}
+		
+		__syncthreads();
+		
+		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
+		
+			return;
+		}
+			
+		
+		for (int j=0; j<iter_per_subtask; j++) {
+			
+			
+			const int opt = s_bid * blockDim.x * iter_per_subtask +  j * blockDim.x + threadIdx.x;
+			if (opt < optN){
+				BlackScholesBodyGPU(
+					d_CallResult_1[opt],
+					d_PutResult_1[opt],
+					d_StockPrice_1[opt], 
+					d_OptionStrike_1[opt],
+					d_OptionYears_1[opt],
+					Riskfree,
+					Volatility
+				);
+			}
+		}
+	}
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //Process an array of optN options on GPU
 ////////////////////////////////////////////////////////////////////////////////
@@ -879,8 +967,33 @@ int launch_orig_BS(void *arg)
 		return 0;
 }
 
+int prof_BS(void * arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_BS_params * params = (t_BS_params *)kstub->params;
+	
+	profiling_BlackScholesGPU<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
+			params->d_CallResult,
+            params->d_PutResult,
+            params->d_StockPrice,
+            params->d_OptionStrike,
+            params->d_OptionYears,
+            RISKFREE,
+            VOLATILITY,
+            OPT_N,
+			
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_SMs_cont,
+			kstub->d_executed_tasks,
+			&kstub->gm_state[kstub->stream_index]);
+			
+	return 0;
+}	
+
 int launch_preemp_BS(void *arg)
 {
+	
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_BS_params * params = (t_BS_params *)kstub->params;
 	
