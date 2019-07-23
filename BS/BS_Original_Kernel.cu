@@ -248,18 +248,23 @@ __global__ void profiling_BlackScholesGPU(
 		return;
 	}
 	
-	if (threadIdx.x == 0) 
+	if (threadIdx.x == 0) {
 		CTA_cont = atomicAdd(&cont_SM[SM_id], 1);
+	//	if (SM_id == 7 && CTA_cont == 8)
+	//		printf("Aqui\n");
+	}
 	
 	__syncthreads();
 	
-	if (CTA_cont-1 > SM_id) {/* Only one block makes computaion in SM0, two blocks in SM1 and so on */
-		//delay();
+	if (CTA_cont > SM_id) {/* Only one block makes computation in SM0, two blocks in SM1 and so on */
+		delay();
 		return;
 	}
 	
-//	if (threadIdx.x == 0)
-//		printf ("SM=%d CTA = %d\n", SM_id, CTA_cont);
+	//if (threadIdx.x == 0)
+	//	printf ("SM=%d CTA = %d\n", SM_id, CTA_cont);
+
+	int cont_task = 0;
 	
 	while (1){
 		
@@ -273,14 +278,18 @@ __global__ void profiling_BlackScholesGPU(
 		
 		__syncthreads();
 		
-		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
 		
+		
+		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
+			//if (threadIdx.x == 0)
+			//	printf ("SM=%d CTA = %d Executed_tasks=%d \n", SM_id, CTA_cont, cont_task);	
 			return;
 		}
-			
+		
+		if (threadIdx.x == 0) // Acumula numeor de tareas ejecutadas
+			 cont_task++;
 		
 		for (int j=0; j<iter_per_subtask; j++) {
-			
 			
 			const int opt = s_bid * blockDim.x * iter_per_subtask +  j * blockDim.x + threadIdx.x;
 			if (opt < optN){

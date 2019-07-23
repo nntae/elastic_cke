@@ -45,9 +45,20 @@ int main(int argc, char **argv)
 	idSMs[0]=0;idSMs[1]=kstub->kconf.numSMs-1;
 	kstub->idSMs = idSMs;	
 	//(kstub->launchCKEkernel)(kstub);
-	prof_BS(kstub);
 	
+	struct timespec now;
+	double time1, time2;
+	
+	clock_gettime(CLOCK_REALTIME, &now);
+ 	time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	
+	prof_BS(kstub);
 	cudaDeviceSynchronize();
+	
+	clock_gettime(CLOCK_REALTIME, &now);
+ 	time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	printf("Concurrent excution time=%f sec.\n", time2-time1);
+
 
 	return 0;
 }
