@@ -122,11 +122,147 @@ original_matrixMulCUDA(float *C, float *A, float *B, int wA, int wB, int gridDim
 
 template <int BLOCK_SIZE> __global__ void
 __launch_bounds__(256, 8)
+profiling_matrixMulCUDA(float *C, float *A, float *B, int wA, int wB, int gridDimX,
+										int num_subtask,
+										int iter_per_subtask,
+										int *cont_SM,
+										int *cont_subtask,
+										State *status)
+{
+	__shared__ int s_bid, CTA_cont;
+	
+	unsigned int SM_id = get_smid_MM();
+	
+	if (SM_id >= 8){ /* Only blocks executing in first 8 SM  are used for profiling */ 
+		//delay();
+		return;
+	}
+	
+	if (threadIdx.x == 0 && threadIdx.y== 0) {
+		CTA_cont = atomicAdd(&cont_SM[SM_id], 1);
+	//	if (SM_id == 7 && CTA_cont == 8)
+	//		printf("Aqui\n");
+	}
+	
+	__syncthreads();
+	
+	if (CTA_cont > SM_id) {/* Only one block makes computation in SM0, two blocks in SM1 and so on */
+		//delay();
+		return;
+	}
+	
+	int cont_task = 0;
+	
+	while (1){
+	
+		// Block index
+		// int bx = blockIdx.x;
+		// int by = blockIdx.y;
+		
+		/********** Task Id calculation *************/
+		
+		if (threadIdx.x==0 && threadIdx.y== 0) { 
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else {
+				s_bid = atomicAdd(cont_subtask, 1);				//subtask_id
+				//printf("Blq=%d cont=%d\n", blockIdx.x, s_bid);
+			}
+		}
+		
+		__syncthreads();
+		
+		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
+		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{
+			if (threadIdx.x == 0 && threadIdx.y== 0)
+				printf ("SM=%d CTA=%d Executed_tasks= %d \n", SM_id, CTA_cont, cont_task);	
+			return;
+		}
+		
+		if (threadIdx.x == 0 && threadIdx.y== 0) // Acumula numeor de tareas ejecutadas
+			 cont_task++;
+
+		int bx = s_bid % gridDimX;
+		int by = s_bid / gridDimX;
+	
+		// Thread index
+		int tx = threadIdx.x;
+		int ty = threadIdx.y;
+
+		// Index of the first sub-matrix of A processed by the block
+		int aBegin = wA * BLOCK_SIZE * by;
+
+		// Index of the last sub-matrix of A processed by the block
+		int aEnd   = aBegin + wA - 1;
+
+		// Step size used to iterate through the sub-matrices of A
+		int aStep  = BLOCK_SIZE;
+
+		// Index of the first sub-matrix of B processed by the block
+		int bBegin = BLOCK_SIZE * bx;
+
+		// Step size used to iterate through the sub-matrices of B
+		int bStep  = BLOCK_SIZE * wB;
+
+		// Csub is used to store the element of the block sub-matrix
+		// that is computed by the thread
+		float Csub = 0;
+
+		// Loop over all the sub-matrices of A and B
+		// required to compute the block sub-matrix
+		for (int a = aBegin, b = bBegin;
+			a <= aEnd;
+			a += aStep, b += bStep)
+		{
+
+			// Declaration of the shared memory array As used to
+			// store the sub-matrix of A
+			__shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+
+			// Declaration of the shared memory array Bs used to
+			// store the sub-matrix of B
+			__shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
+
+			// Load the matrices from device memory
+			// to shared memory; each thread loads
+			// one element of each matrix
+			As[ty][tx] = A[a + wA * ty + tx];
+			Bs[ty][tx] = B[b + wB * ty + tx];
+
+			// Synchronize to make sure the matrices are loaded
+			__syncthreads();
+
+			// Multiply the two matrices together;
+			// each thread computes one element
+			// of the block sub-matrix
+		#pragma unroll
+
+			for (int k = 0; k < BLOCK_SIZE; ++k)
+			{
+				Csub += As[ty][k] * Bs[k][tx];
+			}
+
+        // Synchronize to make sure that the preceding
+        // computation is done before loading two new
+        // sub-matrices of A and B in the next iteration
+			__syncthreads();
+		}
+
+    // Write the block sub-matrix to device memory;
+    // each thread writes one element
+		int c = wB * BLOCK_SIZE * by + BLOCK_SIZE * bx;
+		C[c + wB * ty + tx] = Csub;
+	}
+}
+
+											
+
+template <int BLOCK_SIZE> __global__ void
+__launch_bounds__(256, 8)
 SMT_matrixMulCUDA(float *C, float *A, float *B, int wA, int wB, int gridDimX,
 					int SIMD_min, int SIMD_max,
 					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
 {
-	
 	__shared__ int s_bid;
 	
 	unsigned int SM_id = get_smid_MM();
@@ -812,6 +948,35 @@ int launch_orig_MM(void *arg)
 		
 		return 0;
 }
+
+int prof_MM(void * arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	
+	dim3 dimsA, dimsB;
+	
+	t_MM_params * params = (t_MM_params *)kstub->params;
+	dimsA = params->Asize;
+	dimsB = params->Bsize;
+	
+	// Setup execution parameters
+    dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+	
+	if (kstub->kconf.blocksize.x == 16)
+		profiling_matrixMulCUDA<16><<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s)>>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX,
+						kstub->total_tasks,
+						kstub->kconf.coarsening,
+						kstub->d_SMs_cont,
+						kstub->d_executed_tasks,
+						&kstub->gm_state[kstub->stream_index]);
+	else
+		profiling_matrixMulCUDA<32><<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s)>>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX,
+						kstub->total_tasks,
+						kstub->kconf.coarsening,
+						kstub->d_SMs_cont,
+						kstub->d_executed_tasks,
+						&kstub->gm_state[kstub->stream_index]);
+}	
 
 int launch_preemp_MM(void *arg)
 {

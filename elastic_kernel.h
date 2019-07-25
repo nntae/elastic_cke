@@ -344,6 +344,7 @@ int smk_solo_prof(t_kernel_stub *kstub);
 
 //PROF
 int prof_BS(void * arg);
+int prof_MM(void *arg);
 
 #ifdef ZEROCOPY
 int launch_proxy(void *arg);
