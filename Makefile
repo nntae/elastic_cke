@@ -101,8 +101,10 @@ ALL_LDFLAGS += $(EXTRA_NVCCLDFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I/usr/local/cuda/samples/common/inc
-LIBRARIES := -lpthread
+export LD_LIBRARY_PATH := $(LD_LIBRARY_PATH):/usr/local/cuda/extras/CUPTI/lib:/usr/local/cuda/extras/CUPTI/lib64
+
+INCLUDES  := -I/usr/local/cuda/samples/common/inc -I/usr/local/cuda/extras/CUPTI/include
+LIBRARIES := -lpthread -lcuda -L /usr/local/cuda/extras/CUPTI/lib -L /usr/local/cuda/extras/CUPTI/lib64 -lcupti
 
 ################################################################################
 
@@ -120,7 +122,8 @@ GENCODE_FLAGS   := $(GENCODE_SM61)
 # Target rules
 all: build
 
-build: basic solo_exec prof_conc
+#build: basic solo_exec prof_conc
+build: basic prof_conc
 
 reduction_original.o: Reduction/reduction_original.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
@@ -176,19 +179,22 @@ utils.o: utils.cu elastic_kernel.h
 schedulers.o: schedulers.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
-solo_exec.o: solo_exec.cu elastic_kernel.h
-	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+#solo_exec.o: solo_exec.cu elastic_kernel.h
+#	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
 prof_conc.o: prof_conc.cu elastic_kernel.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+	
+cupti_profiler.o: cupti_profiler.cu cupti_profiler.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
 basic: schedulers.o utils.o kstub.o basic.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
-solo_exec: solo_exec.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
-	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
+#solo_exec: solo_exec.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
+#	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
-prof_conc: prof_conc.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
+prof_conc: prof_conc.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o cupti_profiler.o
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
 run: build
