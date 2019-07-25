@@ -186,6 +186,85 @@ preempt_SMT_vectorAdd(const float *A, const float *B, float *C, int numelements,
 
 }
 
+__global__ void
+profiling_SMT_vectorAdd(const float *A, const float *B, float *C, int numelements, 
+						int num_subtask,
+						int iter_per_subtask,
+						int *cont_SM,
+						int *cont_subtask,
+						State *status)
+{
+	int i;
+	
+	__shared__ int s_bid, CTA_cont;
+	
+	unsigned int SM_id = get_smid_VA();
+	
+	if (SM_id >= 8){ /* Only blocks executing in first 8 SM  are used for profiling */ 
+		//delay();
+		return;
+	}
+	
+	if (threadIdx.x == 0) {
+		CTA_cont = atomicAdd(&cont_SM[SM_id], 1);
+	//	if (SM_id == 7 && CTA_cont == 8)
+	//		printf("Aqui\n");
+	}
+	
+	__syncthreads();
+	
+	if (CTA_cont > SM_id) {/* Only one block makes computation in SM0, two blocks in SM1 and so on */
+		//delay();
+		return;
+	}
+	
+	//if (threadIdx.x == 0)
+	//	printf ("SM=%d CTA = %d\n", SM_id, CTA_cont);
+
+	int cont_task = 0;
+		
+	while (1){
+		
+		/********** Task Id calculation *************/
+		
+		if (threadIdx.x == 0) {
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else
+				s_bid = atomicAdd(cont_subtask, 1); //subtask_id
+		}
+		
+		//if ( thIdxwarp == 0) {
+		//	if (*status == TOEVICT)
+		//		s_bid[warpid] = -1;
+		//	else
+		//		s_bid[warpid] = atomicAdd(cont_subtask + warpid, 1); //subtask_id
+		//}
+			
+		__syncthreads();
+		
+		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
+		if (s_bid >=num_subtask || s_bid ==-1){ /* If all subtasks have been executed */
+			if (threadIdx.x == 0)
+				printf ("SM=%d CTA=%d Executed_tasks= %d \n", SM_id, CTA_cont, cont_task);
+			return;
+		}
+		
+		if (threadIdx.x == 0) // Acumula numeor de tareas ejecutadas
+			 cont_task++;
+	
+		for (int j=0; j<iter_per_subtask; j++) {
+			
+			 i = s_bid * blockDim.x * iter_per_subtask +  j * blockDim.x + threadIdx.x;
+			
+			if (i < numelements)
+					C[i] = A[i] + B[i];
+		}
+		
+	}
+
+}
+
 /**
  * Host main routine
  */
@@ -628,6 +707,22 @@ int launch_orig_VA(void *arg)
 		kstub->kconf.coarsening,
 		params->numElements);
 	
+	return 0;
+}
+
+int prof_VA(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_VA_params * params = (t_VA_params *)kstub->params;
+	
+	profiling_SMT_vectorAdd<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>/*(VAparams->d_A, VAparams->d_B, VAparams->d_C, VAparams->numElements, */
+			(params->d_A, params->d_B, params->d_C, params->numElements,
+			
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_SMs_cont,
+			kstub->d_executed_tasks,
+			&kstub->gm_state[kstub->stream_index]);
 	return 0;
 }
 

@@ -106,6 +106,127 @@ original_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH,
 }
 
 __global__ void
+profiling_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int pitch,
+					int gridDimY,
+					
+					int num_subtask,
+					int iter_per_subtask,
+					int *cont_SM,
+					int *cont_subtask,
+					State *status)
+{
+	
+	__shared__ int s_bid, CTA_cont;
+	
+	unsigned int SM_id = get_smid_CONV();
+	
+	if (SM_id >= 8){ /* Only blocks executing in first 8 SM  are used for profiling */ 
+		//delay();
+		return;
+	}
+	
+	if (threadIdx.x == 0 && threadIdx.y== 0) {
+		CTA_cont = atomicAdd(&cont_SM[SM_id], 1);
+	//	if (SM_id == 7 && CTA_cont == 8)
+	//		printf("Aqui\n");
+	}
+	
+	__syncthreads();
+	
+	if (CTA_cont > SM_id) {/* Only one block makes computation in SM0, two blocks in SM1 and so on */
+		//delay();
+		return;
+	}
+	
+	int cont_task = 0;
+			
+	float *o_Src = d_Src;
+	float *o_Dst = d_Dst;
+	
+	while (1){
+	
+		d_Src = o_Src;
+		d_Dst = o_Dst;
+		
+		/********** Task Id calculation *************/
+		
+		if (threadIdx.x == 0 && threadIdx.y == 0) { 
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else {
+				s_bid = atomicAdd(cont_subtask, 1);				//subtask_id
+				//printf("Blq=%d cont=%d\n", blockIdx.x, s_bid);
+			}
+		}
+		
+		__syncthreads();
+		
+		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
+		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{
+			if (threadIdx.x == 0 && threadIdx.y== 0)
+				printf ("SM=%d CTA=%d Executed_tasks= %d \n", SM_id, CTA_cont, cont_task);	
+			return;
+		}
+		
+		if (threadIdx.x == 0 && threadIdx.y== 0) // Acumula numeor de tareas ejecutadas
+			 cont_task++;
+		
+		__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
+
+		//Offset to the left halo edge
+		// const int baseX = (blockIdx.x * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+		// const int baseY = blockIdx.y * ROWS_BLOCKDIM_Y + threadIdx.y;	
+		const int baseX = ((s_bid / gridDimY)* ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+		const int baseY = (s_bid % gridDimY) * ROWS_BLOCKDIM_Y + threadIdx.y;
+
+		d_Src += baseY * pitch + baseX;
+		d_Dst += baseY * pitch + baseX;
+
+		//Load main data
+		#pragma unroll
+
+		for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
+		{
+			s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = d_Src[i * ROWS_BLOCKDIM_X];
+		}
+
+		//Load left halo
+		#pragma unroll
+
+		for (int i = 0; i < ROWS_HALO_STEPS; i++)
+		{
+			s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (baseX >= -i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
+		}
+
+		//Load right halo
+		#pragma unroll
+
+		for (int i = ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS + ROWS_HALO_STEPS; i++)
+		{
+			s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (imageW - baseX > i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
+		}
+
+		//Compute and store results
+		__syncthreads();
+		#pragma unroll
+
+		for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
+		{
+			float sum = 0;
+
+			#pragma unroll
+
+			for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+			{
+				sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X + j];
+			}
+
+			d_Dst[i * ROWS_BLOCKDIM_X] = sum;
+		}
+	}
+}
+
+__global__ void
 SMT_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int pitch,
 					int gridDimY,
 					int SIMD_min, int SIMD_max,
@@ -313,6 +434,28 @@ int launch_orig_RCONV(void *arg)
 		params->d_Buffer, params->d_Input, imageW, imageH, imageW,
 		
 		params->gridDimY[0]);
+
+	return 0;
+}
+
+int prof_RCONV(void *arg)
+{
+	
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	
+	t_CONV_params * params = (t_CONV_params *)kstub->params;
+	
+	//dim3 blocks(kstub->kconf.gridsize.x);
+    dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+
+	profiling_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
+			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
+			params->gridDimY[0],
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_SMs_cont,
+			kstub->d_executed_tasks,
+			&kstub->gm_state[kstub->stream_index]);
 
 	return 0;
 }

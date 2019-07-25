@@ -148,6 +148,99 @@ preemp_SMK_spmv_csr_scalar_kernel(const float * __restrict__ val,
 
 
 __global__ void
+profiling_csr_scalar_kernel(const float * __restrict__ val,
+						const int    * __restrict__ cols,
+						const int    * __restrict__ rowDelimiters,
+						const int dim, float * __restrict__ out,
+						
+						int num_subtask,
+						int iter_per_subtask,
+						int *cont_SM,
+						int *cont_subtask,
+						State *status
+						)
+{
+	int myRow;
+	__shared__ int s_bid, CTA_cont;
+	
+	unsigned int SM_id = get_smid_SPMV();
+	
+	if (SM_id >= 8){ /* Only blocks executing in first 8 SM  are used for profiling */ 
+		//delay();
+		return;
+	}
+	
+	if (threadIdx.x == 0) {
+		CTA_cont = atomicAdd(&cont_SM[SM_id], 1);
+	//	if (SM_id == 7 && CTA_cont == 8)
+	//		printf("Aqui\n");
+	}
+	
+	__syncthreads();
+	
+	if (CTA_cont > SM_id) {/* Only one block makes computation in SM0, two blocks in SM1 and so on */
+		//delay();
+		return;
+	}
+	
+	//if (threadIdx.x == 0)
+	//	printf ("SM=%d CTA = %d\n", SM_id, CTA_cont);
+
+	int cont_task = 0;
+	/*if (threadIdx.x == 0 && blockIdx.x % 40 == 0)
+		printf("Bloque=%d SM_id=%d\n", blockIdx.x, SM_id);  */
+		
+	while (1){
+		
+		/********** Task Id calculation *************/
+		if (threadIdx.x == 0) {
+			if (*status == TOEVICT) {
+				//printf("Sennal eviction %d %d %d %d\n", blockIdx.x, *cont_subtask, iter_per_subtask, num_subtask);
+				s_bid = -1;
+			}
+			else
+				s_bid = atomicAdd((int *)cont_subtask, 1);
+		}
+		
+		__syncthreads();
+		
+		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
+			//if (blockIdx.x ==0 && threadIdx.x == 0) printf("Blk=%d num_tasks=%d Saliendo por %d\n", blockIdx.x, num_subtask, s_bid );
+			if (threadIdx.x == 0)
+				printf ("SM=%d CTA=%d Executed_tasks= %d \n", SM_id, CTA_cont, cont_task);
+			return;
+		}
+		
+		if (threadIdx.x == 0) // Acumula numeor de tareas ejecutadas
+			cont_task++;
+		
+		//for (int iter=0; iter<iter_per_subtask; iter++) {
+	
+			myRow = s_bid * blockDim.x + threadIdx.x;
+			//int myRow = s_bid * blockDim.x * iter_per_subtask + iter * blockDim.x + threadIdx.x;
+			texReaderSP vecTexReader;
+
+			//if (blockIdx.x==0 && threadIdx.x==0)
+				//printf("bid=%d Row=%d, start=%d, end=%d ", s_bid, myRow, rowDelimiters[myRow], rowDelimiters[myRow+1]);
+			if (myRow < dim)
+			{
+				float t = 0.0f;
+				int start = rowDelimiters[myRow];
+				int end = rowDelimiters[myRow+1];
+				for (int j = start; j < end; j++) {
+					int col = cols[j];
+					t += val[j] * vecTexReader(col);
+				}
+				out[myRow] = t;
+				//if (blockIdx.x==0 && threadIdx.x==0)
+				//	printf("Result=%f\n", t);
+			}
+		//}
+	}
+}
+
+
+__global__ void
 preemp_SMT_spmv_csr_scalar_kernel(const float * __restrict__ val,
                        const int    * __restrict__ cols,
                        const int    * __restrict__ rowDelimiters,
@@ -714,6 +807,9 @@ int SPMVcsr_start_mallocs(void *arg)
 	fill(params->h_val, params->nItems, maxval);
 	initRandomMatrix_ver3(params->h_cols, params->h_rowDelimiters, params->nItems, params->numRows);
 	fill(params->h_vec, params->numRows, maxval);
+	
+	spmvCpu(params->h_val, params->h_cols, params->h_rowDelimiters,
+	     params->h_vec, params->numRows, params->h_out);
 
 	// Allocate device memory
 	// numNonZeroes = nItems;
@@ -840,6 +936,23 @@ int launch_orig_SPMVcsr(void *arg)
 	original_spmv_csr_scalar_kernel<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>
 			(params->d_val, params->d_cols, params->d_rowDelimiters, params->numRows, params->d_out);
 	
+	return 0;
+}
+
+int prof_SPMV(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_SPMV_params * params = (t_SPMV_params *)kstub->params;
+	
+	profiling_csr_scalar_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>
+			(params->d_val, params->d_cols, params->d_rowDelimiters, params->numRows, params->d_out,
+			
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_SMs_cont,
+			kstub->d_executed_tasks,
+			&kstub->gm_state[kstub->stream_index]);
+			
 	return 0;
 }
 

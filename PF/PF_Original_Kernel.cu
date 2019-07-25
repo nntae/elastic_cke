@@ -133,6 +133,142 @@ original_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gp
 	}
 }
 
+__global__ void profiling_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gpuResults, int cols,  
+										int rows, int startStep, int border,
+										int num_subtask,
+										int iter_per_subtask,
+										int *cont_SM,
+										int *cont_subtask,
+										State *status)
+{
+	__shared__ int s_bid, CTA_cont;
+	
+	unsigned int SM_id = get_smid_PF();
+	
+	if (SM_id >= 8){ /* Only blocks executing in first 8 SM  are used for profiling */ 
+		//delay();
+		return;
+	}
+	
+	if (threadIdx.x == 0) {
+		CTA_cont = atomicAdd(&cont_SM[SM_id], 1);
+	//	if (SM_id == 7 && CTA_cont == 8)
+	//		printf("Aqui\n");
+	}
+	
+	__syncthreads();
+	
+	if (CTA_cont > SM_id) {/* Only one block makes computation in SM0, two blocks in SM1 and so on */
+		//delay();
+		return;
+	}
+	
+	int cont_task = 0;
+	
+	while (1){
+		
+		/********** Task Id calculation *************/
+		
+		if (threadIdx.x == 0) { 
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else {
+				s_bid = atomicAdd(cont_subtask, 1);				//subtask_id
+				//printf("Blq=%d cont=%d\n", blockIdx.x, s_bid);
+			}
+		}
+		
+		__syncthreads();
+		
+		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
+		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{
+			//if (threadIdx.x == 0)  printf("El bloque %d se sale con %d\n", blockIdx.x, s_bid); 
+			if (threadIdx.x == 0)
+				printf ("SM=%d CTA=%d Executed_tasks= %d \n", SM_id, CTA_cont, cont_task);	
+			return;
+		}
+		
+		if (threadIdx.x == 0) // Acumula numeor de tareas ejecutadas
+			 cont_task++;
+
+		for(startStep = 0; startStep < rows - 1; startStep += pyramid_heightPF){	
+			int iteration = MIN(pyramid_heightPF, rows-startStep-1);
+			
+			__shared__ int prev[BLOCK_SIZE];
+			__shared__ int result[BLOCK_SIZE];
+
+			//int bx = blockIdx.x;
+			int bx = s_bid;
+			int tx = threadIdx.x;
+
+			// each block finally computes result for a small block
+			// after N iterations. 
+			// it is the non-overlapping small blocks that cover 
+			// all the input data
+
+			// calculate the small block size
+			int small_block_cols = BLOCK_SIZE-iteration*HALO*2;
+
+			// calculate the boundary for the block according to 
+			// the boundary of its small block
+			int blkX = small_block_cols*bx-border;
+			int blkXmax = blkX+BLOCK_SIZE-1;
+
+			// calculate the global thread coordination
+			int xidx = blkX+tx;
+
+			// effective range within this block that falls within 
+			// the valid range of the input data
+			// used to rule out computation outside the boundary.
+			int validXmin = (blkX < 0) ? -blkX : 0;
+			int validXmax = (blkXmax > cols-1) ? BLOCK_SIZE-1-(blkXmax-cols+1) : BLOCK_SIZE-1;
+
+			int W = tx-1;
+			int E = tx+1;
+
+			W = (W < validXmin) ? validXmin : W;
+			E = (E > validXmax) ? validXmax : E;
+
+			bool isValid = IN_RANGE(tx, validXmin, validXmax);
+
+			if(IN_RANGE(xidx, 0, cols-1)){
+				prev[tx] = gpuSrc[xidx];
+			}
+			__syncthreads(); // [Ronny] Added sync to avoid race on prev Aug. 14 2012
+			bool computed;
+			for (int i=0; i<iteration ; i++){ 
+				computed = false;
+				if( IN_RANGE(tx, i+1, BLOCK_SIZE-i-2) &&  \
+				isValid){
+					computed = true;
+					int left = prev[W];
+					int up = prev[tx];
+					int right = prev[E];
+					int shortest = MIN(left, up);
+					shortest = MIN(shortest, right);
+					int index = cols*(startStep+i)+xidx;
+					result[tx] = shortest + gpuWall[index];
+				}
+				__syncthreads();
+				if(i==iteration-1)
+					break;
+				if(computed)   //Assign the computation range
+					prev[tx]= result[tx];
+				__syncthreads(); // [Ronny] Added sync to avoid race on prev Aug. 14 2012
+			}
+
+			// update the global memory
+			// after the last iteration, only threads coordinated within the 
+			// small block perform the calculation and switch on ``computed''
+			if (computed){
+				gpuResults[xidx]=result[tx];    
+			}
+		}
+	}
+}
+	
+	
+	
 __global__ void
 SMT_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gpuResults, int cols,  int rows, int startStep, int border,
 					int SIMD_min, int SIMD_max,
@@ -614,6 +750,32 @@ int launch_orig_PF(void *arg)
 
 	return 0;
 }
+
+int prof_PF(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_PF_params * params = (t_PF_params *)kstub->params;
+	
+	int src = 1, dst = 0, t = 0;
+	
+	int temp = src;
+	src = dst;
+	dst = temp;
+	
+	profiling_pathFinderCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s) >>>(
+			params->pyramid_height, 
+			params->gpuWall, params->gpuResult[src], params->gpuResult[dst],
+			params->cols, params->rows, t, params->borderCols,
+			
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_SMs_cont,
+			kstub->d_executed_tasks,
+			&kstub->gm_state[kstub->stream_index]);
+			
+	return 0;
+}
+			
 
 int launch_preemp_PF(void *arg)
 {

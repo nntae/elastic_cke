@@ -324,7 +324,7 @@ int get_max_blocks(t_Kernel kid);
 
 int make_transfers(t_kernel_stub **kstubs, int num_kernels);
 int all_profiling(t_Kernel *kid, int num_kernels, int deviceId);
-int smk_fill_coBlocks();
+int smk_fill_coBlocks(); 
 int smk_fill_solo();
 
 int create_sched(t_sched *sched);
@@ -341,10 +341,23 @@ int add_streams_to_kernel(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr, i
 int greedy_coexecution(int deviceId);
 
 int smk_solo_prof(t_kernel_stub *kstub);
-
+ 
 //PROF
 int prof_BS(void * arg);
 int prof_MM(void *arg);
+int prof_PF(void *arg);
+int prof_SPMV(void *arg);
+int prof_VA(void *arg);
+int prof_Reduction(void *arg);
+int prof_RCONV(void *arg);
+int prof_GCEDD(void *arg);
+int prof_HST256(void *arg);
+
+
+
+
+
+
 
 #ifdef ZEROCOPY
 int launch_proxy(void *arg);

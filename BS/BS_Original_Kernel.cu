@@ -281,8 +281,8 @@ __global__ void profiling_BlackScholesGPU(
 		
 		
 		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
-			//if (threadIdx.x == 0)
-			//	printf ("SM=%d CTA = %d Executed_tasks=%d \n", SM_id, CTA_cont, cont_task);	
+			if (threadIdx.x == 0)
+				printf ("SM=%d CTA=%d Executed_tasks= %d \n", SM_id, CTA_cont, cont_task);	
 			return;
 		}
 		

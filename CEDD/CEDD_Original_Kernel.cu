@@ -110,6 +110,123 @@ original_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, in
 }
 
 __global__ void
+profiling_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int rows_CEDD, int cols_CEDD,
+					int gridDimY,
+					int num_subtask,
+					int iter_per_subtask,
+					int *cont_SM,
+					int *cont_subtask,
+					State *status)
+{
+	
+	__shared__ int s_bid, CTA_cont;
+	
+	unsigned int SM_id = get_smid_CEDD();
+	
+	if (SM_id >= 8){ /* Only blocks executing in first 8 SM  are used for profiling */ 
+		//delay();
+		return;
+	}
+	
+	if (threadIdx.x == 0 && threadIdx.y== 0) {
+		CTA_cont = atomicAdd(&cont_SM[SM_id], 1);
+	//	if (SM_id == 7 && CTA_cont == 8)
+	//		printf("Aqui\n");
+	}
+	
+	__syncthreads();
+	
+	if (CTA_cont > SM_id) {/* Only one block makes computation in SM0, two blocks in SM1 and so on */
+		//delay();
+		return;
+	}
+	
+	int cont_task = 0;
+	
+	while (1){
+		
+		/********** Task Id calculation *************/
+		
+		if (threadIdx.x == 0 && threadIdx.y == 0) { 
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else {
+				s_bid = atomicAdd(cont_subtask, 1);				//subtask_id
+				//printf("Blq=%d cont=%d\n", blockIdx.x, s_bid);
+			}
+		}
+		
+		__syncthreads();
+		
+		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
+		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{
+			if (threadIdx.x == 0 && threadIdx.y== 0)
+				printf ("SM=%d CTA=%d Executed_tasks= %d \n", SM_id, CTA_cont, cont_task);	 
+			return;
+		}
+		
+		if (threadIdx.x == 0 && threadIdx.y== 0) // Acumula numeor de tareas ejecutadas
+			 cont_task++;
+		
+		extern __shared__ int l_mem[];
+		int* l_data = l_mem;
+
+		const int L_SIZE = blockDim.x;
+		int sum         = 0;
+		// const int   g_row = blockIdx.y * blockDim.y + threadIdx.y + 1;
+		// const int   g_col = blockIdx.x * blockDim.x + threadIdx.x + 1;
+		const int   g_row = (s_bid % gridDimY) * blockDim.y + threadIdx.y + 1;
+		const int   g_col = (s_bid / gridDimY) * blockDim.x + threadIdx.x + 1;
+		const int l_row = threadIdx.y + 1;
+		const int l_col = threadIdx.x + 1;
+
+		const int pos = g_row * cols_CEDD + g_col;
+
+		// copy to local
+		l_data[l_row * (L_SIZE + 2) + l_col] = data_CEDD[pos];
+
+		// top most row
+		if(l_row == 1) {
+			l_data[0 * (L_SIZE + 2) + l_col] = data_CEDD[pos - cols_CEDD];
+			// top left
+			if(l_col == 1)
+				l_data[0 * (L_SIZE + 2) + 0] = data_CEDD[pos - cols_CEDD - 1];
+
+			// top right
+			else if(l_col == L_SIZE)
+				l_data[0 * (L_SIZE + 2) + L_SIZE + 1] = data_CEDD[pos - cols_CEDD + 1];
+		}
+		// bottom most row
+		else if(l_row == L_SIZE) {
+			l_data[(L_SIZE + 1) * (L_SIZE + 2) + l_col] = data_CEDD[pos + cols_CEDD];
+			// bottom left
+			if(l_col == 1)
+				l_data[(L_SIZE + 1) * (L_SIZE + 2) + 0] = data_CEDD[pos + cols_CEDD - 1];
+
+			// bottom right
+			else if(l_col == L_SIZE)
+				l_data[(L_SIZE + 1) * (L_SIZE + 2) + L_SIZE + 1] = data_CEDD[pos + cols_CEDD + 1];
+		}
+
+		if(l_col == 1)
+			l_data[l_row * (L_SIZE + 2) + 0] = data_CEDD[pos - 1];
+		else if(l_col == L_SIZE)
+			l_data[l_row * (L_SIZE + 2) + L_SIZE + 1] = data_CEDD[pos + 1];
+
+		__syncthreads();
+
+		for(int i = 0; i < 3; i++) {
+			for(int j = 0; j < 3; j++) {
+				sum += gaus[i][j] * l_data[(i + l_row - 1) * (L_SIZE + 2) + j + l_col - 1];
+			}
+		}
+
+		out_CEDD[pos] = min(255, max(0, sum));
+	}
+}
+
+
+__global__ void
 SMT_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int rows_CEDD, int cols_CEDD,
 					int gridDimY,
 					int SIMD_min, int SIMD_max,
@@ -311,6 +428,28 @@ int launch_orig_GCEDD(void *arg)
 
 	return 0;
 }
+
+int prof_GCEDD(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	
+	t_CEDD_params * params = (t_CEDD_params *)kstub->params;
+	
+	dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+	
+	profiling_gaussianCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
+			params->out_CEDD, params->data_CEDD, rows_CEDD, cols_CEDD,
+			params->gridDimY,
+			
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_SMs_cont,
+			kstub->d_executed_tasks,
+			&kstub->gm_state[kstub->stream_index]);
+			
+	return 0;
+}
+			
 
 int launch_preemp_GCEDD(void *arg)
 {
