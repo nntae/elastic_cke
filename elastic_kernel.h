@@ -287,6 +287,7 @@ typedef struct {
 
 
 int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_t *transfer_s, cudaStream_t *preemp_s);
+int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_t *transfer_s, cudaStream_t *preemp_s, void *params);
 int start_linux_scheduler(t_Kernel *kernel_list, int list_size);
 
 // Function for transfers queues
@@ -341,7 +342,7 @@ int add_streams_to_kernel(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr, i
 int greedy_coexecution(int deviceId);
 
 int smk_solo_prof(t_kernel_stub *kstub);
- 
+
 //PROF
 int prof_BS(void * arg);
 int prof_MM(void *arg);
@@ -353,10 +354,7 @@ int prof_RCONV(void *arg);
 int prof_GCEDD(void *arg);
 int prof_HST256(void *arg);
 
-
-
-
-
+int fast_profiling(int deviceId, t_Kernel kid);
 
 
 #ifdef ZEROCOPY

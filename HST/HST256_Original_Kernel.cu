@@ -174,7 +174,7 @@ profiling_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint d
 
 		__syncthreads();
 
-		for (uint pos = UMAD(s_bid, blockDim.x, threadIdx.x); pos < dataCount; pos += UMUL(blockDim.x, num_subtask))
+		for (uint pos = UMAD(s_bid, blockDim.x, threadIdx.x); pos < dataCount; pos += UMUL(blockDim.x, gridDim.x))
 		{
 			uint data = d_Data256[pos];
 			addWord(s_WarpHist, data, tag);
@@ -200,7 +200,7 @@ profiling_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint d
 
 __global__ void
 __launch_bounds__(192, 8)
-SMT_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount,
+SMT_histogram256CUDA_kk(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount,
 					int SIMD_min, int SIMD_max,
 					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
 {
@@ -249,7 +249,7 @@ SMT_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 
 		__syncthreads();
 
-		for (uint pos = UMAD(s_bid, blockDim.x, threadIdx.x); pos < dataCount; pos += UMUL(blockDim.x, num_subtask))
+		for (uint pos = UMAD(s_bid, blockDim.x * iter_per_subtask, threadIdx.x); pos < dataCount; pos += UMUL(blockDim.x, num_subtask))
 		{
 			uint data = d_Data256[pos];
 			addWord(s_WarpHist, data, tag);
@@ -269,6 +269,87 @@ SMT_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 
 			d_PartialHistograms256[s_bid * HISTOGRAM256_BIN_COUNT + bin] = sum;
 		}
+	}
+}
+
+__global__ void
+__launch_bounds__(192, 8)
+SMT_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount,
+					int SIMD_min, int SIMD_max,
+					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
+{
+	__shared__ int s_bid;
+	
+	unsigned int SM_id = get_smid_HST256();
+	
+	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
+			return;
+			
+	//Per-warp subhistogram storage
+	__shared__ uint s_Hist[HISTOGRAM256_THREADBLOCK_MEMORY];
+	uint *s_WarpHist= s_Hist + (threadIdx.x >> LOG2_WARP_SIZE) * HISTOGRAM256_BIN_COUNT;
+
+	//Clear shared memory storage for current threadblock before processing
+	#pragma unroll
+
+	for (uint i = 0; i < (HISTOGRAM256_THREADBLOCK_MEMORY / HISTOGRAM256_THREADBLOCK_SIZE); i++)
+	{
+		s_Hist[threadIdx.x + i * HISTOGRAM256_THREADBLOCK_SIZE] = 0;
+	}
+	
+	//Cycle through the entire data set, update subhistograms for each warp
+		const uint tag = threadIdx.x << (UINT_BITS - LOG2_WARP_SIZE);
+		
+	__syncthreads();
+	
+	uint sum = 0;
+
+	while (1){
+		
+		/********** Task Id calculation *************/
+		
+		if (threadIdx.x == 0) { 
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else {
+				s_bid = atomicAdd(cont_subtask, 1);				//subtask_id
+				//printf("Blq=%d cont=%d\n", blockIdx.x, s_bid);
+			}
+		}
+		
+		__syncthreads();
+		
+		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
+		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{
+	
+			for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += HISTOGRAM256_THREADBLOCK_SIZE)
+				d_PartialHistograms256[s_bid * HISTOGRAM256_BIN_COUNT + bin] = sum; //write to global memory
+
+			return;
+		}
+
+		for (int i=0; i < iter_per_subtask; i++) {
+			int pos = UMAD(s_bid * i * gridDim.x, blockDim.x, threadIdx.x);
+			if (pos < dataCount) {
+				uint data = d_Data256[pos];
+				addWord(s_WarpHist, data, tag);
+			}
+		}
+
+
+		//Merge per-warp histograms into per-block and write to global memory
+		__syncthreads();
+
+		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += HISTOGRAM256_THREADBLOCK_SIZE)
+		{
+
+			for (uint i = 0; i < WARP_COUNT; i++)
+			{
+				sum += s_Hist[bin + i * HISTOGRAM256_BIN_COUNT] & TAG_MASK;
+			}
+		}
+		
+			
 	}
 }
 

@@ -103,6 +103,8 @@ int make_transfers(t_kernel_stub **kstubs, int num_kernels)
 	
 	}
 	
+	cudaDeviceSynchronize();
+	
 	return 0;
 }
 

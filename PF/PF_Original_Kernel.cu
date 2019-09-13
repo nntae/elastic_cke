@@ -267,8 +267,6 @@ __global__ void profiling_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int
 	}
 }
 	
-	
-	
 __global__ void
 SMT_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gpuResults, int cols,  int rows, int startStep, int border,
 					int SIMD_min, int SIMD_max,

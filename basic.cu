@@ -1082,9 +1082,11 @@ int main(int argc, char **argv)
 	kid[11]=HCEDD;
 	kid[12]=CCONV;
 	
-	all_profiling(kid, num_kernels, 2);
+	//all_profiling(kid, num_kernels, 2);
 	
 	//greedy_coexecution(2);
+
+	fast_profiling(2, HST256);
 
 	return 0;
 }

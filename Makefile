@@ -123,7 +123,7 @@ GENCODE_FLAGS   := $(GENCODE_SM61)
 all: build
 
 #build: basic solo_exec prof_conc
-build: basic prof_conc
+build: basic prof_conc_sincupti solo_exec
 
 reduction_original.o: Reduction/reduction_original.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
@@ -179,23 +179,36 @@ utils.o: utils.cu elastic_kernel.h
 schedulers.o: schedulers.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
-#solo_exec.o: solo_exec.cu elastic_kernel.h
+solo_exec.o: solo_exec.cu elastic_kernel.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+
+fast_profiling.o: fast_profiling.cu elastic_kernel.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+	
+#prof_conc.o: prof_conc.cu elastic_kernel.h
 #	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
-prof_conc.o: prof_conc.cu elastic_kernel.h
+#cupti_profiler.o: cupti_profiler.cu cupti_profiler.h
+#	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+
+prof_conc_sincupti.o: prof_conc_sincupti.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
-cupti_profiler.o: cupti_profiler.cu cupti_profiler.h
-	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
-	
-basic: schedulers.o utils.o kstub.o basic.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
+basic: schedulers.o fast_profiling.o utils.o kstub.o basic.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
-#solo_exec: solo_exec.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
+solo_exec: solo_exec.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
+	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
+	
+#prof_conc: prof_conc.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o cupti_profiler.o
 #	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
-prof_conc: prof_conc.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o cupti_profiler.o
+prof_conc_sincupti: prof_conc_sincupti.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o 
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
+	
+
+	
+
 	
 run: build
 	./basic
