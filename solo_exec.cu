@@ -121,6 +121,107 @@ int main(int argc, char **argv)
 
 	}
 	
+	if (strcmp(argv[2], "NCEDD") == 0){
+		
+		// First GCEDD must be executed 
+		kid = GCEDD;
+		/** Create stub ***/
+		create_stubinfo(&kstub, deviceId, kid, transfers_s, &preemp_s);
+	
+		// make HtD transfers 
+		(kstub->startMallocs)((void *)(kstub));
+		(kstub->startTransfers)((void *)(kstub));	
+		cudaDeviceSynchronize();
+		
+		// Exec 
+		int idSMs[2];
+		
+		idSMs[0]=0;idSMs[1]=kstub->kconf.numSMs-1;
+		kstub->idSMs = idSMs;
+		(kstub->launchCKEkernel)(kstub);
+		cudaDeviceSynchronize();
+		
+		// Then, next previous kernel
+		t_Kernel kidt1 = SCEDD;
+		t_kernel_stub * kstubt1;
+		
+		create_stubinfo_with_params(&kstubt1, deviceId, kidt1, transfers_s, &preemp_s, (void *)kstub->params);
+		
+		// make HtD transfers 
+		(kstubt1->startMallocs)((void *)(kstubt1));
+		(kstubt1->startTransfers)((void *)(kstubt1));	
+		cudaDeviceSynchronize();
+		
+		// Exec
+		idSMs[0]=0;idSMs[1]=kstubt1->kconf.numSMs-1;
+		kstubt1->idSMs = idSMs;
+		(kstubt1->launchCKEkernel)(kstubt1);
+		cudaDeviceSynchronize();
+		
+		flag_create_kstub_with_params = 1;
+		kid = NCEDD;
+	}
+	
+	if (strcmp(argv[2], "HCEDD") == 0){
+		
+		// First GCEDD must be executed 
+		kid = GCEDD;
+		/** Create stub ***/
+		create_stubinfo(&kstub, deviceId, kid, transfers_s, &preemp_s);
+	
+		// make HtD transfers 
+		(kstub->startMallocs)((void *)(kstub));
+		(kstub->startTransfers)((void *)(kstub));	
+		cudaDeviceSynchronize();
+		
+		// Exec 
+		int idSMs[2];
+		
+		idSMs[0]=0;idSMs[1]=kstub->kconf.numSMs-1;
+		kstub->idSMs = idSMs;
+		(kstub->launchCKEkernel)(kstub);
+		cudaDeviceSynchronize();
+		
+		// Then, next previous kernel
+		t_Kernel kidt1 = SCEDD;
+		t_kernel_stub * kstubt1;
+		
+		create_stubinfo_with_params(&kstubt1, deviceId, kidt1, transfers_s, &preemp_s, (void *)kstub->params);
+		
+		// make HtD transfers 
+		(kstubt1->startMallocs)((void *)(kstubt1));
+		(kstubt1->startTransfers)((void *)(kstubt1));	
+		cudaDeviceSynchronize();
+		
+		// Exec
+		idSMs[0]=0;idSMs[1]=kstubt1->kconf.numSMs-1;
+		kstubt1->idSMs = idSMs;
+		(kstubt1->launchCKEkernel)(kstubt1);
+		cudaDeviceSynchronize();
+		
+		// Finally, a third kernel
+		
+		t_Kernel kidt2 = NCEDD;
+		t_kernel_stub * kstubt2;
+		
+		create_stubinfo_with_params(&kstubt2, deviceId, kidt2, transfers_s, &preemp_s, (void *)kstub->params);
+		
+		// make HtD transfers 
+		(kstubt2->startMallocs)((void *)(kstubt2));
+		(kstubt2->startTransfers)((void *)(kstubt2));	
+		cudaDeviceSynchronize();
+		
+		// Exec
+		idSMs[0]=0;idSMs[1]=kstubt2->kconf.numSMs-1;
+		kstubt2->idSMs = idSMs;
+		(kstubt2->launchCKEkernel)(kstubt2);
+		cudaDeviceSynchronize();
+		
+		flag_create_kstub_with_params = 1;
+		kid = HCEDD;
+	}
+		
+	
 	if (strcmp(argv[2], "Reduction") == 0){
 		kid = Reduction;
 	}
@@ -163,18 +264,18 @@ int main(int argc, char **argv)
 	
 	for (int i=0; i<iterations; i++) {
 	
+		cudaProfilerStart();
+	
 		clock_gettime(CLOCK_REALTIME, &now);
 		time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-		
-		cudaProfilerStart();
 	
 		(kstub1->launchCKEkernel)((void *)kstub1);
 		cudaDeviceSynchronize();
-		
-		cudaProfilerStop();
 
 		clock_gettime(CLOCK_REALTIME, &now);
 		time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+		
+		cudaProfilerStop();
 	
 		int exec_tasks=0;
 		cudaMemcpyAsync(kstub1->d_executed_tasks, &exec_tasks, sizeof(int), cudaMemcpyHostToDevice, *kstub1->preemp_s); // Reset task counter
@@ -184,6 +285,18 @@ int main(int argc, char **argv)
 			
 	printf("BSP=%d Time=%f Tpms=%f\n", BpSM, time2-time1, (double)kstub1->total_tasks/(1000.0*(time2-time1)));
 	
+	cudaProfilerStart();
+	clock_gettime(CLOCK_REALTIME, &now);
+	time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	
+	(kstub1->launchORIkernel)((void *)kstub1);
+	cudaDeviceSynchronize();
+	
+	clock_gettime(CLOCK_REALTIME, &now);
+	time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	cudaProfilerStop();
+	printf("Original Time=%f\n", time2-time1);
+
 	
 	return 0;
 }
