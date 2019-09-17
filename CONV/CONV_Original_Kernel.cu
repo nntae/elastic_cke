@@ -144,9 +144,6 @@ profiling_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH
 	float *o_Dst = d_Dst;
 	
 	while (1){
-	
-		d_Src = o_Src;
-		d_Dst = o_Dst;
 		
 		/********** Task Id calculation *************/
 		
@@ -170,58 +167,63 @@ profiling_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH
 		
 		if (threadIdx.x == 0 && threadIdx.y== 0) // Acumula numeor de tareas ejecutadas
 			 cont_task++;
+			 
+		for(int iter = 0; iter < iter_per_subtask; iter++){
+			d_Src = o_Src;
+			d_Dst = o_Dst;
 		
-		__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
+			__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
 
-		//Offset to the left halo edge
-		// const int baseX = (blockIdx.x * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
-		// const int baseY = blockIdx.y * ROWS_BLOCKDIM_Y + threadIdx.y;	
-		const int baseX = ((s_bid / gridDimY)* ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
-		const int baseY = (s_bid % gridDimY) * ROWS_BLOCKDIM_Y + threadIdx.y;
+			//Offset to the left halo edge
+			// const int baseX = (blockIdx.x * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+			// const int baseY = blockIdx.y * ROWS_BLOCKDIM_Y + threadIdx.y;	
+			const int baseX = ((s_bid / gridDimY)* ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+			const int baseY = (s_bid % gridDimY) * ROWS_BLOCKDIM_Y + threadIdx.y;
 
-		d_Src += baseY * pitch + baseX;
-		d_Dst += baseY * pitch + baseX;
+			d_Src += baseY * pitch + baseX;
+			d_Dst += baseY * pitch + baseX;
 
-		//Load main data
-		#pragma unroll
-
-		for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
-		{
-			s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = d_Src[i * ROWS_BLOCKDIM_X];
-		}
-
-		//Load left halo
-		#pragma unroll
-
-		for (int i = 0; i < ROWS_HALO_STEPS; i++)
-		{
-			s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (baseX >= -i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
-		}
-
-		//Load right halo
-		#pragma unroll
-
-		for (int i = ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS + ROWS_HALO_STEPS; i++)
-		{
-			s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (imageW - baseX > i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
-		}
-
-		//Compute and store results
-		__syncthreads();
-		#pragma unroll
-
-		for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
-		{
-			float sum = 0;
-
+			//Load main data
 			#pragma unroll
 
-			for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+			for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
 			{
-				sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X + j];
+				s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = d_Src[i * ROWS_BLOCKDIM_X];
 			}
 
-			d_Dst[i * ROWS_BLOCKDIM_X] = sum;
+			//Load left halo
+			#pragma unroll
+
+			for (int i = 0; i < ROWS_HALO_STEPS; i++)
+			{
+				s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (baseX >= -i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
+			}
+
+			//Load right halo
+			#pragma unroll
+
+			for (int i = ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS + ROWS_HALO_STEPS; i++)
+			{
+				s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (imageW - baseX > i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
+			}
+
+			//Compute and store results
+			__syncthreads();
+			#pragma unroll
+
+			for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
+			{
+				float sum = 0;
+
+				#pragma unroll
+
+				for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+				{
+					sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X + j];
+				}
+
+				d_Dst[i * ROWS_BLOCKDIM_X] = sum;
+			}
 		}
 	}
 }
@@ -351,10 +353,7 @@ SMK_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int 
 	float *o_Dst = d_Dst;
 	
 	while (1){
-	
-		d_Src = o_Src;
-		d_Dst = o_Dst;
-		
+			
 		/********** Task Id calculation *************/
 		if (threadIdx.x == 0 && threadIdx.y == 0) {
 			if (*status == TOEVICT)
@@ -367,58 +366,63 @@ SMK_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int 
 		
 		if (s_bid >= num_subtask || s_bid == -1) /* If all subtasks have been executed */
 			return;
+			
+		for(int iter = 0; iter < iter_per_subtask; iter++){
+			d_Src = o_Src;
+			d_Dst = o_Dst;
 		
-		__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
+			__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
 
-		//Offset to the left halo edge
-		// const int baseX = (blockIdx.x * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
-		// const int baseY = blockIdx.y * ROWS_BLOCKDIM_Y + threadIdx.y;	
-		const int baseX = ((s_bid / gridDimY)* ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
-		const int baseY = (s_bid % gridDimY) * ROWS_BLOCKDIM_Y + threadIdx.y;
+			//Offset to the left halo edge
+			// const int baseX = (blockIdx.x * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+			// const int baseY = blockIdx.y * ROWS_BLOCKDIM_Y + threadIdx.y;	
+			const int baseX = ((s_bid / gridDimY)* ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+			const int baseY = (s_bid % gridDimY) * ROWS_BLOCKDIM_Y + threadIdx.y;
 
-		d_Src += baseY * pitch + baseX;
-		d_Dst += baseY * pitch + baseX;
+			d_Src += baseY * pitch + baseX;
+			d_Dst += baseY * pitch + baseX;
 
-		//Load main data
-		#pragma unroll
-
-		for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
-		{
-			s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = d_Src[i * ROWS_BLOCKDIM_X];
-		}
-
-		//Load left halo
-		#pragma unroll
-
-		for (int i = 0; i < ROWS_HALO_STEPS; i++)
-		{
-			s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (baseX >= -i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
-		}
-
-		//Load right halo
-		#pragma unroll
-
-		for (int i = ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS + ROWS_HALO_STEPS; i++)
-		{
-			s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (imageW - baseX > i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
-		}
-
-		//Compute and store results
-		__syncthreads();
-		#pragma unroll
-
-		for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
-		{
-			float sum = 0;
-
+			//Load main data
 			#pragma unroll
 
-			for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+			for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
 			{
-				sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X + j];
+				s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = d_Src[i * ROWS_BLOCKDIM_X];
 			}
 
-			d_Dst[i * ROWS_BLOCKDIM_X] = sum;
+			//Load left halo
+			#pragma unroll
+
+			for (int i = 0; i < ROWS_HALO_STEPS; i++)
+			{
+				s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (baseX >= -i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
+			}
+
+			//Load right halo
+			#pragma unroll
+
+			for (int i = ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS + ROWS_HALO_STEPS; i++)
+			{
+				s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (imageW - baseX > i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
+			}
+
+			//Compute and store results
+			__syncthreads();
+			#pragma unroll
+
+			for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
+			{
+				float sum = 0;
+
+				#pragma unroll
+
+				for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+				{
+					sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X + j];
+				}
+
+				d_Dst[i * ROWS_BLOCKDIM_X] = sum;
+			}
 		}
 	}
 }
@@ -679,9 +683,6 @@ SMK_colsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int 
 	float *o_Dst = d_Dst;
 	
 	while (1){
-	
-		d_Src = o_Src;
-		d_Dst = o_Dst;
 		
 		/********** Task Id calculation *************/
 		if (threadIdx.x == 0 && threadIdx.y == 0) {
@@ -695,56 +696,61 @@ SMK_colsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int 
 		
 		if (s_bid >= num_subtask || s_bid == -1) /* If all subtasks have been executed */
 			return;
+			
+		for(int iter = 0; iter < iter_per_subtask; iter++){
+			d_Src = o_Src;
+			d_Dst = o_Dst;
 		
-		__shared__ float s_Data[COLUMNS_BLOCKDIM_X][(COLUMNS_RESULT_STEPS + 2 * COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + 1];
+			__shared__ float s_Data[COLUMNS_BLOCKDIM_X][(COLUMNS_RESULT_STEPS + 2 * COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + 1];
 
-		//Offset to the upper halo edge
-		// const int baseX = blockIdx.x * COLUMNS_BLOCKDIM_X + threadIdx.x;
-		// const int baseY = (blockIdx.y * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
-		const int baseX = (s_bid / gridDimY) * COLUMNS_BLOCKDIM_X + threadIdx.x;
-		const int baseY = ((s_bid % gridDimY) * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
-		d_Src += baseY * pitch + baseX;
-		d_Dst += baseY * pitch + baseX;
+			//Offset to the upper halo edge
+			// const int baseX = blockIdx.x * COLUMNS_BLOCKDIM_X + threadIdx.x;
+			// const int baseY = (blockIdx.y * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
+			const int baseX = (s_bid / gridDimY) * COLUMNS_BLOCKDIM_X + threadIdx.x;
+			const int baseY = ((s_bid % gridDimY) * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
+			d_Src += baseY * pitch + baseX;
+			d_Dst += baseY * pitch + baseX;
 
-		//Main data
-		#pragma unroll
-
-		for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
-		{
-			s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = d_Src[i * COLUMNS_BLOCKDIM_Y * pitch];
-		}
-
-		//Upper halo
-		#pragma unroll
-
-		for (int i = 0; i < COLUMNS_HALO_STEPS; i++)
-		{
-			s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = (baseY >= -i * COLUMNS_BLOCKDIM_Y) ? d_Src[i * COLUMNS_BLOCKDIM_Y * pitch] : 0;
-		}
-
-		//Lower halo
-		#pragma unroll
-
-		for (int i = COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS + COLUMNS_HALO_STEPS; i++)
-		{
-			s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y]= (imageH - baseY > i * COLUMNS_BLOCKDIM_Y) ? d_Src[i * COLUMNS_BLOCKDIM_Y * pitch] : 0;
-		}
-
-		//Compute and store results
-		__syncthreads();
-		#pragma unroll
-
-		for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
-		{
-			float sum = 0;
+			//Main data
 			#pragma unroll
 
-			for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+			for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
 			{
-				sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y + j];
+				s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = d_Src[i * COLUMNS_BLOCKDIM_Y * pitch];
 			}
 
-			d_Dst[i * COLUMNS_BLOCKDIM_Y * pitch] = sum;
+			//Upper halo
+			#pragma unroll
+
+			for (int i = 0; i < COLUMNS_HALO_STEPS; i++)
+			{
+				s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = (baseY >= -i * COLUMNS_BLOCKDIM_Y) ? d_Src[i * COLUMNS_BLOCKDIM_Y * pitch] : 0;
+			}
+
+			//Lower halo
+			#pragma unroll
+
+			for (int i = COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS + COLUMNS_HALO_STEPS; i++)
+			{
+				s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y]= (imageH - baseY > i * COLUMNS_BLOCKDIM_Y) ? d_Src[i * COLUMNS_BLOCKDIM_Y * pitch] : 0;
+			}
+
+			//Compute and store results
+			__syncthreads();
+			#pragma unroll
+
+			for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
+			{
+				float sum = 0;
+				#pragma unroll
+
+				for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+				{
+					sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y + j];
+				}
+
+				d_Dst[i * COLUMNS_BLOCKDIM_Y * pitch] = sum;
+			}
 		}
 	}
 }
