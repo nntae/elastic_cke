@@ -419,9 +419,6 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 			info_tpmsSMT[i][j].tpms = tpms;
 		}
 	}	
-		
-			
-		
 	
 	/** Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands*/
 	cudaStream_t *transfers_s;

@@ -1545,7 +1545,7 @@ SMT_hystCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int rows_CE
 			const int   g_row = col * blockDim.y + threadIdx.y + 1;
 			const int   g_col = row * blockDim.x + threadIdx.x + 1;
 		
-			const int pos = row * cols_CEDD + col;
+			const int pos = g_row * cols_CEDD + g_col;
 
 			const unsigned char EDGE = 255;
 
@@ -1621,7 +1621,7 @@ SMK_hystCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int rows_CE
 			const int   g_row = col * blockDim.y + threadIdx.y + 1;
 			const int   g_col = row * blockDim.x + threadIdx.x + 1;
 		
-			const int pos = row * cols_CEDD + col;
+			const int pos = g_row * cols_CEDD + g_col;
 
 			const unsigned char EDGE = 255;
 
@@ -1654,8 +1654,7 @@ int launch_orig_HCEDD(void *arg)
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	original_hystCannyCUDA<<<dimGrid, threads>>>(
-		params->data_CEDD, params->out_CEDD, rows_CEDD, cols_CEDD,
-		params->gridDimY);
+		params->data_CEDD, params->out_CEDD, rows_CEDD, cols_CEDD);
 
 	return 0;
 }
