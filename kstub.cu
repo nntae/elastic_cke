@@ -485,11 +485,12 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			CONV_params->conv_rows=6144;
 			CONV_params->conv_cols=6144;
 			#else
-			CONV_params->conv_rows=14784;
-			CONV_params->conv_cols=14784;
+			CONV_params->conv_rows=8192;
+			CONV_params->conv_cols=8192;
 			#endif
 			
 			CONV_params->gridDimY[0] = CONV_params->conv_cols / 4;
+			CONV_params->gridDimY[1] = CONV_params->conv_cols / (8 * 8);
 			k_stub->params = (void *)CONV_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_RCONV;
@@ -531,8 +532,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.blocksize.y = 4;
 						k_stub->kconf.gridsize.x = (CONV_params->conv_rows / (8 * 16)) * (CONV_params->conv_cols / 4);
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
-						k_stub->total_tasks = k_stub->kconf.gridsize.x;
-						k_stub->kconf.coarsening = 1;
+						k_stub->kconf.coarsening = 4;
+						k_stub->total_tasks = k_stub->kconf.gridsize.x / k_stub->kconf.coarsening;
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -556,7 +557,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			CONV_params->conv_cols=18048;
 		    #endif*/
 			
-			CONV_params->gridDimY[1] = CONV_params->conv_cols / (8 * 8);
+			//CONV_params->gridDimY[1] = CONV_params->conv_cols / (8 * 8);
 			k_stub->params = (void *)CONV_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_CCONV;
@@ -1075,7 +1076,7 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 		{
 			t_CONV_params *CONV_params = (t_CONV_params *)params;
 			
-			CONV_params->gridDimY[1] = CONV_params->conv_cols / (8 * 8);
+			//CONV_params->gridDimY[1] = CONV_params->conv_cols / (8 * 8);
 			k_stub->params = (void *)CONV_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_CCONV;
@@ -1114,8 +1115,8 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 						k_stub->kconf.blocksize.y = 8;
 						k_stub->kconf.gridsize.x = (CONV_params->conv_rows / 16) * (CONV_params->conv_cols / (8 * 8));
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
-						k_stub->total_tasks = k_stub->kconf.gridsize.x;
-						k_stub->kconf.coarsening = 1;
+						k_stub->kconf.coarsening = 4;
+						k_stub->total_tasks = k_stub->kconf.gridsize.x / k_stub->kconf.coarsening;
 					}
 					else{
 						printf("Error: Unknown device\n");
