@@ -156,7 +156,7 @@ profiling_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint d
 		
 		if (threadIdx.x == 0) // Acumula numeor de tareas ejecutadas
 			 cont_task++;
-
+ 
 		//Per-warp subhistogram storage
 		__shared__ uint s_Hist[HISTOGRAM256_THREADBLOCK_MEMORY];
 		uint *s_WarpHist= s_Hist + (threadIdx.x >> LOG2_WARP_SIZE) * HISTOGRAM256_BIN_COUNT;

@@ -26,6 +26,7 @@ typedef struct {
 	int conv_rows;
 	int conv_cols;
 	int gridDimY[2];
+	int gridDimX[2];
 } t_CONV_params;
 
 //Rows

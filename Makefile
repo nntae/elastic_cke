@@ -123,7 +123,7 @@ GENCODE_FLAGS   := $(GENCODE_SM61)
 all: build
 
 #build: basic solo_exec prof_conc
-build: basic prof_conc_sincupti solo_exec
+build: basic prof_conc_sincupti solo_exec occ_calc
 
 reduction_original.o: Reduction/reduction_original.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
@@ -194,6 +194,9 @@ fast_profiling.o: fast_profiling.cu elastic_kernel.h
 prof_conc_sincupti.o: prof_conc_sincupti.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
+occupancy_calculator.o: occupancy_calculator.cu elastic_kernel.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+	
 basic: schedulers.o fast_profiling.o utils.o kstub.o basic.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
@@ -206,14 +209,14 @@ solo_exec: solo_exec.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS
 prof_conc_sincupti: prof_conc_sincupti.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o 
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
-
+occ_calc: occupancy_calculator.o utils.o
+	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
-
 	
 run: build
 	./basic
 
 clean:
-	rm -f basic  solo_exec prof_conc *.o
+	rm -f basic solo_exec prof_conc_sincupti occ_calc *.o
 
 clobber: clean

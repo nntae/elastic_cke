@@ -20,7 +20,7 @@ typedef enum {MM=0, BS, VA, RSC_MODEL, RSC_EVALUATE, SPMV_CSRscalar, Reduction, 
 typedef enum {NONBLOCKING=0, BLOCKING, STREAM_SYNCHRO, NOACTION} t_tsynchro;
 typedef enum {DATA=0, LAUNCH, NOLAUNCH, EVICT, PENDING, SYNCHRO, LAST_TRANSFER} t_type;  
 
-/* 	DATA for data tranfers (kernel input and output data. Synchro may be BLOCKING (MemCpy) and NONBLOCKING (MenCpyAsync)
+/* 	DATA for data tranfers (kernel input and output data. Synchro may be BLOCKING (MemCpy) and NONBLOCKING (MemCpyAsync)
 	
 	EVICT for scheduler commands that performs a HtD asynchronous transfer (MemCpyAsync), NONBLOCKING, to change the kernel 
 	state to EVICT. 
@@ -216,7 +216,7 @@ int RallSize ; //Register allocation unit (warp) size
 int SmAllsize; //Shared Memory allocation unit size
 int WAllG; //Warp allocation granularity
 }
-t_cc60;
+t_cc;
 
 typedef struct{
 	int used_TpSM;
@@ -305,9 +305,10 @@ int multiple_kernel_benchmark(int deviceId, int num_kernels, t_Kernel *kid, int 
 int multiple_kernel_benchmark_ver2(int deviceId, int num_kernels, t_Kernel *kid, int *BpSM, double *max_tpms);
 int all_multiple_kernel_benchmark(int deviceId, int num_kernels, t_Kernel *kid, int num_benchs, int **BpSM, double *max_tpms);
 
-int get_max_resources(int TpB, int RpT, int SmpB, t_used_res *ures, t_cc60 cc60, int *BpSM);
-int init_cc60(t_cc60 *cc);
-int get_resources(int req_BpSM, int TpB, int RpT, int SmpB, t_used_res *ures, t_cc60 cc60);
+int get_max_resources(int TpB, int RpT, int SmpB, t_used_res *ures, t_cc cc, int *BpSM);
+int init_cc60(t_cc *cc);
+int init_cc61(t_cc *cc);
+int get_resources(int req_BpSM, int TpB, int RpT, int SmpB, t_used_res *ures, t_cc cc);
 int BpSM_benchmark(int deviceId, t_Kernel kid, int numBpSM);
 int two_kernel_bench_spatial(int deviceId, t_Kernel *kid, double *max_tpms);
 

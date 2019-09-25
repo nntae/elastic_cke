@@ -6,7 +6,7 @@ void fill(float *A, const int n, const float maxi)
     {
         A[j] = ((float) maxi * (rand() / (RAND_MAX + 1.0f)));
     }
-}
+} 
 
 void initRandomMatrix_ver2(int *cols, int *rowDelimiters, const int n, const int dim)
 {

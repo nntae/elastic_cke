@@ -90,13 +90,11 @@ int preemp_overhead(t_kernel_stub *kstub, int iteraciones, double *over)
 int execution_with_BpSM(t_kernel_stub *kstub, int BpSM, int iterations, double *tpms)
 {
 	
-	
-	
-
 	// make HtD transfers 
-	(kstub->startMallocs)((void *)(kstub));
+	/*(kstub->startMallocs)((void *)(kstub));
 	(kstub->startTransfers)((void *)(kstub));	
 	cudaDeviceSynchronize();
+	*/
 	
 	struct timespec now;
 	int idSMs[2];
@@ -134,6 +132,63 @@ int execution_with_BpSM(t_kernel_stub *kstub, int BpSM, int iterations, double *
 	
 	*tpms = (double)kstub->total_tasks/(1000.0*(acc_t/(double)iterations));
 
+	return 0;
+}
+
+int transformation_overhead(t_kernel_stub *kstub, int iterations)
+{
+	
+	struct timespec now;
+	int idSMs[2];
+	double time1, time2;
+		
+	// Execute original implementation (no transformation)
+	double acc_t = 0;
+	for (int i=0; i<iterations; i++) {
+		
+		clock_gettime(CLOCK_REALTIME, &now);
+		time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+		
+		(kstub->launchORIkernel)((void *)kstub);
+		cudaDeviceSynchronize();
+
+		clock_gettime(CLOCK_REALTIME, &now);
+		time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+		acc_t += (time2-time1);
+		
+	}
+	double ori_time = acc_t /(double)iterations;
+	
+	idSMs[0]=0;idSMs[1]=kstub->kconf.numSMs-1;
+	kstub->idSMs = idSMs;	
+	
+	// Be sure kstub->kconf.max_persistent_blocks is set to the maximum value
+	
+	acc_t = 0;
+	for (int i=0; i<iterations; i++) {
+		
+		clock_gettime(CLOCK_REALTIME, &now);
+		time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	
+		(kstub->launchCKEkernel)((void *)kstub);
+		cudaDeviceSynchronize();
+
+		clock_gettime(CLOCK_REALTIME, &now);
+		time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	
+		acc_t += (time2-time1);
+		int exec_tasks=0;
+		cudaMemcpyAsync(kstub->d_executed_tasks, &exec_tasks, sizeof(int), cudaMemcpyHostToDevice, *kstub->preemp_s); // Reset task counter
+		
+		cudaDeviceSynchronize();
+	}
+	
+	double transf_time = acc_t /(double)iterations;;
+
+	char kname[50];
+	kid_from_index(kstub->id, kname);
+	printf("Overhead for %s = %f Time_transf=%f\n", kname, transf_time/ori_time, transf_time);
+	
 	return 0;
 }
 
@@ -239,7 +294,7 @@ t_kernel_stub *kstub_creation(t_Kernel kid, int deviceId)
 
 	}
 	
-		if (strcmp(kname, "NCEDD") == 0){
+	if (strcmp(kname, "NCEDD") == 0){
 		
 		// First GCEDD must be executed 
 		kid = GCEDD;
@@ -615,8 +670,13 @@ int main(int argc, char **argv)
 	
 	cudaDeviceSynchronize();
 	
+	transformation_overhead(kstub1, atoi(argv[4]));
+	
 	double over;
 	preemp_overhead(kstub1, atoi(argv[4]), &over);
+	
+	//double tpms; 
+	//execution_with_BpSM(kstub1, atoi(argv[3]), atoi(argv[4]), &tpms);
 	
 	return 0;
 

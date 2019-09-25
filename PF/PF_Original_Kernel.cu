@@ -7,7 +7,7 @@
 
 // Helper functions and utilities to work with CUDA
 #include <helper_functions.h>
-
+ 
 // Files
 #include <sstream>
 #include <string>
@@ -74,7 +74,7 @@ original_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gp
 		// all the input data
 
 		// calculate the small block size
-		int small_block_cols = BLOCK_SIZE-iteration*HALO*2;
+		int small_block_cols = BLOCK_SIZE-iteration*HALO*2; 
 
 		// calculate the boundary for the block according to 
 		// the boundary of its small block

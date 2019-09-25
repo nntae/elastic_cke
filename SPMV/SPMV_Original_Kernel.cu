@@ -16,7 +16,7 @@ texture<int2, 1>  vecTexD;
 struct texReaderSP {
    __device__ __forceinline__ float operator()(const int idx) const
    {
-       return tex1Dfetch(vecTex, idx);
+       return tex1Dfetch(vecTex, idx); 
    }
 };
 
@@ -68,8 +68,9 @@ original_spmv_csr_scalar_kernel(const float * __restrict__ val,
 {
     int myRow = blockIdx.x * blockDim.x + threadIdx.x;
     texReaderSP vecTexReader;
-
-    if (myRow < dim)
+	
+	while (myRow < dim)
+    //if (myRow < dim)
     {
         float t = 0.0f;
         int start = rowDelimiters[myRow];
@@ -80,6 +81,7 @@ original_spmv_csr_scalar_kernel(const float * __restrict__ val,
             t += val[j] * vecTexReader(col);
         }
         out[myRow] = t;
+		myRow += gridDim.x * blockDim.x;
     }
 }
 
@@ -124,25 +126,21 @@ preemp_SMK_spmv_csr_scalar_kernel(const float * __restrict__ val,
 		
 		if (s_bid >= num_subtask || s_bid == -1) /* If all subtasks have been executed */
 			return;
-		
-		//for (int iter=0; iter<iter_per_subtask; iter++) {
 	
-			myRow = s_bid * blockDim.x + threadIdx.x;
-			//int myRow = s_bid * blockDim.x * iter_per_subtask + iter * blockDim.x + threadIdx.x;
-			texReaderSP vecTexReader;
+		myRow = s_bid * blockDim.x + threadIdx.x;
+		texReaderSP vecTexReader;
 
-			if (myRow < dim)
-			{
-				float t = 0.0f;
-				int start = rowDelimiters[myRow];
-				int end = rowDelimiters[myRow+1];
-				for (int j = start; j < end; j++) {
-					int col = cols[j];
-					t += val[j] * vecTexReader(col);
-				}
-				out[myRow] = t;
+		if (myRow < dim)
+		{
+			float t = 0.0f;
+			int start = rowDelimiters[myRow];
+			int end = rowDelimiters[myRow+1];
+			for (int j = start; j < end; j++) {
+				int col = cols[j];
+				t += val[j] * vecTexReader(col);
 			}
-		//}
+			out[myRow] = t;
+		}
 	}
 }
 
