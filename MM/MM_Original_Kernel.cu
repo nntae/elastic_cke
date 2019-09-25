@@ -583,7 +583,8 @@ int MM_start_kernel(void *arg)
 int MM_start_mallocs(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
-	
+	cudaMemcpyAsync(&kstub->gm_state[0], &kstub->h_state[0], sizeof(State), cudaMemcpyHostToDevice, *(kstub->preemp_s)); 
+	cudaDeviceSynchronize();
 	dim3 dimsA, dimsB;
 	
 	t_MM_params * params = (t_MM_params *)kstub->params;
@@ -604,6 +605,8 @@ int MM_start_mallocs(void *arg)
     dim3 dimsC(dimsB.x, dimsA.y, 1);
 	params->size_C = dimsC.x * dimsC.y;
     unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(float);
+	
+	
  
 #if defined(MEMCPY_SYNC) || defined(MEMCPY_ASYNC)
 	
