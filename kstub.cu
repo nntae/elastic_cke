@@ -485,8 +485,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			CONV_params->conv_rows=6144;
 			CONV_params->conv_cols=6144;
 			#else
-			CONV_params->conv_rows=8192;
-			CONV_params->conv_cols=8192;
+			CONV_params->conv_rows=16384;
+			CONV_params->conv_cols=16384;
 			#endif
 			
 			CONV_params->gridDimY[0] = CONV_params->conv_cols / 4;
@@ -933,12 +933,6 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			t_HST256_params *HST256_params;
 			HST256_params = (t_HST256_params *)calloc(1, sizeof(t_HST256_params));
 			k_stub->params = (void *)HST256_params;
-			
-			#ifdef DATA_SET_1
-			HST256_params->byteCount256 = 64 * 1048576 * 6;
-			#else
-			HST256_params->byteCount256 = 64 * 1048576 * 6 ;
-			#endif
 	
 			k_stub->launchCKEkernel = launch_preemp_HST256;
 			k_stub->launchORIkernel = launch_orig_HST256;
@@ -949,6 +943,16 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startTransfers = HST256_start_transfers;
 			
 			if (strcmp(device_name, "Tesla K20c") == 0) {
+				HST256_params->warp_count = 6;
+				HST256_params->histogram256_threadblock_size = HST256_params->warp_count * WARP_SIZE;
+				HST256_params->histogram256_threadblock_memory = HST256_params->warp_count * HISTOGRAM256_BIN_COUNT;
+				
+				#ifdef DATA_SET_1
+				HST256_params->byteCount256 = 64 * 1048576 * HST256_params->warp_count;
+				#else
+				HST256_params->byteCount256 = 64 * 1048576 * HST256_params->warp_count;
+				#endif
+				
 				k_stub->kconf.numSMs = 13;
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 192;
@@ -959,6 +963,16 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			}
 			else {
 				if (strcmp(device_name, "GeForce GTX 980") == 0) {
+					HST256_params->warp_count = 6;
+					HST256_params->histogram256_threadblock_size = HST256_params->warp_count * WARP_SIZE;
+					HST256_params->histogram256_threadblock_memory = HST256_params->warp_count * HISTOGRAM256_BIN_COUNT;
+					
+					#ifdef DATA_SET_1
+					HST256_params->byteCount256 = 64 * 1048576 * HST256_params->warp_count;
+					#else
+					HST256_params->byteCount256 = 64 * 1048576 * HST256_params->warp_count;
+					#endif
+				
 					k_stub->kconf.numSMs = 16;
 					k_stub->kconf.max_persistent_blocks = 10;
 					k_stub->kconf.blocksize.x = 192;
@@ -969,14 +983,25 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				}
 				else{
 					if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
-						k_stub->kconf.numSMs = 28;
-						k_stub->kconf.max_persistent_blocks = 10;
-						k_stub->kconf.blocksize.x = 192;
-						k_stub->kconf.coarsening = 2;
-						k_stub->kconf.gridsize.x  = HST256_params->byteCount256 / (sizeof(uint) * k_stub->kconf.coarsening * k_stub->kconf.blocksize.x);
-						k_stub->total_tasks = k_stub->kconf.gridsize.x;
-						//k_stub->total_tasks = (64 * 1048576)/k_stub->kconf.blocksize.x + (((64 * 1048576)%k_stub->kconf.blocksize.x==0)?0:1);
+						HST256_params->warp_count = 8;
+						HST256_params->histogram256_threadblock_size = HST256_params->warp_count * WARP_SIZE;
+						HST256_params->histogram256_threadblock_memory = HST256_params->warp_count * HISTOGRAM256_BIN_COUNT;
 						
+						#ifdef DATA_SET_1
+						HST256_params->byteCount256 = 64 * 1048576 * 4;
+						#else
+						HST256_params->byteCount256 = 64 * 1048576 * 4;
+						#endif
+						
+						k_stub->kconf.numSMs = 28;
+						k_stub->kconf.max_persistent_blocks = 8;
+						k_stub->kconf.blocksize.x = 256;
+						k_stub->kconf.coarsening = 128;
+						//k_stub->kconf.gridsize.x  = HST256_params->byteCount256 / (sizeof(uint) * k_stub->kconf.coarsening * k_stub->kconf.blocksize.x);
+						k_stub->kconf.gridsize.x  = k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
+						k_stub->total_tasks = k_stub->kconf.gridsize.x;
+						// k_stub->total_tasks = (k_stub->kconf.gridsize.x * ((HST256_params->byteCount256 / sizeof(uint)) / (k_stub->kconf.blocksize.x * k_stub->kconf.gridsize.x))) / k_stub->kconf.coarsening;
+						//k_stub->total_tasks = (64 * 1048576)/k_stub->kconf.blocksize.x + (((64 * 1048576)%k_stub->kconf.blocksize.x==0)?0:1);
 					}
 					else{
 						printf("Error: Unknown device\n");

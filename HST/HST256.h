@@ -17,13 +17,13 @@ typedef unsigned char uchar;
 #define SHARED_MEMORY_BANKS 16
 
 //Warps ==subhistograms per threadblock
-#define WARP_COUNT 6
+//#define WARP_COUNT 6
 
 //Threadblock size
-#define HISTOGRAM256_THREADBLOCK_SIZE (WARP_COUNT * WARP_SIZE)
+//#define HISTOGRAM256_THREADBLOCK_SIZE (WARP_COUNT * WARP_SIZE)
 
 //Shared memory per threadblock
-#define HISTOGRAM256_THREADBLOCK_MEMORY (WARP_COUNT * HISTOGRAM256_BIN_COUNT)
+//#define HISTOGRAM256_THREADBLOCK_MEMORY (WARP_COUNT * HISTOGRAM256_BIN_COUNT)
 
 #define UMUL(a, b) ( (a) * (b) )
 #define UMAD(a, b, c) ( UMUL((a), (b)) + (c) )
@@ -32,13 +32,21 @@ typedef unsigned char uchar;
 
 #define TAG_MASK 0xFFFFFFFFU
 
+#define PARTIAL_HISTOGRAM256_COUNT 224
+
 typedef struct {
 	uchar *h_Data256;
-	uint  *h_HistogramCPU256, *h_HistogramGPU256;
+	uint  *h_HistogramGPU256;
+	uint  *h_PartialHistograms256;
 	uchar *d_Data256;
 	uint  *d_Histogram256;
-	uint byteCount256;
 	uint *d_PartialHistograms256;
+	
+	uint byteCount256;
+	
+	int warp_count;
+	int histogram256_threadblock_size;
+	int histogram256_threadblock_memory;
 } t_HST256_params;
 
 /*** histogram ***/	

@@ -25,7 +25,7 @@ using namespace std;
 // uint  *d_Histogram256;
 // uint byteCount256;
 
-static const uint PARTIAL_HISTOGRAM256_COUNT = 240;
+//static const uint PARTIAL_HISTOGRAM256_COUNT = 240;
 //static uint *d_PartialHistograms256;
 
 extern t_tqueue *tqueues;
@@ -55,18 +55,20 @@ inline __device__ void addWord(uint *s_WarpHist, uint data, uint tag)
  * Histogram (CUDA Kernel)
  */
 __global__ void
-original_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount)
+original_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount, 
+							int warp_count, int histogram256_threadblock_size, int histogram256_threadblock_memory)
 {
     //Per-warp subhistogram storage
-    __shared__ uint s_Hist[HISTOGRAM256_THREADBLOCK_MEMORY];
+    //__shared__ uint s_Hist[histogram256_threadblock_memory];
+	extern __shared__ uint s_Hist[];
     uint *s_WarpHist= s_Hist + (threadIdx.x >> LOG2_WARP_SIZE) * HISTOGRAM256_BIN_COUNT;
 
     //Clear shared memory storage for current threadblock before processing
 #pragma unroll
 
-    for (uint i = 0; i < (HISTOGRAM256_THREADBLOCK_MEMORY / HISTOGRAM256_THREADBLOCK_SIZE); i++)
+    for (uint i = 0; i < (histogram256_threadblock_memory / histogram256_threadblock_size); i++)
     {
-        s_Hist[threadIdx.x + i * HISTOGRAM256_THREADBLOCK_SIZE] = 0;
+        s_Hist[threadIdx.x + i * histogram256_threadblock_size] = 0;
     }
 
     //Cycle through the entire data set, update subhistograms for each warp
@@ -83,11 +85,11 @@ original_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint da
     //Merge per-warp histograms into per-block and write to global memory
     __syncthreads();
 
-    for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += HISTOGRAM256_THREADBLOCK_SIZE)
+    for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += histogram256_threadblock_size)
     {
         uint sum = 0;
 
-        for (uint i = 0; i < WARP_COUNT; i++)
+        for (uint i = 0; i < warp_count; i++)
         {
             sum += s_Hist[bin + i * HISTOGRAM256_BIN_COUNT] & TAG_MASK;
         }
@@ -97,8 +99,9 @@ original_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint da
 }
 
 __global__ void
-__launch_bounds__(192, 8)
-profiling_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount,
+//__launch_bounds__(192, 8)
+profiling_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount, 
+							int warp_count, int histogram256_threadblock_size, int histogram256_threadblock_memory,
 							int num_subtask,
 							int iter_per_subtask,
 							int *cont_SM,
@@ -158,15 +161,16 @@ profiling_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint d
 			 cont_task++;
 
 		//Per-warp subhistogram storage
-		__shared__ uint s_Hist[HISTOGRAM256_THREADBLOCK_MEMORY];
+		//__shared__ uint s_Hist[histogram256_threadblock_memory];
+		extern __shared__ uint s_Hist[];
 		uint *s_WarpHist= s_Hist + (threadIdx.x >> LOG2_WARP_SIZE) * HISTOGRAM256_BIN_COUNT;
 
 		//Clear shared memory storage for current threadblock before processing
 	#pragma unroll
 
-		for (uint i = 0; i < (HISTOGRAM256_THREADBLOCK_MEMORY / HISTOGRAM256_THREADBLOCK_SIZE); i++)
+		for (uint i = 0; i < (histogram256_threadblock_memory / histogram256_threadblock_size); i++)
 		{
-			s_Hist[threadIdx.x + i * HISTOGRAM256_THREADBLOCK_SIZE] = 0;
+			s_Hist[threadIdx.x + i * histogram256_threadblock_size] = 0;
 		}
 
 		//Cycle through the entire data set, update subhistograms for each warp
@@ -183,11 +187,11 @@ profiling_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint d
 		//Merge per-warp histograms into per-block and write to global memory
 		__syncthreads();
 
-		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += HISTOGRAM256_THREADBLOCK_SIZE)
+		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += histogram256_threadblock_size)
 		{
 			uint sum = 0;
 
-			for (uint i = 0; i < WARP_COUNT; i++)
+			for (uint i = 0; i < warp_count; i++)
 			{
 				sum += s_Hist[bin + i * HISTOGRAM256_BIN_COUNT] & TAG_MASK;
 			}
@@ -199,10 +203,11 @@ profiling_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint d
 
 
 __global__ void
-__launch_bounds__(192, 8)
+//__launch_bounds__(192, 8)
 SMT_histogram256CUDA_kk(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount,
-					int SIMD_min, int SIMD_max,
-					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
+						int warp_count, int histogram256_threadblock_size, int histogram256_threadblock_memory,
+						int SIMD_min, int SIMD_max,
+						int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
 {
 	__shared__ int s_bid;
 	
@@ -233,15 +238,16 @@ SMT_histogram256CUDA_kk(uint *d_PartialHistograms256, uint *d_Data256, uint data
 		}
 
 		//Per-warp subhistogram storage
-		__shared__ uint s_Hist[HISTOGRAM256_THREADBLOCK_MEMORY];
+		//__shared__ uint s_Hist[histogram256_threadblock_memory];
+		extern __shared__ uint s_Hist[];
 		uint *s_WarpHist= s_Hist + (threadIdx.x >> LOG2_WARP_SIZE) * HISTOGRAM256_BIN_COUNT;
 
 		//Clear shared memory storage for current threadblock before processing
 	#pragma unroll
 
-		for (uint i = 0; i < (HISTOGRAM256_THREADBLOCK_MEMORY / HISTOGRAM256_THREADBLOCK_SIZE); i++)
+		for (uint i = 0; i < (histogram256_threadblock_memory / histogram256_threadblock_size); i++)
 		{
-			s_Hist[threadIdx.x + i * HISTOGRAM256_THREADBLOCK_SIZE] = 0;
+			s_Hist[threadIdx.x + i * histogram256_threadblock_size] = 0;
 		}
 
 		//Cycle through the entire data set, update subhistograms for each warp
@@ -249,7 +255,7 @@ SMT_histogram256CUDA_kk(uint *d_PartialHistograms256, uint *d_Data256, uint data
 
 		__syncthreads();
 
-		for (uint pos = UMAD(s_bid, blockDim.x * iter_per_subtask, threadIdx.x); pos < dataCount; pos += UMUL(blockDim.x, num_subtask))
+		for (uint pos = UMAD(s_bid, blockDim.x, threadIdx.x); pos < dataCount; pos += UMUL(blockDim.x, num_subtask))
 		{
 			uint data = d_Data256[pos];
 			addWord(s_WarpHist, data, tag);
@@ -258,11 +264,11 @@ SMT_histogram256CUDA_kk(uint *d_PartialHistograms256, uint *d_Data256, uint data
 		//Merge per-warp histograms into per-block and write to global memory
 		__syncthreads();
 
-		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += HISTOGRAM256_THREADBLOCK_SIZE)
+		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += histogram256_threadblock_size)
 		{
 			uint sum = 0;
 
-			for (uint i = 0; i < WARP_COUNT; i++)
+			for (uint i = 0; i < warp_count; i++)
 			{
 				sum += s_Hist[bin + i * HISTOGRAM256_BIN_COUNT] & TAG_MASK;
 			}
@@ -273,10 +279,11 @@ SMT_histogram256CUDA_kk(uint *d_PartialHistograms256, uint *d_Data256, uint data
 }
 
 __global__ void
-__launch_bounds__(192, 8)
+//__launch_bounds__(192, 8)
 SMT_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount,
+					int warp_count, int histogram256_threadblock_size, int histogram256_threadblock_memory,
 					int SIMD_min, int SIMD_max,
-					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
+					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status, int tasks)
 {
 	__shared__ int s_bid;
 	
@@ -286,23 +293,12 @@ SMT_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 			return;
 			
 	//Per-warp subhistogram storage
-	__shared__ uint s_Hist[HISTOGRAM256_THREADBLOCK_MEMORY];
+	//__shared__ uint s_Hist[histogram256_threadblock_memory];
+	extern __shared__ uint s_Hist[];
 	uint *s_WarpHist= s_Hist + (threadIdx.x >> LOG2_WARP_SIZE) * HISTOGRAM256_BIN_COUNT;
-
-	//Clear shared memory storage for current threadblock before processing
-	#pragma unroll
-
-	for (uint i = 0; i < (HISTOGRAM256_THREADBLOCK_MEMORY / HISTOGRAM256_THREADBLOCK_SIZE); i++)
-	{
-		s_Hist[threadIdx.x + i * HISTOGRAM256_THREADBLOCK_SIZE] = 0;
-	}
 	
 	//Cycle through the entire data set, update subhistograms for each warp
-		const uint tag = threadIdx.x << (UINT_BITS - LOG2_WARP_SIZE);
-		
-	__syncthreads();
-	
-	uint sum = 0;
+	const uint tag = threadIdx.x << (UINT_BITS - LOG2_WARP_SIZE);
 
 	while (1){
 		
@@ -320,42 +316,57 @@ SMT_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 		__syncthreads();
 		
 		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
-		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{
-	
-			for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += HISTOGRAM256_THREADBLOCK_SIZE)
-				d_PartialHistograms256[s_bid * HISTOGRAM256_BIN_COUNT + bin] = sum; //write to global memory
-
+		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{				
 			return;
 		}
 
-		for (int i=0; i < iter_per_subtask; i++) {
-			int pos = UMAD(s_bid * i * gridDim.x, blockDim.x, threadIdx.x);
+		int pos;
+		if(s_bid < tasks){
+			//Clear shared memory storage for current threadblock before processing
+			#pragma unroll
+
+			for (uint i = 0; i < (histogram256_threadblock_memory / histogram256_threadblock_size); i++)
+			{
+				s_Hist[threadIdx.x + i * histogram256_threadblock_size] = 0;
+			}
+			
+			__syncthreads();
+		
+			pos = UMAD((s_bid % tasks), blockDim.x, threadIdx.x);
+		}
+		else{
+			pos = UMAD((s_bid % tasks), blockDim.x, threadIdx.x) + (s_bid / tasks) * iter_per_subtask * UMUL(blockDim.x, tasks);
+		}
+		for(int iter = 0; iter < iter_per_subtask; iter++){
 			if (pos < dataCount) {
 				uint data = d_Data256[pos];
 				addWord(s_WarpHist, data, tag);
 			}
+			
+			pos = UMAD((s_bid % tasks), blockDim.x, threadIdx.x) + (s_bid / tasks) * iter * UMUL(blockDim.x, tasks);
 		}
-
 
 		//Merge per-warp histograms into per-block and write to global memory
 		__syncthreads();
-
-		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += HISTOGRAM256_THREADBLOCK_SIZE)
+		
+		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += histogram256_threadblock_size)
 		{
-
-			for (uint i = 0; i < WARP_COUNT; i++)
+			uint sum = 0;
+			
+			for (uint i = 0; i < warp_count; i++)
 			{
 				sum += s_Hist[bin + i * HISTOGRAM256_BIN_COUNT] & TAG_MASK;
 			}
-		}
-		
 			
+			d_PartialHistograms256[(s_bid % tasks) * HISTOGRAM256_BIN_COUNT + bin] = sum; //write to global memory
+		}
 	}
 }
 
 __global__ void
-__launch_bounds__(192, 8)
+//__launch_bounds__(192, 8)
 SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount,
+					int warp_count, int histogram256_threadblock_size, int histogram256_threadblock_memory,
 					int max_blocks_per_SM,
 					int num_subtask,
 					int iter_per_subtask,
@@ -392,15 +403,16 @@ SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 			return;
 		
 		//Per-warp subhistogram storage
-		__shared__ uint s_Hist[HISTOGRAM256_THREADBLOCK_MEMORY];
+		//__shared__ uint s_Hist[histogram256_threadblock_memory];
+		extern __shared__ uint s_Hist[];
 		uint *s_WarpHist= s_Hist + (threadIdx.x >> LOG2_WARP_SIZE) * HISTOGRAM256_BIN_COUNT;
 
 		//Clear shared memory storage for current threadblock before processing
 	#pragma unroll
 
-		for (uint i = 0; i < (HISTOGRAM256_THREADBLOCK_MEMORY / HISTOGRAM256_THREADBLOCK_SIZE); i++)
+		for (uint i = 0; i < (histogram256_threadblock_memory / histogram256_threadblock_size); i++)
 		{
-			s_Hist[threadIdx.x + i * HISTOGRAM256_THREADBLOCK_SIZE] = 0;
+			s_Hist[threadIdx.x + i * histogram256_threadblock_size] = 0;
 		}
 
 		//Cycle through the entire data set, update subhistograms for each warp
@@ -417,11 +429,11 @@ SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 		//Merge per-warp histograms into per-block and write to global memory
 		__syncthreads();
 
-		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += HISTOGRAM256_THREADBLOCK_SIZE)
+		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += histogram256_threadblock_size)
 		{
 			uint sum = 0;
 
-			for (uint i = 0; i < WARP_COUNT; i++)
+			for (uint i = 0; i < warp_count; i++)
 			{
 				sum += s_Hist[bin + i * HISTOGRAM256_BIN_COUNT] & TAG_MASK;
 			}
@@ -448,8 +460,8 @@ int HST256_start_kernel(void *arg)
     // h_HistogramGPU256 = (uint *)malloc(HISTOGRAM256_BIN_COUNT * sizeof(uint));
 	
 	cudaMallocHost(&params->h_Data256, params->byteCount256);
-	cudaMallocHost(&params->h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
 	cudaMallocHost(&params->h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
+	cudaMallocHost(&params->h_PartialHistograms256, PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT * sizeof(uint));
 	
 	srand(2009);
 
@@ -463,6 +475,7 @@ int HST256_start_kernel(void *arg)
     checkCudaErrors(cudaMemcpy(params->d_Data256, params->h_Data256, params->byteCount256, cudaMemcpyHostToDevice));
 	
 	checkCudaErrors(cudaMalloc((void **)&params->d_PartialHistograms256, PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT * sizeof(uint)));
+	checkCudaErrors(cudaMemset(params->d_PartialHistograms256, 0, PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT * sizeof(uint)));
 	
 	return 0;
 }
@@ -482,8 +495,8 @@ int HST256_start_mallocs(void *arg)
 	
 #if defined(MEMCPY_SYNC) || defined(MEMCPY_ASYNC)
 	cudaMallocHost(&params->h_Data256, params->byteCount256);
-	cudaMallocHost(&params->h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
 	cudaMallocHost(&params->h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
+	cudaMallocHost(&params->h_PartialHistograms256, PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT * sizeof(uint));
 
 	checkCudaErrors(cudaMalloc((void **)&params->d_Data256, params->byteCount256));
     checkCudaErrors(cudaMalloc((void **)&params->d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint)));	
@@ -494,13 +507,6 @@ int HST256_start_mallocs(void *arg)
 	cudaMallocManaged(&params->h_Data256, params->byteCount256);
 	cudaMallocManaged(&params->h_HistogramCPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
 	cudaMallocManaged(&params->h_HistogramGPU256, HISTOGRAM256_BIN_COUNT * sizeof(uint));
-	
-	srand(2009);
-
-    for (uint i = 0; i < params->byteCount256; i++)
-    {
-        params->h_Data256[i] = rand() % 256;
-    }
 
 	#else
 		printf("No transfer model: Exiting ...\n");
@@ -509,7 +515,7 @@ int HST256_start_mallocs(void *arg)
 #endif
 
 	// Verify that allocations succeeded
-    if (params->h_Data256 == NULL || params->h_HistogramCPU256 == NULL || params->h_HistogramGPU256 == NULL)
+    if (params->h_Data256 == NULL || params->h_HistogramGPU256 == NULL || params->h_PartialHistograms256 == NULL)
     {
         fprintf(stderr, "Failed to allocate host vectors!\n");
         exit(EXIT_FAILURE);
@@ -521,6 +527,8 @@ int HST256_start_mallocs(void *arg)
     {
         params->h_Data256[i] = rand() % 256;
     }
+	
+	checkCudaErrors(cudaMemset(params->d_PartialHistograms256, 0, PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT * sizeof(uint)));
 
 	return 0;
 }
@@ -591,7 +599,7 @@ int HST256_end_kernel(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
-#ifdef MEMCPY_SYNC
+/*#ifdef MEMCPY_SYNC
 
 	cudaEventSynchronize(kstub->end_Exec);
 
@@ -600,14 +608,22 @@ int HST256_end_kernel(void *arg)
 #else
 	#ifdef MEMCPY_ASYNC
 	//enqueue_tcomamnd(tqueues, h_HistogramGPU256, d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint), cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
-	cudaMemcpyAsync(params->h_HistogramGPU256, params->d_Histogram256, HISTOGRAM256_BIN_COUNT * sizeof(uint), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
+	cudaMemcpyAsync(params->h_HistogramGPU256, params->d_PartialHistograms256, HISTOGRAM256_BIN_COUNT * sizeof(uint), cudaMemcpyDeviceToHost, kstub->transfer_s[1]);
 	
 	#else
 		#ifdef MANAGED_MEM
 			cudaStreamSynchronize(*(kstub->execution_s)); // To be sure kernel execution has finished before processing output data
 		#endif
 	#endif
-#endif
+#endif*/
+
+	checkCudaErrors(cudaMemcpy(params->h_PartialHistograms256, params->d_PartialHistograms256, PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT * sizeof(uint), cudaMemcpyDeviceToHost));
+		
+	cudaDeviceSynchronize();
+		
+	for(int iteracion = 0; iteracion < PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT; iteracion++)
+		printf("%u ", params->h_PartialHistograms256[iteracion]);
+	printf("\n");
 
 	return 0;
 }
@@ -635,10 +651,14 @@ int launch_orig_HST256(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
-	original_histogram256CUDA<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(
+	original_histogram256CUDA<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x, params->histogram256_threadblock_memory * sizeof(uint)>>>(
         params->d_PartialHistograms256,
         (uint *)params->d_Data256,
-        params->byteCount256 / sizeof(uint)
+        params->byteCount256 / sizeof(uint),
+		
+		params->warp_count,
+		params->histogram256_threadblock_size,
+		params->histogram256_threadblock_memory
     );
 
 	return 0;
@@ -649,10 +669,14 @@ int prof_HST256(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
-	profiling_histogram256CUDA<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
+	profiling_histogram256CUDA<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->histogram256_threadblock_memory * sizeof(uint), *(kstub->execution_s)>>>(
 			params->d_PartialHistograms256,
 			(uint *)params->d_Data256,
 			params->byteCount256 / sizeof(uint),
+			
+			params->warp_count,
+			params->histogram256_threadblock_size,
+			params->histogram256_threadblock_memory,
 			
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
@@ -667,24 +691,52 @@ int launch_preemp_HST256(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
+	int tasks = (kstub->kconf.gridsize.x * ((params->byteCount256 / sizeof(uint)) / (kstub->kconf.blocksize.x * kstub->kconf.gridsize.x))) / kstub->kconf.coarsening;
+	
 	#ifdef SMT
-		SMT_histogram256CUDA<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
+		SMT_histogram256CUDA<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->histogram256_threadblock_memory * sizeof(uint), *(kstub->execution_s)>>>(
 			params->d_PartialHistograms256,
 			(uint *)params->d_Data256,
 			params->byteCount256 / sizeof(uint),
 			
+			params->warp_count,
+			params->histogram256_threadblock_size,
+			params->histogram256_threadblock_memory,
+			
 			kstub->idSMs[0],
 			kstub->idSMs[1],
-			kstub->total_tasks,
+			tasks,
 			kstub->kconf.coarsening,
 			kstub->d_executed_tasks,
-			&(kstub->gm_state[kstub->stream_index])
+			&(kstub->gm_state[kstub->stream_index]),
+			kstub->total_tasks
 		);
+		
+		// SMT_histogram256CUDA_kk<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->histogram256_threadblock_memory * sizeof(uint), *(kstub->execution_s)>>>(
+			// params->d_PartialHistograms256,
+			// (uint *)params->d_Data256,
+			// params->byteCount256 / sizeof(uint),
+			
+			// params->warp_count,
+			// params->histogram256_threadblock_size,
+			// params->histogram256_threadblock_memory,
+			
+			// kstub->idSMs[0],
+			// kstub->idSMs[1],
+			// kstub->total_tasks,
+			// kstub->kconf.coarsening,
+			// kstub->d_executed_tasks,
+			// &(kstub->gm_state[kstub->stream_index])
+		// );
 	#else
-		SMK_histogram256CUDA<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
+		SMK_histogram256CUDA<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->histogram256_threadblock_memory * sizeof(uint), *(kstub->execution_s)>>>(
 			params->d_PartialHistograms256,
 			(uint *)params->d_Data256,
 			params->byteCount256 / sizeof(uint),
+			
+			params->warp_count,
+			params->histogram256_threadblock_size,
+			params->histogram256_threadblock_memory,
 			
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,
