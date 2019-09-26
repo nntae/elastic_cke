@@ -623,9 +623,9 @@ int HST256_end_kernel(void *arg)
 		
 	cudaDeviceSynchronize();
 		
-	for(int iteracion = 0; iteracion < PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT; iteracion++)
-		printf("%u ", params->h_PartialHistograms256[iteracion]);
-	printf("\n");
+	// for(int iteracion = 0; iteracion < PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT; iteracion++)
+		// printf("%u ", params->h_PartialHistograms256[iteracion]);
+	// printf("\n");
 
 	return 0;
 }
