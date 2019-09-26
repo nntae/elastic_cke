@@ -643,8 +643,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			CEDD_params->nRows=3072 * 2;
 			CEDD_params->nCols=4608 * 2;
 			#else
-			CEDD_params->nRows=4608 * 2;
-			CEDD_params->nCols=4608 * 2;
+			CEDD_params->nRows=4608 * 2.6;
+			CEDD_params->nCols=4608 * 2.6;
 			#endif
 			
 			k_stub->params = (void *)CEDD_params;
@@ -666,8 +666,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 				k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 				k_stub->kconf.gridsize.y = 1; //Grid Linearization
-				k_stub->kconf.coarsening = 64;
-				k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening;
+				k_stub->total_tasks = k_stub->kconf.gridsize.x;
+				k_stub->kconf.coarsening = 1;
 			}
 			else {
 				if (strcmp(device_name, "GeForce GTX 980") == 0) {
@@ -679,9 +679,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 					k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
-					k_stub->kconf.gridsize.y = 1; //Grid Linearization
-					k_stub->kconf.coarsening = 64;
-					k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening;
+					k_stub->total_tasks = k_stub->kconf.gridsize.x;
+					k_stub->kconf.coarsening = 1;
 				}
 				else{
 					if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
@@ -693,8 +692,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
-						k_stub->kconf.coarsening = 64;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening;
+						k_stub->total_tasks = k_stub->kconf.gridsize.x;
+						k_stub->kconf.coarsening = 1;
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -755,8 +754,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 					k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
-					k_stub->kconf.coarsening = 16;
-					k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening;
+					k_stub->total_tasks = k_stub->kconf.gridsize.x;
+					k_stub->kconf.coarsening = 1;
 				}
 				else{
 					if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
@@ -768,9 +767,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
-						k_stub->kconf.coarsening = 16;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening;
-						
+						k_stub->total_tasks = k_stub->kconf.gridsize.x;
+						k_stub->kconf.coarsening = 1;
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -989,16 +987,17 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						HST256_params->histogram256_threadblock_size = HST256_params->warp_count * WARP_SIZE;
 						HST256_params->histogram256_threadblock_memory = HST256_params->warp_count * HISTOGRAM256_BIN_COUNT;
 						
+						//Divisible entre 256 y 224
 						#ifdef DATA_SET_1
-						HST256_params->byteCount256 = 64 * 1048576 * 4;
+						HST256_params->byteCount256 = 64 * 1089536 * 8;
 						#else
-						HST256_params->byteCount256 = 64 * 1048576 * 4;
+						HST256_params->byteCount256 = 64 * 1089536 * 8;
 						#endif
 						
 						k_stub->kconf.numSMs = 28;
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 256;
-						k_stub->kconf.coarsening = 128;
+						k_stub->kconf.coarsening = 8;
 						//k_stub->kconf.gridsize.x  = HST256_params->byteCount256 / (sizeof(uint) * k_stub->kconf.coarsening * k_stub->kconf.blocksize.x);
 						k_stub->kconf.gridsize.x  = k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
@@ -1217,9 +1216,8 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
+						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 1;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening;
-						
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -1296,9 +1294,8 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
+						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 1;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening;
-						
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -1362,8 +1359,8 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 					CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 					k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
-					k_stub->kconf.coarsening = 1;
 					k_stub->total_tasks = k_stub->kconf.gridsize.x;
+					k_stub->kconf.coarsening = 1;
 				}
 				else{
 					if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
@@ -1375,9 +1372,8 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
+						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->kconf.coarsening = 1;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening;
-						
 					}
 					else{
 						printf("Error: Unknown device\n");
