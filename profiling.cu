@@ -432,48 +432,77 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 	cudaStream_t preemp_s;
 	checkCudaErrors(cudaStreamCreateWithFlags(&preemp_s, cudaStreamNonBlocking)); 
 	
-	/** Create stubs ***/
-	t_kernel_stub **kstubs = (t_kernel_stub **)calloc(num_kernels, sizeof(t_kernel_stub*));
-	for (int i=0; i<num_kernels; i++)
-		create_stubinfo(&kstubs[i], deviceId, kid[i], transfers_s, &preemp_s);
+	int total_num_kernels;
+	for (int i=0; i<num_kernels; i++){
+		total_num_kernels++;
+		if (kid[i] == RCONV) total_num_kernels++;
+		if (kid[i] == GCEDD) total_num_kernels += 3;
+	}
 	
+	/** Create stubs ***/
+	// Ojo la lista de kernels sólo debe ponerse el primero de una aplicacion. Los demás
+	// son creados por el siguiente código
+	t_kernel_stub **kstubs = (t_kernel_stub **)calloc(total_num_kernels, sizeof(t_kernel_stub*));
+	for (int i=0, cont=0; i<num_kernels; i++) {	
+		create_stubinfo(&kstubs[cont], deviceId, kid[i], transfers_s, &preemp_s);
+		cont++;
+		if (kid[i] == RCONV){ // RCONV params struct must be passed to CCONV 
+			create_stubinfo_with_params(&kstubs[cont], deviceId, CCONV, transfers_s, &preemp_s, (void *)kstubs[cont-1]->params);
+			cont++;
+		}
+		
+		if (kid[i] == GCEDD){
+			create_stubinfo_with_params(&kstubs[cont], deviceId, SCEDD, transfers_s, &preemp_s, (void *)kstubs[cont-1]->params);
+			cont++;
+			
+			create_stubinfo_with_params(&kstubs[cont], deviceId, NCEDD, transfers_s, &preemp_s, (void *)kstubs[cont-2]->params);
+			cont++;
+			
+			create_stubinfo_with_params(&kstubs[cont], deviceId, HCEDD, transfers_s, &preemp_s, (void *)kstubs[cont-3]->params);
+			cont++;
+		}
+	}
+
 	// make HtD transfers of all kernels
-	make_transfers(kstubs, num_kernels);
+	make_transfers(kstubs, total_num_kernels);
 	
 	// Solo original profiling
-	double *exectime_s = (double *)calloc(num_kernels, sizeof(double));
-	for (int i=0; i<num_kernels; i++)
+	double *exectime_s = (double *)calloc(total_num_kernels, sizeof(double));
+	for (int i=0; i<total_num_kernels; i++) // Important: is an application has several kernels, they must executed in order (data dependecies)
 		solo_original(kstubs[i], &exectime_s[i]);
 	
 	// Solo SMK profiling and annoate results in smk_smk_info_solo table
-	for (int i=0; i<num_kernels; i++)
+	for (int i=0; i<total_num_kernels; i++)
 		smk_solo_prof(kstubs[i]);
 	
 	printf("Overhead SMK wrt original\n");
-	for (int i=0; i<num_kernels; i++) {
+	char kname[50];
+	for (int i=0; i<total_num_kernels; i++) {
 		t_smk_solo *info = &smk_info_solo[kstubs[i]->id];
 		double smk_time = (double)kstubs[i]->total_tasks / info->tpms[info->num_configs-1] / 1000.0 ;
-		printf("K=%d Ori=%f SMK=%f Over=%f\n", i, exectime_s[i], smk_time, smk_time/exectime_s[i]);
+		kid_from_index(kstubs[i]->id, kname);
+		printf("kid=%s Ori=%f SMK=%f Over=%f\n", kname, exectime_s[i], smk_time, smk_time/exectime_s[i]);
 	}
 	
 	//return 0;
 	
 	// Solo SMT profiling
-	for (int i=0; i<num_kernels; i++)
+	for (int i=0; i<total_num_kernels; i++)
 		smt_solo_prof(kstubs[i]);
 	
 	printf("Overhead SMT wrt original\n");
-	for (int i=0; i<num_kernels; i++) {
+	for (int i=0; i<total_num_kernels; i++) {
 		t_smt_solo *info = &smt_info_solo[kstubs[i]->id];
 		double smt_time = (double)kstubs[i]->total_tasks / info->tpms[info->num_configs-1] / 1000.0 ;
-		printf("K=%d Ori=%f SMT=%f Over=%f\n", i, exectime_s[i], smt_time, smt_time/exectime_s[i]);
+		kid_from_index(kstubs[i]->id, kname);
+		printf("kid=%s Ori=%f SMT=%f Over=%f\n", i, exectime_s[i], smt_time, smt_time/exectime_s[i]);
 	}
 	
 	// Coexecution profiling
 	t_kernel_stub *pair_kstubs[2];
 	// Coexecute all tasls and extract performance
-	for (int i=0; i<num_kernels; i++) {
-		for (int j=i+1; j<num_kernels; j++) {
+	for (int i=0; i<total_num_kernels; i++) {
+		for (int j=i+1; j<total_num_kernels; j++) {
 			pair_kstubs[0] = kstubs[i];
 			pair_kstubs[1] = kstubs[j];
 			//printf("Profiling smk %d %d\n", kstubs[i]->id, kstubs[j]->id);
@@ -481,8 +510,8 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 		}
 	}
 	
-	for (int i=0; i<num_kernels; i++) {
-		for (int j=i+1; j<num_kernels; j++) {
+	for (int i=0; i<total_num_kernels; i++) {
+		for (int j=i+1; j<total_num_kernels; j++) {
 			pair_kstubs[0] = kstubs[i];
 			pair_kstubs[1] = kstubs[j];
 			smt_coexec_prof(pair_kstubs);
@@ -497,8 +526,8 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 	printf("Kernels \tBlocks_co	\tBlocks_solo \tSpeedup_colo \tSpeedup_th \tSpeedup_real\n"); 
 	double *sp_smk = (double *)calloc(100, sizeof(double));
 	int b0, b1, t_b0, t_b1, t_k;
-	for (int i=0; i<num_kernels; i++) {
-		for (int j=i+1; j<num_kernels; j++) {
+	for (int i=0; i<total_num_kernels; i++) {
+		for (int j=i+1; j<total_num_kernels; j++) {
 			t_smk_coBlocks *info_coexec= &smk_info_coBlocks[kstubs[i]->id][kstubs[j]->id];
 			t_smk_solo *smk_info_solo1 = &smk_info_solo[kstubs[i]->id];
 			t_smk_solo *smk_info_solo2 = &smk_info_solo[kstubs[j]->id];
@@ -548,8 +577,8 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 	printf("Kernels \tBlocks_co	\tBlocks_solo \tSpeedup_colo \tSpeedup_th \tSpeedup_real\n");   
 	double *sp = (double *)calloc(numSMs, sizeof(double));
 	int sms=0, t_sms=0;
-	for (int i=0; i<num_kernels; i++) {
-		for (int j=i+1; j<num_kernels; j++) {
+	for (int i=0; i<total_num_kernels; i++) {
+		for (int j=i+1; j<total_num_kernels; j++) {
 			double speedup = 0, t_speedup = 0;
 			int num_configs = info_tpmsSMT[kstubs[i]->id][kstubs[j]->id].num_configs;
 			for (int k = 0; k<num_configs; k++) {

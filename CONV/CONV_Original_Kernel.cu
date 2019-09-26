@@ -49,7 +49,7 @@ void setConvolutionKernel(float *h_Kernel)
  * Rows Convolution Separable (CUDA Kernel)
  */
 __global__ void
-original_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int pitch)
+original_rowsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int imageH, int pitch)
 {
 	__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
 
@@ -58,10 +58,12 @@ original_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH,
 	const int baseY = blockIdx.y * ROWS_BLOCKDIM_Y + threadIdx.y;	
 	// const int baseX = ((blockIdx.x / gridDimY)* ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
 	// const int baseY = (blockIdx.x % gridDimY) * ROWS_BLOCKDIM_Y + threadIdx.y;
-
-	d_Src += baseY * pitch + baseX;
-	d_Dst += baseY * pitch + baseX;
-
+	float *d_Src, *d_Dst;
+	//d_Src += baseY * pitch + baseX;
+	//d_Dst += baseY * pitch + baseX;
+	
+	d_Src = d_Src_p + baseY * pitch + baseX;
+	d_Dst = d_Dst_p + baseY * pitch + baseX;
 	//Load main data
 	#pragma unroll
 
@@ -115,7 +117,7 @@ profiling_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH
 					int *cont_subtask,
 					State *status)
 {
-	
+	 
 	__shared__ int s_bid, CTA_cont;
 	
 	unsigned int SM_id = get_smid_CONV();
@@ -229,21 +231,19 @@ profiling_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH
 }
 
 __global__ void
-SMT_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int pitch,
-					int gridDimY,
+SMT_rowsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int imageH, int pitch,
+					int gridDimX,
 					int SIMD_min, int SIMD_max,
 					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
 {
 	
+	__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
 	__shared__ int s_bid;
 	
 	unsigned int SM_id = get_smid_CONV();
 	
 	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
 			return;
-			
-	float *o_Src = d_Src;
-	float *o_Dst = d_Dst;
 	
 	while (1){
 		
@@ -260,6 +260,7 @@ SMT_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int 
 		
 		__syncthreads();
 		
+		
 		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
 		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{
 			//if (threadIdx.x == 0)  printf("El bloque %d se sale con %d\n", blockIdx.x, s_bid); 
@@ -267,19 +268,22 @@ SMT_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int 
 		}
 		
 		for(int iter = 0; iter < iter_per_subtask; iter++){
-			d_Src = o_Src;
-			d_Dst = o_Dst;
 			
-			__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
+			float *d_Src, *d_Dst;
 
 			//Offset to the left halo edge
-			// const int baseX = (blockIdx.x * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
-			// const int baseY = blockIdx.y * ROWS_BLOCKDIM_Y + threadIdx.y;	
-			const int baseX = (((s_bid + iter * blockDim.x) / gridDimY)* ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
-			const int baseY = ((s_bid + iter * blockDim.x) - ((s_bid / gridDimY) * gridDimY)) * ROWS_BLOCKDIM_Y + threadIdx.y;
+			
+			//const int baseX = (((s_bid + iter * blockDim.x) / gridDimY)* ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+			//const int baseY = ((s_bid + iter * blockDim.x) - ((s_bid / gridDimY) * gridDimY)) * ROWS_BLOCKDIM_Y + threadIdx.y;
+			
+			int row = (s_bid * iter_per_subtask + iter ) / gridDimX;
+			int col = (s_bid * iter_per_subtask + iter ) - col * gridDimX;  
+			
+			const int baseX = (col * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+			const int baseY = row * ROWS_BLOCKDIM_Y + threadIdx.y;	
 
-			d_Src += baseY * pitch + baseX;
-			d_Dst += baseY * pitch + baseX;
+			d_Src = d_Src_p + baseY * pitch + baseX;
+			d_Dst = d_Dst_p + baseY * pitch + baseX;
 
 			//Load main data
 			#pragma unroll
@@ -433,7 +437,7 @@ int launch_orig_RCONV(void *arg)
 	
 	t_CONV_params * params = (t_CONV_params *)kstub->params;
 	
-	dim3 blocks(kstub->kconf.gridsize.x / params->gridDimY[0], params->gridDimY[0]);
+	dim3 blocks(kstub->kconf.gridsize.x, kstub->kconf.gridsize.y);
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	original_rowsConvolutionCUDA<<<blocks, threads>>>(
@@ -454,7 +458,7 @@ int prof_RCONV(void *arg)
 
 	profiling_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
-			params->gridDimY[0],
+			kstub->kconf.gridsize.x,
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
 			kstub->d_SMs_cont,
@@ -477,7 +481,7 @@ int launch_preemp_RCONV(void *arg)
 		SMT_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
 			
-			params->gridDimY[0],
+			kstub->kconf.gridsize.y,
 			
 			kstub->idSMs[0],
 			kstub->idSMs[1],
@@ -489,7 +493,7 @@ int launch_preemp_RCONV(void *arg)
 		SMK_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
 			
-			params->gridDimY[0],
+			kstub->kconf.gridsize.y,
 			
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,
@@ -561,21 +565,18 @@ original_colsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH,
 }
 
 __global__ void
-SMT_colsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int pitch,
-					int gridDimY,
+SMT_colsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int imageH, int pitch,
+					int gridDimX,
 					int SIMD_min, int SIMD_max,
 					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
 {
-	
+	__shared__ float s_Data[COLUMNS_BLOCKDIM_X][(COLUMNS_RESULT_STEPS + 2 * COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + 1];
 	__shared__ int s_bid;
 	
 	unsigned int SM_id = get_smid_CONV();
 	
 	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
 			return;
-	
-	float *o_Src = d_Src;
-	float *o_Dst = d_Dst;
 	
 	while (1){
 		
@@ -599,18 +600,22 @@ SMT_colsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int 
 		}
 		
 		for(int iter = 0; iter < iter_per_subtask; iter++){
-			d_Src = o_Src;
-			d_Dst = o_Dst;
-		
-			__shared__ float s_Data[COLUMNS_BLOCKDIM_X][(COLUMNS_RESULT_STEPS + 2 * COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + 1];
+			float *d_Src, *d_Dst;
+			
+			int row = (s_bid * iter_per_subtask + iter ) / gridDimX;
+			int col = (s_bid * iter_per_subtask + iter ) - col * gridDimX;  
+			
+			const int baseX = col * COLUMNS_BLOCKDIM_X + threadIdx.x;
+			const int baseY = (row * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;	
 
 			//Offset to the upper halo edge
 			// const int baseX = blockIdx.x * COLUMNS_BLOCKDIM_X + threadIdx.x;
 			// const int baseY = (blockIdx.y * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
-			const int baseX = ((s_bid + iter * blockDim.x) / gridDimY) * COLUMNS_BLOCKDIM_X + threadIdx.x;
-			const int baseY = (((s_bid + iter * blockDim.x) - ((s_bid / gridDimY) * gridDimY)) * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
-			d_Src += baseY * pitch + baseX;
-			d_Dst += baseY * pitch + baseX;
+			//const int baseX = ((s_bid + iter * blockDim.x) / gridDimY) * COLUMNS_BLOCKDIM_X + threadIdx.x;
+			//const int baseY = (((s_bid + iter * blockDim.x) - ((s_bid / gridDimY) * gridDimY)) * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
+			
+			d_Src = d_Src_p + baseY * pitch + baseX;
+			d_Dst = d_Dst_p + baseY * pitch + baseX;
 
 			//Main data
 			#pragma unroll
@@ -761,7 +766,7 @@ int launch_orig_CCONV(void *arg)
 	
 	t_CONV_params * params = (t_CONV_params *)kstub->params;
 	
-	dim3 blocks(kstub->kconf.gridsize.x / params->gridDimY[1], params->gridDimY[1]);
+	dim3 blocks(kstub->kconf.gridsize.x, kstub->kconf.gridsize.y);
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	original_colsConvolutionCUDA<<<blocks, threads>>>(
@@ -783,7 +788,7 @@ int launch_preemp_CCONV(void *arg)
 		SMT_colsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Output, params->d_Buffer, imageW, imageH, imageW,
 			
-			params->gridDimY[1],
+			kstub->kconf.gridsize.x,
 			
 			kstub->idSMs[0],
 			kstub->idSMs[1],
@@ -795,7 +800,7 @@ int launch_preemp_CCONV(void *arg)
 		SMK_colsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Output, params->d_Buffer, imageW, imageH, imageW,
 			
-			params->gridDimY[1],
+			kstub->kconf.gridsize.x,
 			
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,

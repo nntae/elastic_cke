@@ -16,7 +16,7 @@ __device__ uint get_smid_reduction(void) {
 	uint ret;
 
 	asm("mov.u32 %0, %smid;" : "=r"(ret) );
-
+ 
 	return ret;
 }
 

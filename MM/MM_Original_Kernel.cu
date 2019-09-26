@@ -11,7 +11,7 @@
  */
 
 
-// System includes
+// System includes 
 #include <stdio.h>
 #include <assert.h>
 
@@ -28,7 +28,7 @@ extern t_tqueue *tqueues;
 
  __device__ uint get_smid_MM(void) {
 
-     uint ret;
+     uint ret; 
 
      asm("mov.u32 %0, %smid;" : "=r"(ret) );
 
