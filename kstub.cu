@@ -993,7 +993,6 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						HST256_params->histogram256_threadblock_size = HST256_params->warp_count * WARP_SIZE;
 						HST256_params->histogram256_threadblock_memory = HST256_params->warp_count * HISTOGRAM256_BIN_COUNT;
 						
-						//Divisible entre 256 y 224
 						#ifdef DATA_SET_1
 						HST256_params->byteCount256 = 64 * 1089536 * 8;
 						#else
@@ -1006,7 +1005,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.coarsening = 8;
 						//k_stub->kconf.gridsize.x  = HST256_params->byteCount256 / (sizeof(uint) * k_stub->kconf.coarsening * k_stub->kconf.blocksize.x);
 						k_stub->kconf.gridsize.x  = k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x;
+						//k_stub->total_tasks = k_stub->kconf.gridsize.x;
+						k_stub->total_tasks = HST256_params->byteCount256 / (sizeof(uint) * k_stub->kconf.blocksize.x * k_stub->kconf.coarsening);
 						// k_stub->total_tasks = (k_stub->kconf.gridsize.x * ((HST256_params->byteCount256 / sizeof(uint)) / (k_stub->kconf.blocksize.x * k_stub->kconf.gridsize.x))) / k_stub->kconf.coarsening;
 						//k_stub->total_tasks = (64 * 1048576)/k_stub->kconf.blocksize.x + (((64 * 1048576)%k_stub->kconf.blocksize.x==0)?0:1);
 					}

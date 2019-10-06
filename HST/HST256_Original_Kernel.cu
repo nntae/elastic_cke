@@ -623,9 +623,9 @@ int HST256_end_kernel(void *arg)
 		
 	cudaDeviceSynchronize();
 		
-	// for(int iteracion = 0; iteracion < PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT; iteracion++)
-		// printf("%u ", params->h_PartialHistograms256[iteracion]);
-	// printf("\n");
+	for(int iteracion = 0; iteracion < PARTIAL_HISTOGRAM256_COUNT * HISTOGRAM256_BIN_COUNT; iteracion++)
+		printf("%u ", params->h_PartialHistograms256[iteracion]);
+	printf("\n");
 
 	return 0;
 }
@@ -694,7 +694,7 @@ int launch_preemp_HST256(void *arg)
 	t_HST256_params * params = (t_HST256_params *)kstub->params;
 	
 	//Numero de totales a ejecutar
-	int tasks = params->byteCount256 / (sizeof(uint) * kstub->kconf.blocksize.x * kstub->kconf.coarsening);
+	//int tasks = params->byteCount256 / (sizeof(uint) * kstub->kconf.blocksize.x * kstub->kconf.coarsening);
 	
 	#ifdef SMT
 		SMT_histogram256CUDA<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->histogram256_threadblock_memory * sizeof(uint), *(kstub->execution_s)>>>(
@@ -708,11 +708,11 @@ int launch_preemp_HST256(void *arg)
 			
 			kstub->idSMs[0],
 			kstub->idSMs[1],
-			tasks,
+			kstub->total_tasks,
 			kstub->kconf.coarsening,
 			kstub->d_executed_tasks,
 			&(kstub->gm_state[kstub->stream_index]),
-			kstub->total_tasks
+			kstub->kconf.gridsize.x
 		);
 		
 		// SMT_histogram256CUDA_kk<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->histogram256_threadblock_memory * sizeof(uint), *(kstub->execution_s)>>>(
