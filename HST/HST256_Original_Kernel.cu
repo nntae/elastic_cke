@@ -360,7 +360,8 @@ SMT_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 				sum += s_Hist[bin + i * HISTOGRAM256_BIN_COUNT] & TAG_MASK;
 			}
 
-			d_PartialHistograms256[(s_bid % tasks) * HISTOGRAM256_BIN_COUNT + bin] += sum;
+			//d_PartialHistograms256[(s_bid % tasks) * HISTOGRAM256_BIN_COUNT + bin] += sum;
+			atomicAdd(&d_PartialHistograms256[(s_bid % tasks) * HISTOGRAM256_BIN_COUNT + bin], sum);
 		}
 	}
 }
