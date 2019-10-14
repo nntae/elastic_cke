@@ -353,6 +353,11 @@ SMT_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 
 		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += histogram256_threadblock_size)
 		{
+			if(s_bid < tasks){
+				//d_PartialHistograms256[(s_bid % tasks) * HISTOGRAM256_BIN_COUNT + bin] = 0;
+				d_PartialHistograms256[blockIdx.x * HISTOGRAM256_BIN_COUNT + bin] = 0;
+			}
+			
 			sum = 0;
 			
 			for (uint i = 0; i < warp_count; i++)
@@ -361,7 +366,7 @@ SMT_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 			}
 
 			//d_PartialHistograms256[(s_bid % tasks) * HISTOGRAM256_BIN_COUNT + bin] += sum;
-			atomicAdd(&d_PartialHistograms256[(s_bid % tasks) * HISTOGRAM256_BIN_COUNT + bin], sum);
+			d_PartialHistograms256[blockIdx.x * HISTOGRAM256_BIN_COUNT + bin] += sum;
 		}
 	}
 }
@@ -434,14 +439,20 @@ SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 
 		for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += histogram256_threadblock_size)
 		{
-			uint sum = 0;
-
+			if(s_bid < tasks){
+				//d_PartialHistograms256[(s_bid % tasks) * HISTOGRAM256_BIN_COUNT + bin] = 0;
+				d_PartialHistograms256[blockIdx.x * HISTOGRAM256_BIN_COUNT + bin] = 0;
+			}
+			
+			sum = 0;
+			
 			for (uint i = 0; i < warp_count; i++)
 			{
 				sum += s_Hist[bin + i * HISTOGRAM256_BIN_COUNT] & TAG_MASK;
 			}
 
-			d_PartialHistograms256[s_bid * HISTOGRAM256_BIN_COUNT + bin] = sum;
+			//d_PartialHistograms256[(s_bid % tasks) * HISTOGRAM256_BIN_COUNT + bin] += sum;
+			d_PartialHistograms256[blockIdx.x * HISTOGRAM256_BIN_COUNT + bin] += sum;
 		}
 	}
 }
