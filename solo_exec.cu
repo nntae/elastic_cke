@@ -145,19 +145,21 @@ int transformation_overhead(t_kernel_stub *kstub, int iterations)
 	// Execute original implementation (no transformation)
 	double acc_t = 0;
 	for (int i=0; i<iterations; i++) {
-		
+			cudaProfilerStart();
 		clock_gettime(CLOCK_REALTIME, &now);
 		time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-		
+
 		(kstub->launchORIkernel)((void *)kstub);
 		cudaDeviceSynchronize();
-
+		cudaProfilerStop();
 		clock_gettime(CLOCK_REALTIME, &now);
 		time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
 		acc_t += (time2-time1);
 		
 	}
 	double ori_time = acc_t /(double)iterations;
+	
+	printf("Tiempo original %f\n", ori_time);
 	
 	idSMs[0]=0;idSMs[1]=kstub->kconf.numSMs-1;
 	kstub->idSMs = idSMs;	
@@ -169,13 +171,13 @@ int transformation_overhead(t_kernel_stub *kstub, int iterations)
 		
 		clock_gettime(CLOCK_REALTIME, &now);
 		time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-	
+				cudaProfilerStart();
 		(kstub->launchCKEkernel)((void *)kstub);
 		cudaDeviceSynchronize();
 
 		clock_gettime(CLOCK_REALTIME, &now);
 		time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-	
+	cudaProfilerStop();
 		acc_t += (time2-time1);
 		int exec_tasks=0;
 		cudaMemcpyAsync(kstub->d_executed_tasks, &exec_tasks, sizeof(int), cudaMemcpyHostToDevice, *kstub->preemp_s); // Reset task counter
@@ -654,7 +656,7 @@ int main(int argc, char **argv)
 	if (kid < 0){
 		printf("Error: Wrong kernel name\n");
 		return -1;
-	}
+	} 
 	
 	/** Create stub ***/
 	t_kernel_stub *kstub1;
@@ -671,63 +673,13 @@ int main(int argc, char **argv)
 	cudaDeviceSynchronize();
 	
 	transformation_overhead(kstub1, atoi(argv[4]));
-	
-	double over;
+	 
+	/*double over;
 	preemp_overhead(kstub1, atoi(argv[4]), &over);
 	
-	//double tpms; 
-	//execution_with_BpSM(kstub1, atoi(argv[3]), atoi(argv[4]), &tpms);
-	
+	double tpms; 
+	execution_with_BpSM(kstub1, atoi(argv[3]), atoi(argv[4]), &tpms);
+	*/
 	return 0;
 
-	// Solo execution
-	
-	int BpSM = atoi(argv[3]);
-	int iterations = atoi(argv[4]);
-	struct timespec now;
-	int idSMs[2];
-	double time1, time2;
-		
-	idSMs[0]=0;idSMs[1]=kstub1->kconf.numSMs-1;
-	kstub1->idSMs = idSMs;	
-	
-	kstub1->kconf.max_persistent_blocks = BpSM; // Limit the max number of blocks per SM
-	
-	for (int i=0; i<iterations; i++) {
-	
-		cudaProfilerStart();
-	
-		clock_gettime(CLOCK_REALTIME, &now);
-		time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-	
-		(kstub1->launchCKEkernel)((void *)kstub1);
-		cudaDeviceSynchronize();
-
-		clock_gettime(CLOCK_REALTIME, &now);
-		time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-		
-		cudaProfilerStop();
-	
-		int exec_tasks=0;
-		cudaMemcpyAsync(kstub1->d_executed_tasks, &exec_tasks, sizeof(int), cudaMemcpyHostToDevice, *kstub1->preemp_s); // Reset task counter
-		
-		cudaDeviceSynchronize();
-	}
-			
-	printf("BSP=%d Time=%f Tpms=%f\n", BpSM, time2-time1, (double)kstub1->total_tasks/(1000.0*(time2-time1)));
-	
-	cudaProfilerStart();
-	clock_gettime(CLOCK_REALTIME, &now);
-	time1 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-	
-	(kstub1->launchORIkernel)((void *)kstub1);
-	cudaDeviceSynchronize();
-	
-	clock_gettime(CLOCK_REALTIME, &now);
-	time2 = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-	cudaProfilerStop();
-	printf("Original Time=%f\n", time2-time1);
-
-	
-	return 0;
 }

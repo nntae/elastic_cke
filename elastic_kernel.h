@@ -321,6 +321,7 @@ int get_best_partner_theoretical(t_Kernel curr_kid, t_Kernel *kid, int *k_done, 
 int get_last_kernel (t_Kernel kid, int *num_blocks);
 int all_nocke_execution(t_kernel_stub **kstubs, int num_kernels);
 int kid_from_index(int index, char *skid);
+t_Kernel kid_from_name(char *name);
 double get_solo_perf(t_Kernel id);
 int get_max_blocks(t_Kernel kid);
 
@@ -339,8 +340,10 @@ int evict_streams(t_kstreams *kstr, int num_streams);
 int add_streams_to_kernel(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr, int num_streams);
 int launch_coexec(t_kcoexec *coexec);
 int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int *kernelid, double *speedup);
+int ls_coexec_wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, double min_tpms, int *kernelid, int *return_code);
 int add_streams_to_kernel(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr, int num_streams);
 int greedy_coexecution(int deviceId);
+int rt_scheduler(int deviceId);
 
 int smk_solo_prof(t_kernel_stub *kstub);
 
@@ -355,7 +358,8 @@ int prof_RCONV(void *arg);
 int prof_GCEDD(void *arg);
 int prof_HST256(void *arg);
 
-int fast_profiling(int deviceId, t_Kernel kid);
+int fast_solo_profiling(int deviceId, t_Kernel kid);
+int fast_cke_profiling(int deviceId, t_Kernel *kid);
 
 
 #ifdef ZEROCOPY

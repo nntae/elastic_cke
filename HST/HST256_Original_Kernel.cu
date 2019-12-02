@@ -31,7 +31,7 @@ using namespace std;
 extern t_tqueue *tqueues;
 
  __device__ uint get_smid_HST256(void) {
-	uint ret;
+	uint ret; 
 
 	asm("mov.u32 %0, %smid;" : "=r"(ret) );
 

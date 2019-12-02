@@ -136,6 +136,71 @@ int kid_from_index(int index, char *skid)
 	return 0;
 }
 
+t_Kernel kid_from_name(char *name)
+{
+	int kid = -1;
+	
+	if (strcmp(name, "MM") == 0){
+		kid = MM;
+	}
+	
+	if (strcmp(name, "BS") == 0){
+		kid = BS;
+	}
+		
+	if (strcmp(name, "VA") == 0){
+		kid = VA;
+	}
+	
+	if (strcmp(name, "PF") == 0){
+		kid = PF;
+	}
+	
+	if (strcmp(name, "SPMV_CSRscalar") == 0){
+		kid = SPMV_CSRscalar;
+	}
+	
+	if (strcmp(name, "RCONV") == 0){
+		kid = RCONV;
+	}
+	
+	if (strcmp(name, "CCONV") == 0){
+		kid = CCONV;
+	}
+	
+	if (strcmp(name, "HST256") == 0){
+		kid = HST256;
+	}
+	
+	if (strcmp(name, "GCEDD") == 0){
+		kid = GCEDD;
+	}
+	
+	if (strcmp(name, "SCEDD") == 0){
+		kid = SCEDD;
+	}
+	
+	if (strcmp(name, "NCEDD") == 0){
+		kid = NCEDD;
+	}
+	
+	if (strcmp(name, "HCEDD") == 0){
+		kid = HCEDD;
+	}
+	
+	if (strcmp(name, "Reduction") == 0){
+		kid = Reduction;
+	}
+	
+	if (kid == -1){
+		printf("Unknown kernel\n");
+		return EMPTY;
+	}
+	else
+		return (t_Kernel)kid;
+}
+	
+
 /*int initialize_performance()
 {
 	
