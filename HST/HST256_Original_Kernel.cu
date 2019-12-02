@@ -380,7 +380,8 @@ SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 					int iter_per_subtask,
 					int *cont_SM,
 					int *cont_subtask,
-					State *status
+					State *status,
+					int tasks
 )
 {
 	__shared__ int s_bid, s_index;
@@ -394,6 +395,8 @@ SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 
 	if (s_index > max_blocks_per_SM)
 		return;
+	
+	uint sum;
 	
 	while (1){
 		
@@ -758,7 +761,8 @@ int launch_preemp_HST256(void *arg)
 			kstub->kconf.coarsening,
 			kstub->d_SMs_cont,
 			kstub->d_executed_tasks,
-			&(kstub->gm_state[kstub->stream_index])
+			&(kstub->gm_state[kstub->stream_index]),
+			kstub->kconf.gridsize.x
 		);
 	#endif
 	
