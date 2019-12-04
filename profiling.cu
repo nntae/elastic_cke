@@ -129,6 +129,46 @@ int solo_original(t_kernel_stub *kstub, double *exectime_s)
 	return 0;
 }
 
+int *solo_smt(t_kernel_stub *kstub, double *exectime_s)
+{
+	cudaEvent_t start, stop;
+	float elapsedTime = 1;
+	int idSMs[2];
+
+	kstub->idSMs = idSMs;
+	t_Kernel kid = kstub->id; 
+	
+//	kstub->kconf.max_persistent_blocks = smk_info_solo[kstub->id].num_configs; //Max number of blocks per SM
+	idSMs[0]=0;
+	idSMs[1]=smt_info_solo[kid].num_configs-1;
+	
+	cudaEventCreate(&start);
+	cudaEventRecord(start, *(kstub->execution_s));
+	
+	(kstub->launchCKEkernel)(kstub);
+	
+	cudaEventCreate(&stop);
+	cudaEventRecord(stop, *(kstub->execution_s));
+	cudaEventSynchronize(stop);
+
+	cudaEventElapsedTime(&elapsedTime, start, stop);
+	*exectime_s = (double)elapsedTime/1000;
+
+	if ( kstub->memaddr_profile )
+	{
+		int* memaddr = 0;
+		memaddr = (int *) calloc(kstub->num_addr_counters, sizeof(int));
+		cudaMemcpy(memaddr, kstub->d_numUniqueAddr, kstub->num_addr_counters * sizeof(int), cudaMemcpyDeviceToHost);
+		return memaddr;
+	}
+	else{
+		int* exec_tasks=0;
+		exec_tasks = (int *) calloc(1, sizeof(int));
+		cudaMemcpy(exec_tasks, kstub->d_executed_tasks, sizeof(int), cudaMemcpyDeviceToHost);
+		return exec_tasks;
+	}
+}
+
 int smt_solo_prof(t_kernel_stub *kstub)
 {
 	struct timespec now;
@@ -378,6 +418,112 @@ int smk_coexec_prof(t_kernel_stub **kstub)
 
 	}
 	
+	return 0;
+}
+
+int memaddr_profiling(t_Kernel *kid, int num_kernels, int deviceId)
+{
+	
+	cudaError_t err;
+
+	// Select device
+	cudaSetDevice(deviceId);
+	cudaDeviceProp deviceProp;
+    cudaGetDeviceProperties(&deviceProp, deviceId);	
+	printf("Device=%s with %d SMs\n", deviceProp.name, deviceProp.multiProcessorCount);
+	int numSMs = 28;
+
+	// Load SMK initial tables
+	smk_fill_coBlocks();
+	smk_fill_solo();
+	
+	// Create SMT tables
+	for (int i = 0; i < Number_of_Kernels-1; i++) {
+		smt_info_solo[i].num_configs = numSMs;
+		smt_info_solo[i].tpms = (double *)calloc(smt_info_solo[i].num_configs, sizeof(double));
+	}
+
+	// Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands
+	cudaStream_t *transfers_s;
+	transfers_s = (cudaStream_t *)calloc(2, sizeof(cudaStream_t));
+	for (int i=0;i<2;i++){
+		err = cudaStreamCreate(&transfers_s[i]);
+		checkCudaErrors(err);
+	} 
+	
+	cudaStream_t preemp_s;
+	checkCudaErrors(cudaStreamCreateWithFlags(&preemp_s, cudaStreamNonBlocking)); 
+	
+	// Create stubs
+	t_kernel_stub **kstubs = (t_kernel_stub **)calloc(num_kernels, sizeof(t_kernel_stub*));
+	for (int i=0; i<num_kernels; i++)
+		create_stubinfo(&kstubs[i], deviceId, kid[i], transfers_s, &preemp_s);
+	
+	// make HtD transfers of all kernels
+	make_transfers(kstubs, num_kernels);
+	
+	// Solo original profiling
+
+	double *exectime_solo = (double *)calloc(num_kernels, sizeof(double));
+	for (int i=0; i<num_kernels; i++)
+		solo_original(kstubs[i], &exectime_solo[i]);
+	(kstubs[0]->endKernel)((void *)(kstubs[0]));
+	uint *solo_results = 0;
+	
+	// Solo SMT profiling
+//	printf("Starting SMT with %d blocks of %d threads to execute %d tasks\n", kstubs[0]->kconf.numSMs * kstubs[0]->kconf.max_persistent_blocks, kstubs[0]->kconf.blocksize.x*kstubs[0]->kconf.blocksize.y, kstubs[0]->total_tasks);
+	bool profile = true;
+	int exec_tasks=0;
+if ( profile ) {
+	for (int i=0; i<num_kernels; i++)
+	{
+		cudaMemcpyAsync(kstubs[i]->d_executed_tasks, &exec_tasks, sizeof(int), cudaMemcpyHostToDevice, *kstubs[i]->preemp_s); // Reset task counter
+		t_kernel_stub *kstub = kstubs[i];
+		kstub->memaddr_profile = false;
+	}
+	cudaDeviceSynchronize();
+}
+
+	double *exectime_smt = (double *)calloc(num_kernels, sizeof(double));
+	int *executed_tasks = (int *)calloc(num_kernels, sizeof(int));
+if ( profile ) {
+	for (int i=0; i<num_kernels; i++)
+	{
+		int *ntasks = solo_smt(kstubs[i], &exectime_smt[i]);
+		executed_tasks[i] = ntasks[0];
+	}
+	(kstubs[0]->endKernel)((void *)(kstubs[0]));
+}
+
+	// Reset executed tasks for preemption versions
+	exec_tasks=0;
+if ( profile ) {
+
+	for (int i=0; i<num_kernels; i++)
+	{
+		cudaMemcpyAsync(kstubs[i]->d_executed_tasks, &exec_tasks, sizeof(int), cudaMemcpyHostToDevice, *kstubs[i]->preemp_s); // Reset task counter
+		t_kernel_stub *kstub = kstubs[i];
+		kstub->memaddr_profile = true;
+	}
+	cudaDeviceSynchronize();
+}
+	// Solo MemAddr profiling
+
+	double *exectime_mem = (double *)calloc(num_kernels, sizeof(double));
+	int *num_memaddr = (int *)calloc(num_kernels * kstubs[0]->num_addr_counters, sizeof(int));
+if ( profile ) {
+	for (int i=0; i<num_kernels; i++)
+	{
+		int *ncounters = solo_smt(kstubs[i], &exectime_mem[i]);
+		for ( int j = 0; j < kstubs[0]->num_addr_counters; j++ )
+			num_memaddr[kstubs[0]->num_addr_counters * i + j] = ncounters[j];
+	}
+}
+
+	// Print results
+	for (int i=0; i<num_kernels; i++)
+		printf("Kernel %d, blocks per SM %d: solo %e - SMT %e - Tasks %d - MemAddr %e - NumGlMemAddr %d - NumShMemAddr %d\n",kid[i], kstubs[i]->kconf.max_persistent_blocks, exectime_solo[i], exectime_smt[i], executed_tasks[i], exectime_mem[i], num_memaddr[2*i], num_memaddr[2*i + 1] );
+		
 	return 0;
 }
 

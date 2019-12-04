@@ -1031,6 +1031,10 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 	
 	checkCudaErrors(cudaHostAlloc((void **)&(k_stub->h_executed_tasks), sizeof(int), cudaHostAllocDefault)); // In Pinned memory
 	checkCudaErrors(cudaHostAlloc((void **)&(k_stub->h_SMs_cont), sizeof(int)*k_stub->kconf.numSMs, cudaHostAllocDefault)); // In Pinned memory
+
+	// Allocate and initialize memory address calculation support in CPU memory
+	k_stub->num_addr_counters = 2;
+	checkCudaErrors(cudaHostAlloc((void **)&(k_stub->h_numUniqueAddr), k_stub->num_addr_counters * sizeof(int), cudaHostAllocDefault)); // In Pinned memory
 	
 	// Proxy support for zero-copy
 	#ifdef ZEROCOPY
@@ -1060,6 +1064,11 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 	
 	checkCudaErrors(cudaMalloc((void **)&k_stub->d_SMs_cont, sizeof(int)*k_stub->kconf.numSMs)); // create an array (one position per SM) for SMK specific support
 	cudaMemset(k_stub->d_SMs_cont, 0, sizeof(int)*k_stub->kconf.numSMs);
+
+	// Allocate and initialize memory address calculation support in device memory
+	k_stub->memaddr_profile = false;
+	checkCudaErrors(cudaMalloc((void **)&k_stub->d_numUniqueAddr, k_stub->num_addr_counters * sizeof(int))); // Num unique addresses counter
+	cudaMemset(k_stub->d_numUniqueAddr, 0, k_stub->num_addr_counters * sizeof(int));
 	
 	*stub = k_stub;
 	
@@ -1403,6 +1412,10 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 	
 	checkCudaErrors(cudaHostAlloc((void **)&(k_stub->h_executed_tasks), sizeof(int), cudaHostAllocDefault)); // In Pinned memory
 	checkCudaErrors(cudaHostAlloc((void **)&(k_stub->h_SMs_cont), sizeof(int)*k_stub->kconf.numSMs, cudaHostAllocDefault)); // In Pinned memory
+
+	// Allocate and initialize memory address calculation support in CPU memory
+	k_stub->num_addr_counters = 2;
+	checkCudaErrors(cudaHostAlloc((void **)&(k_stub->h_numUniqueAddr), k_stub->num_addr_counters * sizeof(int), cudaHostAllocDefault)); // In Pinned memory
 	
 	// Proxy support for zero-copy
 	#ifdef ZEROCOPY
@@ -1432,6 +1445,11 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 	
 	checkCudaErrors(cudaMalloc((void **)&k_stub->d_SMs_cont, sizeof(int)*k_stub->kconf.numSMs)); // create an array (one position per SM) for SMK specific support
 	cudaMemset(k_stub->d_SMs_cont, 0, sizeof(int)*k_stub->kconf.numSMs);
+
+	// Allocate and initialize memory address calculation support in device memory
+	k_stub->memaddr_profile = false;
+	checkCudaErrors(cudaMalloc((void **)&k_stub->d_numUniqueAddr,  k_stub->num_addr_counters * sizeof(int))); // Num unique addresses counter
+	cudaMemset(k_stub->d_numUniqueAddr, 0, k_stub->num_addr_counters * sizeof(int));
 	
 	*stub = k_stub;
 	

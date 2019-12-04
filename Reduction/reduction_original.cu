@@ -12,6 +12,8 @@
 #include "../elastic_kernel.h"
 #include "reduction.h"
 
+#include "../memaddrcnt.cuh"
+
 __device__ uint get_smid_reduction(void) {
 	uint ret;
 
@@ -459,6 +461,253 @@ preemp_SMT_reduce_kernel(float *g_idata, float *g_odata, unsigned int n,
 
 // Reduction Kernel
 __global__ void
+memaddr_preemp_SMT_reduce_kernel(float *g_idata, float *g_odata, unsigned int n,
+		int *numUniqueAddr, 
+		int SIMD_min,
+		int SIMD_max,
+		unsigned long int num_subtask,
+		int iter_per_subtask,
+		int *cont_subtask,
+		State *status)
+{
+	__shared__ int s_bid;
+
+	unsigned int SM_id = get_smid_reduction();
+	
+	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
+			return;
+			
+	//extern __shared__ float sdata[];
+	//float mySum = 0;
+		
+	while (1){
+		
+		/********** Task Id calculation *************/
+		if (threadIdx.x == 0) {
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else
+				s_bid = atomicAdd(cont_subtask, 1);
+		}
+		
+		__syncthreads();
+		
+		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
+			return;
+		}
+		
+		extern __shared__ float sdata[];
+
+		// perform first level of reduction,
+		// reading from global memory, writing to shared memory
+		unsigned int tid = threadIdx.x;
+		//unsigned int i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+		unsigned int i = s_bid * (blockDim.x * 2) + threadIdx.x;
+		unsigned int gridSize = blockDim.x * 2 * num_subtask;
+
+		//float mySum = (i < n) ? g_idata[i] : 0;
+		float mySum = 0;
+
+		// if (i + blockDim.x < n)
+			// mySum += g_idata[i+blockDim.x];
+		
+		int cont = 0;
+		
+		while(i < n && cont < iter_per_subtask){
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_unique_lines((intptr_t) &g_idata[i], numUniqueAddr);
+			}
+			mySum += g_idata[i];
+			
+			if(i + blockDim.x < n)
+			{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &g_idata[i+blockDim.x], numUniqueAddr);
+				}
+				mySum += g_idata[i+blockDim.x];
+			}
+
+			i += gridSize;
+			cont++;
+		}
+
+		sdata[tid] = mySum;
+		__syncthreads();
+
+		// do reduction in shared mem
+		if ((blockDim.x >= 512) && (tid < 256))
+		{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_conflicting_banks( (intptr_t) &sdata[tid], &numUniqueAddr[1] );					
+				get_conflicting_banks( (intptr_t) &sdata[tid+256], &numUniqueAddr[1] );					
+			}	
+
+			sdata[tid] = mySum = mySum + sdata[tid + 256];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >= 256) &&(tid < 128))
+		{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_conflicting_banks( (intptr_t) &sdata[tid], &numUniqueAddr[1] );					
+				get_conflicting_banks( (intptr_t) &sdata[tid+128], &numUniqueAddr[1] );					
+			}	
+			sdata[tid] = mySum = mySum + sdata[tid + 128];
+		}
+
+		 __syncthreads();
+
+		if ((blockDim.x >= 128) && (tid <  64))
+		{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_conflicting_banks( (intptr_t) &sdata[tid], &numUniqueAddr[1] );					
+				get_conflicting_banks( (intptr_t) &sdata[tid+64], &numUniqueAddr[1] );					
+			}	
+		   sdata[tid] = mySum = mySum + sdata[tid +  64];
+		}
+
+		__syncthreads();
+
+	#if (__CUDA_ARCH__ >= 300 )
+		if ( tid < 32 )
+		{
+			// Fetch final intermediate sum from 2nd warp
+			if (blockDim.x >=  64)
+			{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_conflicting_banks( (intptr_t) &sdata[tid+32], &numUniqueAddr[1] );					
+				}			
+				mySum += sdata[tid + 32];
+			}
+			// Reduce final warp using shuffle
+			for (int offset = warpSize/2; offset > 0; offset /= 2) 
+			{
+				mySum += __shfl_down(mySum, offset);
+			}
+		}
+	#else
+		// fully unroll reduction within a single warp
+		if ((blockDim.x >=  64) && (tid < 32))
+		{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_conflicting_banks( (intptr_t) &sdata[tid], &numUniqueAddr[1] );					
+				get_conflicting_banks( (intptr_t) &sdata[tid+32], &numUniqueAddr[1] );					
+			}	
+			sdata[tid] = mySum = mySum + sdata[tid + 32];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=  32) && (tid < 16))
+		{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_conflicting_banks( (intptr_t) &sdata[tid], &numUniqueAddr[1] );					
+				get_conflicting_banks( (intptr_t) &sdata[tid+16], &numUniqueAddr[1] );					
+			}	
+			sdata[tid] = mySum = mySum + sdata[tid + 16];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=  16) && (tid <  8))
+		{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_conflicting_banks( (intptr_t) &sdata[tid], &numUniqueAddr[1] );					
+				get_conflicting_banks( (intptr_t) &sdata[tid+8], &numUniqueAddr[1] );					
+			}	
+			sdata[tid] = mySum = mySum + sdata[tid +  8];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=   8) && (tid <  4))
+		{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_conflicting_banks( (intptr_t) &sdata[tid], &numUniqueAddr[1] );					
+				get_conflicting_banks( (intptr_t) &sdata[tid+4], &numUniqueAddr[1] );					
+			}	
+			sdata[tid] = mySum = mySum + sdata[tid +  4];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=   4) && (tid <  2))
+		{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_conflicting_banks( (intptr_t) &sdata[tid], &numUniqueAddr[1] );					
+				get_conflicting_banks( (intptr_t) &sdata[tid+2], &numUniqueAddr[1] );					
+			}	
+			sdata[tid] = mySum = mySum + sdata[tid +  2];
+		}
+
+		__syncthreads();
+
+		if ((blockDim.x >=   2) && ( tid <  1))
+		{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_conflicting_banks( (intptr_t) &sdata[tid], &numUniqueAddr[1] );					
+				get_conflicting_banks( (intptr_t) &sdata[tid+1], &numUniqueAddr[1] );					
+			}	
+			sdata[tid] = mySum = mySum + sdata[tid +  1];
+		}
+
+		__syncthreads();
+	#endif
+
+		// write result for this block to global mem
+		if (tid == 0)
+		{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+			{
+				get_unique_lines((intptr_t) &g_odata[s_bid % 448], numUniqueAddr);
+			}
+			// ¿por que hace %448?
+			g_odata[s_bid % 448] += mySum;
+		}
+	}
+}
+
+// Reduction Kernel
+__global__ void
 preemp_SMK_reduce_kernel(float *g_idata, float *g_odata, unsigned int n,
 		int max_blocks_per_SM, 
 		unsigned long int num_subtask,
@@ -749,16 +998,26 @@ int launch_preemp_reduce(void *arg)
 	t_reduction_params * params = (t_reduction_params *)kstub->params;
 
 	#ifdef SMT
-
-	preemp_SMT_reduce_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->smem_size, *(kstub->execution_s)>>>
-		(params->d_idata, params->d_odata, params->size,
-		kstub->idSMs[0],
-		kstub->idSMs[1],
-		kstub->total_tasks,
-		kstub->kconf.coarsening,
-		kstub->d_executed_tasks,
-		&(kstub->gm_state[kstub->stream_index])
-	);
+	if ( !(kstub->memaddr_profile) )
+		preemp_SMT_reduce_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->smem_size, *(kstub->execution_s)>>>
+			(params->d_idata, params->d_odata, params->size,
+			kstub->idSMs[0],
+			kstub->idSMs[1],
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_executed_tasks,
+			&(kstub->gm_state[kstub->stream_index])	);
+	else
+		memaddr_preemp_SMT_reduce_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, params->smem_size, *(kstub->execution_s)>>>
+			(params->d_idata, params->d_odata, params->size,
+			kstub->d_numUniqueAddr,	
+			kstub->idSMs[0],
+			kstub->idSMs[1],
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_executed_tasks,
+			&(kstub->gm_state[kstub->stream_index])	);
+				
 
 	#else
 

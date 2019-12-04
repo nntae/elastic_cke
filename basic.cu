@@ -1062,12 +1062,33 @@ int main(int argc, char **argv)
 	
 	int num_kernels = 13;
 	t_Kernel kid[13];
+	int deviceID = 3;
+	if ( argc > 1 )
+		deviceID = atoi(argv[1]);
+
+	kid[0]=MM;
+	kid[1]=BS;
+	kid[2]=VA;
+	kid[3]=SPMV_CSRscalar;
+	kid[4]=Reduction;
+	kid[5]=PF;
+	kid[6]=RCONV;
+	kid[7]=CCONV;
+	kid[8]=GCEDD;
+	kid[9]=SCEDD;
+	kid[10]=NCEDD;
+	kid[11]=HCEDD;
+	kid[12]=HST256;
+	if ( argc > 2 )
+		num_kernels = atoi(argv[2]);
+
+	memaddr_profiling(kid, num_kernels, deviceID);
 
 	/*kid[0]=VA;
 	kid[1]=MM;
 	kid[2]=RCONV;
 	kid[3]=CCONV;*/
-	
+/*	
 	kid[0]=VA;
 	kid[1]=MM;
 	kid[2]=BS;
@@ -1082,11 +1103,11 @@ int main(int argc, char **argv)
 	kid[11]=HCEDD;
 	kid[12]=CCONV;
 	
-	all_profiling(kid, num_kernels, 13);
-	
+	all_profiling(kid, num_kernels, 3);
+*/	
 	//greedy_coexecution(2);
 
-	fast_profiling(2, HST256);
+//	fast_profiling(2, HST256);
 
 	return 0;
 }

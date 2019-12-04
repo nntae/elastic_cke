@@ -93,6 +93,12 @@ typedef struct {
 	
 	cudaStream_t *proxy_s;
 	#endif
+
+	// Memory addresses calculation support
+	bool memaddr_profile;
+	int num_addr_counters; // One for global and another for shared memory
+	int *h_numUniqueAddr;
+	int *d_numUniqueAddr;
 	
 	// SMT & SMK support for application kernels
 	int *idSMs; // SMs to be used by the permanent blocks
@@ -356,7 +362,7 @@ int prof_GCEDD(void *arg);
 int prof_HST256(void *arg);
 
 int fast_profiling(int deviceId, t_Kernel kid);
-
+int memaddr_profiling(t_Kernel *kid, int num_kernels, int deviceId);
 
 #ifdef ZEROCOPY
 int launch_proxy(void *arg);
