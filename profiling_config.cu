@@ -82,6 +82,7 @@ int smk_fill_coBlocks()
 	
 	//MM-Reduction
 	
+	
 	myinfo = fill_head(MM, Reduction, 7);
 	
 	for (int i=0; i<7;i++)
@@ -146,11 +147,11 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(MM, HST256, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 9;
-	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 8;
-	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 6;
-	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 5;
-	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 4;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 3;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 2;
 	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
 	reverse_values(myinfo);
@@ -159,7 +160,7 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(MM, RCONV, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 25;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 28;
 	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 24;
 	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 20;
 	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 16;
@@ -245,11 +246,11 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(BS, HST256, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 9;
-	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 8;
-	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 6;
-	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 5;
-	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 4;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 3;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 2;
 	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
 	reverse_values(myinfo);
@@ -258,7 +259,7 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(BS, RCONV, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 26;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 28;
 	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 24;
 	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 20;
 	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 16;
@@ -334,11 +335,11 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(VA, HST256, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 9;
-	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 8;
-	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 6;
-	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 5;
-	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 4;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 3;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 2;
 	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
 	reverse_values(myinfo);
@@ -347,7 +348,7 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(VA, RCONV, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 26;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 28;
 	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 24;
 	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 20;
 	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 16;
@@ -415,38 +416,39 @@ int smk_fill_coBlocks()
 	
 	//SPMV_CSRscalar - RCONV
 	
-	myinfo = fill_head(SPMV_CSRscalar, RCONV, 13);
+	myinfo = fill_head(SPMV_CSRscalar, RCONV, 15);
 	
 	
-	myinfo->pairs[0][0] = 3; myinfo->pairs[0][1] = 26;
-	myinfo->pairs[1][0] = 4; myinfo->pairs[1][1] = 24;
-	myinfo->pairs[2][0] = 5; myinfo->pairs[2][1] = 22;
-	myinfo->pairs[3][0] = 6; myinfo->pairs[3][1] = 20;
-	myinfo->pairs[4][0] = 7; myinfo->pairs[4][1] = 18;
-	myinfo->pairs[5][0] = 8; myinfo->pairs[5][1] = 16;
-	myinfo->pairs[6][0] = 9; myinfo->pairs[6][1] = 14;
-	myinfo->pairs[7][0] = 10; myinfo->pairs[7][1] = 12;
-	myinfo->pairs[8][0] = 11; myinfo->pairs[8][1] = 10;
-	myinfo->pairs[9][0] = 12; myinfo->pairs[9][1] = 8;
-	myinfo->pairs[10][0] = 13; myinfo->pairs[10][1] = 6;
-	myinfo->pairs[11][0] = 14; myinfo->pairs[11][1] = 4;
-	myinfo->pairs[12][0] = 15; myinfo->pairs[12][1] = 2;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 30;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 28;
+	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 26;
+	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 24;
+	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 22;
+	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 20;
+	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 18;
+	myinfo->pairs[7][0] = 8; myinfo->pairs[7][1] = 16;
+	myinfo->pairs[8][0] = 9; myinfo->pairs[8][1] = 14;
+	myinfo->pairs[9][0] = 10; myinfo->pairs[9][1] = 12;
+	myinfo->pairs[10][0] = 11; myinfo->pairs[10][1] = 10;
+	myinfo->pairs[11][0] = 12; myinfo->pairs[11][1] = 8;
+	myinfo->pairs[12][0] = 13; myinfo->pairs[12][1] = 6;
+	myinfo->pairs[13][0] = 14; myinfo->pairs[13][1] = 4;
+	myinfo->pairs[14][0] = 15; myinfo->pairs[14][1] = 2;
+	
 	reverse_values(myinfo);
 	
 	//SPMV_CSRscalar - HST256
 	
-	myinfo = fill_head(SPMV_CSRscalar, HST256, 10);
+	myinfo = fill_head(SPMV_CSRscalar, HST256, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 10;
-	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 9;
-	myinfo->pairs[2][0] = 4; myinfo->pairs[2][1] = 8;
-	myinfo->pairs[3][0] = 5; myinfo->pairs[3][1] = 7;
-	myinfo->pairs[4][0] = 7; myinfo->pairs[4][1] = 6;
-	myinfo->pairs[5][0] = 8; myinfo->pairs[5][1] = 5;
-	myinfo->pairs[6][0] = 10; myinfo->pairs[6][1] = 4;
-	myinfo->pairs[7][0] = 11; myinfo->pairs[7][1] = 3;
-	myinfo->pairs[8][0] = 12; myinfo->pairs[8][1] = 2;
-	myinfo->pairs[9][0] = 14; myinfo->pairs[9][1] = 1;
+	myinfo->pairs[0][0] = 2; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 4; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 6; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 8; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 10; myinfo->pairs[4][1] = 3;
+	myinfo->pairs[5][0] = 12; myinfo->pairs[5][1] = 2;
+	myinfo->pairs[6][0] = 14; myinfo->pairs[6][1] = 1;
+
 	reverse_values(myinfo);
 	
 	////////////////////////////////////////////////////////////////
@@ -501,7 +503,7 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(Reduction, RCONV, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 26;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 28;
 	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 24;
 	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 20;
 	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 16;
@@ -514,11 +516,11 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(Reduction, HST256, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 9;
-	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 8;
-	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 6;
-	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 5;
-	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 4;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 3;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 2;
 	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
 	reverse_values(myinfo);
@@ -568,7 +570,7 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(PF, RCONV, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 26;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 28;
 	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 24;
 	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 20;
 	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 16;
@@ -581,11 +583,11 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(PF, HST256, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 9;
-	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 8;
-	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 6;
-	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 5;
-	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 4;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 3;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 2;
 	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
 	reverse_values(myinfo);
@@ -632,19 +634,16 @@ int smk_fill_coBlocks()
 	
 	// RCONV - HST256
 	
-	myinfo = fill_head(RCONV, HST256, 10);
+	myinfo = fill_head(RCONV, HST256, 7);
 	
-	myinfo->pairs[0][0] = 2; myinfo->pairs[0][1] = 10;
-	myinfo->pairs[1][0] = 4; myinfo->pairs[1][1] = 9;
-	myinfo->pairs[2][0] = 6; myinfo->pairs[2][1] = 8;
-	myinfo->pairs[3][0] = 9; myinfo->pairs[3][1] = 7;
-	myinfo->pairs[4][0] = 11; myinfo->pairs[4][1] = 6;
-	myinfo->pairs[5][0] = 14; myinfo->pairs[5][1] = 5;
-	myinfo->pairs[6][0] = 16; myinfo->pairs[6][1] = 4;
-	myinfo->pairs[7][0] = 18; myinfo->pairs[7][1] = 3;
-	myinfo->pairs[8][0] = 21; myinfo->pairs[8][1] = 2;
-	myinfo->pairs[9][0] = 23; myinfo->pairs[9][1] = 1;
-	
+	myinfo->pairs[0][0] = 4; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 8; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 12; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 16; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 20; myinfo->pairs[4][1] = 3;
+	myinfo->pairs[5][0] = 24; myinfo->pairs[5][1] = 2;
+	myinfo->pairs[6][0] = 28; myinfo->pairs[6][1] = 1;
+
 	reverse_values(myinfo);
 
 	////////////////////////////////////////////////////////////
@@ -653,11 +652,11 @@ int smk_fill_coBlocks()
 	
 	myinfo = fill_head(GCEDD, HST256, 7);
 
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 9;
-	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 8;
-	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 6;
-	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 5;
-	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 4;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 3;
 	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 2;
 	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 1;
 	reverse_values(myinfo);
@@ -704,8 +703,8 @@ int smk_fill_coBlocks()
 	myinfo->pairs[2][0] = 4; myinfo->pairs[2][1] = 5;
 	myinfo->pairs[3][0] = 5; myinfo->pairs[3][1] = 4;
 	myinfo->pairs[4][0] = 6; myinfo->pairs[4][1] = 3;
-	myinfo->pairs[5][0] = 8; myinfo->pairs[5][1] = 2;
-	myinfo->pairs[6][0] = 9; myinfo->pairs[6][1] = 1;
+	myinfo->pairs[5][0] = 7; myinfo->pairs[5][1] = 2;
+	myinfo->pairs[6][0] = 8; myinfo->pairs[6][1] = 1;
 	reverse_values(myinfo);
 	save_info = myinfo;
 	
@@ -762,14 +761,15 @@ int smk_fill_coBlocks()
 	/////////////////////////////////////////////////////////////
 	
 	// CCONV - MM
-	myinfo = fill_head(CCONV, MM, 6);
+	myinfo = fill_head(CCONV, MM, 7);
 
 	myinfo->pairs[0][0] = 2; myinfo->pairs[0][1] = 7;
 	myinfo->pairs[1][0] = 4; myinfo->pairs[1][1] = 6;
 	myinfo->pairs[2][0] = 6; myinfo->pairs[2][1] = 5;
 	myinfo->pairs[3][0] = 8; myinfo->pairs[3][1] = 4;
 	myinfo->pairs[4][0] = 10; myinfo->pairs[4][1] = 3;
-	myinfo->pairs[5][0] = 11; myinfo->pairs[5][1] = 2;
+	myinfo->pairs[5][0] = 12; myinfo->pairs[5][1] = 2;
+	myinfo->pairs[6][0] = 14; myinfo->pairs[6][1] = 1;
 	reverse_values(myinfo);
 	save_info = myinfo;
 	
@@ -839,7 +839,7 @@ int smk_fill_coBlocks()
 	
 	//CCONV - SPMV_CSRscalar
 	
-	myinfo = fill_head(CCONV, SPMV_CSRscalar, 11);
+	myinfo = fill_head(CCONV, SPMV_CSRscalar, 15);
 	
 	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 15;
 	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 14;
@@ -852,43 +852,48 @@ int smk_fill_coBlocks()
 	myinfo->pairs[8][0] = 9; myinfo->pairs[8][1] = 7;
 	myinfo->pairs[9][0] = 10; myinfo->pairs[9][1] = 6;
 	myinfo->pairs[10][0] = 11; myinfo->pairs[10][1] = 5;
+	myinfo->pairs[11][0] = 12; myinfo->pairs[11][1] = 4;
+	myinfo->pairs[12][0] = 13; myinfo->pairs[12][1] = 3;
+	myinfo->pairs[13][0] = 14; myinfo->pairs[13][1] = 2;
+	myinfo->pairs[14][0] = 15; myinfo->pairs[14][1] = 1;
+	
+	
 	reverse_values(myinfo);	
 	
 	//CCONV - RCONV
 	
-	myinfo = fill_head(CCONV, RCONV, 11);
+	myinfo = fill_head(CCONV, RCONV, 15);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 24;
-	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 22;
-	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 20;
-	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 18;
-	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 16;
-	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 14;
-	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 12;
-	myinfo->pairs[7][0] = 8; myinfo->pairs[7][1] = 9;
-	myinfo->pairs[8][0] = 9; myinfo->pairs[8][1] = 7;
-	myinfo->pairs[9][0] = 10; myinfo->pairs[9][1] = 5;
-	myinfo->pairs[10][0] = 11; myinfo->pairs[10][1] = 3;
+	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 30;
+	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 28;
+	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 26;
+	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 24;
+	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 22;
+	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 20;
+	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 18;
+	myinfo->pairs[7][0] = 8; myinfo->pairs[7][1] = 16;
+	myinfo->pairs[8][0] = 9; myinfo->pairs[8][1] = 14;
+	myinfo->pairs[9][0] = 10; myinfo->pairs[9][1] = 12;
+	myinfo->pairs[10][0] = 11; myinfo->pairs[10][1] = 10;
+	myinfo->pairs[11][0] = 12; myinfo->pairs[11][1] = 8; 
+	myinfo->pairs[12][0] = 13; myinfo->pairs[12][1] = 6;
+	myinfo->pairs[13][0] = 14; myinfo->pairs[13][1] = 4;
+	myinfo->pairs[14][0] = 15; myinfo->pairs[14][1] = 2;
 	reverse_values(myinfo);	
 	
 	
 	//CCONV - HST256
 	
-	myinfo = fill_head(CCONV, HST256, 11);
+	myinfo = fill_head(CCONV, HST256, 7);
 	
-	myinfo->pairs[0][0] = 1; myinfo->pairs[0][1] = 10;
-	myinfo->pairs[1][0] = 2; myinfo->pairs[1][1] = 9;
-	myinfo->pairs[2][0] = 3; myinfo->pairs[2][1] = 8;
-	myinfo->pairs[3][0] = 4; myinfo->pairs[3][1] = 7;
-	myinfo->pairs[4][0] = 5; myinfo->pairs[4][1] = 6;
-	myinfo->pairs[5][0] = 6; myinfo->pairs[5][1] = 5;
-	myinfo->pairs[6][0] = 7; myinfo->pairs[6][1] = 5;
-	myinfo->pairs[7][0] = 8; myinfo->pairs[7][1] = 4;
-	myinfo->pairs[8][0] = 9; myinfo->pairs[8][1] = 3;
-	myinfo->pairs[9][0] = 10; myinfo->pairs[9][1] = 2;
-	myinfo->pairs[10][0] = 11; myinfo->pairs[10][1] = 1;
-	reverse_values(myinfo);	
-	
+	myinfo->pairs[0][0] = 2; myinfo->pairs[0][1] = 7;
+	myinfo->pairs[1][0] = 4; myinfo->pairs[1][1] = 6;
+	myinfo->pairs[2][0] = 6; myinfo->pairs[2][1] = 5;
+	myinfo->pairs[3][0] = 8; myinfo->pairs[3][1] = 4;
+	myinfo->pairs[4][0] = 10; myinfo->pairs[4][1] = 3;
+	myinfo->pairs[5][0] = 12; myinfo->pairs[5][1] = 2;
+	myinfo->pairs[6][0] = 14; myinfo->pairs[6][1] = 1;
+	reverse_values(myinfo);
 	
 	return 0;
 }
@@ -915,13 +920,13 @@ int smk_fill_solo()
 	smk_info_solo[PF].num_configs=8; //max_nm_blocks_per_SM
 	smk_info_solo[PF].tpms = (double *)calloc(smk_info_solo[PF].num_configs, sizeof(double));
 	
-	smk_info_solo[RCONV].num_configs=25; //max_nm_blocks_per_SM
+	smk_info_solo[RCONV].num_configs=32; //max_nm_blocks_per_SM
 	smk_info_solo[RCONV].tpms = (double *)calloc(smk_info_solo[RCONV].num_configs, sizeof(double));
 	
 	smk_info_solo[GCEDD].num_configs=8; //max_nm_blocks_per_SM
 	smk_info_solo[GCEDD].tpms = (double *)calloc(smk_info_solo[GCEDD].num_configs, sizeof(double));
 	
-	smk_info_solo[HST256].num_configs=10; //max_nm_blocks_per_SM
+	smk_info_solo[HST256].num_configs=8; //max_nm_blocks_per_SM
 	smk_info_solo[HST256].tpms = (double *)calloc(smk_info_solo[HST256].num_configs, sizeof(double));
 	
 	smk_info_solo[SCEDD].num_configs=8; //max_nm_blocks_per_SM
@@ -933,7 +938,7 @@ int smk_fill_solo()
 	smk_info_solo[HCEDD].num_configs=8; //max_nm_blocks_per_SM
 	smk_info_solo[HCEDD].tpms = (double *)calloc(smk_info_solo[HCEDD].num_configs, sizeof(double));
 	
-	smk_info_solo[CCONV].num_configs=12; //max_nm_blocks_per_SM
+	smk_info_solo[CCONV].num_configs=16; //max_nm_blocks_per_SM
 	smk_info_solo[CCONV].tpms = (double *)calloc(smk_info_solo[CCONV].num_configs, sizeof(double));
 	
 	

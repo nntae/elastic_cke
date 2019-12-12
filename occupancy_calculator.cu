@@ -215,7 +215,7 @@ int get_kernel_use(t_Kernel kid, int *res)
 			res[0] = 256; res[1]=31; res[2]= 2052;
 			break;
 		case HST256:
-			res[0] = 192; res[1]=29; res[2]= 6004;
+			res[0] = 256; res[1]=29; res[2]= 8196;
 			break;
 		case Reduction: 
 			res[0] = 256; res[1]=17; res[2]= 1028;
@@ -294,11 +294,18 @@ int twokernels_occypancy(t_Kernel kid1, t_Kernel kid2)
 
 int main (int argc, char **argv)
 {
-	t_Kernel kid[2];
+	if (argc < 3){
+		printf("Command error: occ_calc Kname1 Kname2\n");
+		return -1;
+	}
 	
-	kid[0]=Reduction; 
-	kid[1]=HST256; 
-	twokernels_occypancy(kid[0], kid[1]);
+	t_Kernel kid1 = kid_from_name(argv[1]);
+	if (kid1 == EMPTY) return;
+	
+	t_Kernel kid2 = kid_from_name(argv[2]);
+	if (kid2 == EMPTY) return;
+	
+	twokernels_occypancy(kid1, kid2);
 	 
 	return 0;
 	

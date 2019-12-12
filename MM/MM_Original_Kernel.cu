@@ -270,7 +270,7 @@ SMT_matrixMulCUDA(float *C, float *A, float *B, int wA, int wB, int gridDimX,
 			return;
 		
 	//if (threadIdx.x==0 && threadIdx.y== 0) // Ojo, esto es una prueba. Habría que tener en cuenta iteraciones entre distintos bloques
-	//	*status = RUNNING;
+	//	printf("SMID=%d \n", SM_id);
 	
 	while (1){
 	

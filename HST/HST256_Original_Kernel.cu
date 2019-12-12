@@ -33,7 +33,7 @@ using namespace std;
 extern t_tqueue *tqueues;
 
  __device__ uint get_smid_HST256(void) {
-	uint ret;
+	uint ret; 
 
 	asm("mov.u32 %0, %smid;" : "=r"(ret) );
 
@@ -524,6 +524,8 @@ SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 	if (s_index > max_blocks_per_SM)
 		return;
 	
+	uint sum;
+	
 	while (1){
 		
 		/********** Task Id calculation *************/
@@ -905,7 +907,8 @@ int launch_preemp_HST256(void *arg)
 			kstub->kconf.coarsening,
 			kstub->d_SMs_cont,
 			kstub->d_executed_tasks,
-			&(kstub->gm_state[kstub->stream_index])
+			&(kstub->gm_state[kstub->stream_index]),
+			kstub->kconf.gridsize.x
 		);
 	#endif
 	

@@ -67,7 +67,10 @@ int launch_SMK_kernel(t_kstreams *kstr, int new_streams)
 		return -1;
 	}
 	
-	kstr->kstub->kconf.max_persistent_blocks = 1; // Only a block per SM will be launched by each stream
+	if (kstr->kstub->id == RCONV)   // It is supposed number of original streams have been divided ny two
+		kstr->kstub->kconf.max_persistent_blocks = 2; // Two kernels per SM. So the number of streams will be lower
+	else
+		kstr->kstub->kconf.max_persistent_blocks = 1; // Only a block per SM will be launched by each stream
 	
 	for (int i=0 ; i<new_streams; i++)  /* Before launching set streams state to PREP */
 		kstr->kstub->h_state[kstr->num_streams + i] = PREP;	
@@ -190,6 +193,8 @@ int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int 
 			}
 		}
 		
+		#ifdef ONLINE_CHECK
+		
 		// Check speepup when two kernels are concurrently running
 		clock_gettime(CLOCK_REALTIME, &now);
  		curr_time = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
@@ -227,9 +232,98 @@ int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int 
 			
 			prev_time = curr_time;
 		}
+		#endif
 	}
 	
 }
+
+// Coexecution with a ls kernel
+int ls_coexec_wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, double min_tpms, int *kernelid, int *return_code)
+{
+	int prev_executed_tasks[MAX_NUM_COEXEC_KERNELS];
+	int curr_executed_tasks[MAX_NUM_COEXEC_KERNELS];
+	double  task_per_second[MAX_NUM_COEXEC_KERNELS];
+	struct timespec now;
+	double init_time, prev_time, curr_time;
+	double s = 1.0;
+	
+	// Obtain the number of streams per kernel
+	int *pending_streams = (int *) calloc(MAX_NUM_COEXEC_KERNELS, sizeof(int));
+	int **mask = (int **)calloc(MAX_NUM_COEXEC_KERNELS, sizeof(int)); 
+	//memset(task_per_second, 0, MAX_NUM_COEXEC_KERNELS * sizeof(double));
+
+	for (int i=0; i<MAX_NUM_COEXEC_KERNELS; i++){
+		if (info->kstr[i] != NULL) {		
+			pending_streams[i] = info->kstr[i]->num_streams;
+			mask[i] = (int *)calloc(info->kstr[i]->num_streams, sizeof(int));
+		}
+	}		
+		
+	// Current value of number of executed tasks
+	clock_gettime(CLOCK_REALTIME, &now);
+	init_time = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+	
+	// Assume that ls kernel kas index 0 in coexec
+	prev_executed_tasks[0] = *(sched->cont_tasks_zc + 0);
+	
+	while(1){
+		
+		// Check streams
+		
+		// Check streams
+		for (int i = 0; i < MAX_NUM_COEXEC_KERNELS; i++) { // For each kernel
+			if (info->kstr[i] != NULL) {
+				for (int j=0; j < info->kstr[i]->num_streams; j++){ // For each stream
+					if (mask[i][j] == 0) {
+						if (cudaStreamQuery(info->kstr[i]->str[j]) == cudaSuccess) {
+							printf("stream %d de kernel %d finalizado\n", j, info->kstr[i]->kstub->id);
+					
+							mask[i][j] = 1; // Masking			
+							pending_streams[i]--;
+						}
+					}
+				}
+			
+				if (pending_streams[i] == 0 ) {//All the streams of a kernel have finished
+					printf("Kernel %d terminado con pending %d. El otro %d\n", info->kstr[i]->kstub->id, pending_streams[i], pending_streams[(i+1) % 2]); 
+					info->kstr[i]->num_streams=0;
+					
+					*kernelid = i;
+					*return_code = 0;
+					free(pending_streams);
+					for (int j=0; j<info->num_kernels; j++)
+						free(mask[j]);
+					free(mask);
+					if (info->kstr[i]->kstub->id == 8)
+						printf("Aqui\n");
+					return 0;
+					
+				}
+			}
+		}
+			
+		// Get current time
+		clock_gettime(CLOCK_REALTIME, &now);
+ 		curr_time = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+		
+		// If enough time has passed
+		if (curr_time - init_time > 0.0008){ // Si ya se lleva más de 400us desde que se lanzo la coejecución
+			curr_executed_tasks[0] = *(sched->cont_tasks_zc + 0);
+			double tpms = (double)(curr_executed_tasks[0] - prev_executed_tasks[0])/ ((curr_time - init_time)*1000.0);
+			
+			if (tpms < min_tpms){ // If current tpms of ls kernel is below min value, indicate s that more streams are added
+				free(pending_streams);
+				for (int j=0; j<info->num_kernels; j++)
+					free(mask[j]);
+				free(mask);
+				*return_code = 1;
+				return 1;
+			}
+		}
+	}
+	
+}
+
 
 // Synchronous call: exit when evicted streams have finished
 int evict_streams(t_kstreams *kstr, int num_streams)
@@ -591,6 +685,11 @@ int add_kernel_for_coexecution(t_kcoexec *coexec, t_sched * sched, t_kstreams *k
 		
 	if (i >= MAX_NUM_COEXEC_KERNELS){
 		printf("Error: This could never happen\n");
+		return -1;
+	}
+	
+	if (num_streams > MAX_STREAMS_PER_KERNEL){
+		printf("Too many streams\n");
 		return -1;
 	}
 	
@@ -1037,7 +1136,7 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 			int i;
 			for (i=0;i<MAX_NUM_COEXEC_KERNELS; i++)
 				if (coexec.kstr[i] != NULL)
-					task_index = coexec.queue_index[i];
+					task_index = coexec.queue_index[i]; 
 		}
 						
 		
@@ -1058,6 +1157,7 @@ int launch_tasks_with_proxy_theoretical(int deviceId)
 */
 int main(int argc, char **argv)
 {
+	
 	//launch_tasks_with_proxy_theoretical(2);
 	
 	int num_kernels = 13;
@@ -1109,6 +1209,7 @@ int main(int argc, char **argv)
 
 //	fast_profiling(2, HST256);
 
+	//rt_scheduler(2);
 	return 0;
 }
 
