@@ -514,7 +514,6 @@ SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 	__shared__ int s_bid, s_index;
 	
 	unsigned int SM_id = get_smid_HST256();
-	uint sum;
 	
 	if (threadIdx.x == 0)  
 		s_index = atomicAdd(&cont_SM[SM_id],1);
