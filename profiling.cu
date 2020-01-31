@@ -32,7 +32,6 @@ int save_profling_tables()
 	}
 	
 	// Number of kernels 
-	
 	int n = Number_of_Kernels-1;
 	fwrite (&n, 1, sizeof(int), fp);
 	
@@ -366,7 +365,7 @@ int smk_coexec_prof(t_kernel_stub **kstub)
 		info1->pairs[i][0] = info->pairs[i][1];
 		info1->pairs[i][1] = info->pairs[i][0];
 			
-		//printf("bk0=%d bk1=%d time=%f exec_task0=%d exec_task1=%d tpms0=%f, tmps1=%f\n", info->pairs[i][0], info->pairs[i][1], (time2 - time1), exec_tasks[0], exec_tasks[1], info->tpms[i][0], info->tpms[i][1]);
+		printf(" *** bk0=%d bk1=%d time=%f exec_task0=%d exec_task1=%d tpms0=%f, tmps1=%f\n", info->pairs[i][0], info->pairs[i][1], (time2 - time1), exec_tasks[0], exec_tasks[1], info->tpms[i][0], info->tpms[i][1]);
 		
 		cudaDeviceSynchronize();
 		
@@ -382,6 +381,104 @@ int smk_coexec_prof(t_kernel_stub **kstub)
 	return 0;
 }
 
+// Para como se ubican los CTAs entre los SMs
+int smk_check_CTA_allocation(t_Kernel *kid, int num_kernels, int deviceId)
+{
+	cudaError_t err;
+
+	// Select device
+	cudaSetDevice(deviceId);
+	cudaDeviceProp deviceProp;
+    cudaGetDeviceProperties(&deviceProp, deviceId);	
+	printf("Device=%s\n", deviceProp.name);
+	int numSMs = 28;
+	
+	// Load SMK initial tables
+	smk_fill_coBlocks();
+	smk_fill_solo();
+	
+	// Create SMT tables
+
+	for (int i = 0; i < Number_of_Kernels-1; i++) {
+		smt_info_solo[i].num_configs = numSMs;
+		smt_info_solo[i].tpms = (double *)calloc(smt_info_solo[i].num_configs, sizeof(double));
+	}
+
+
+	for(int i=0; i < Number_of_Kernels-1; i++) {
+		for (int j=0; j< Number_of_Kernels-1; j++) {
+			info_tpmsSMT[i][j].num_configs = numSMs -1;
+			int **pairs = (int **)calloc(numSMs-1, sizeof(int *));
+			double **tpms = (double **)calloc(numSMs-1, sizeof(double *));
+			for (int k=0; k< numSMs-1; k++) {
+				pairs[k] = (int *)calloc(2, sizeof(int));
+				tpms[k] = (double *)calloc(2, sizeof(double));
+			}
+			info_tpmsSMT[i][j].pairs = pairs;
+			info_tpmsSMT[i][j].tpms = tpms;
+		}
+	}
+	
+	/** Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands*/
+	cudaStream_t *transfers_s;
+	transfers_s = (cudaStream_t *)calloc(2, sizeof(cudaStream_t));
+	
+	for (int i=0;i<2;i++){
+		err = cudaStreamCreate(&transfers_s[i]);
+		checkCudaErrors(err);
+	} 
+	
+	cudaStream_t preemp_s;
+	checkCudaErrors(cudaStreamCreateWithFlags(&preemp_s, cudaStreamNonBlocking)); 
+	
+	int total_num_kernels = 0;
+	for (int i=0; i<num_kernels; i++){
+		total_num_kernels++;
+		if (kid[i] == RCONV) total_num_kernels++;
+		if (kid[i] == GCEDD) total_num_kernels += 3;
+	}
+	
+	/** Create stubs ***/
+	// Ojo la lista de kernels sólo debe ponerse el primero de una aplicacion. Los demás
+	// son creados por el siguiente código
+	t_kernel_stub **kstubs = (t_kernel_stub **)calloc(total_num_kernels, sizeof(t_kernel_stub*));
+	for (int i=0, cont=0; i<num_kernels; i++) {	
+		create_stubinfo(&kstubs[cont], deviceId, kid[i], transfers_s, &preemp_s);
+		cont++;
+		if (kid[i] == RCONV){ // RCONV params struct must be passed to CCONV 
+			create_stubinfo_with_params(&kstubs[cont], deviceId, CCONV, transfers_s, &preemp_s, (void *)kstubs[cont-1]->params);
+			cont++;
+		}
+		
+		if (kid[i] == GCEDD){
+			create_stubinfo_with_params(&kstubs[cont], deviceId, SCEDD, transfers_s, &preemp_s, (void *)kstubs[cont-1]->params);
+			cont++;
+			
+			create_stubinfo_with_params(&kstubs[cont], deviceId, NCEDD, transfers_s, &preemp_s, (void *)kstubs[cont-2]->params);
+			cont++;
+			
+			create_stubinfo_with_params(&kstubs[cont], deviceId, HCEDD, transfers_s, &preemp_s, (void *)kstubs[cont-3]->params);
+			cont++;
+		}
+	}
+
+	// make HtD transfers of all kernels
+	make_transfers(kstubs, total_num_kernels);
+	
+	// Coexecution profiling
+	t_kernel_stub *pair_kstubs[2];
+	// Coexecute all tasls and extract performance
+	for (int i=0; i<total_num_kernels; i++) {
+		for (int j=i+1; j<total_num_kernels; j++) {
+			pair_kstubs[0] = kstubs[i];
+			pair_kstubs[1] = kstubs[j];
+			printf("*****Profiling smk %d %d\n", kstubs[i]->id, kstubs[j]->id);
+			smk_coexec_prof(pair_kstubs);
+		}
+	}
+	
+	return 0;
+}
 
 int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 {
@@ -533,6 +630,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 			double speedup = 0, t_speedup = 0, f_speedup=0, f_d=10.0;
 			int max_pos =-1, max_b0=0, max_b1=1;
 			double save_speedup_inc=0;
+			printf("K0=%d K1=%d\n", kstubs[i]->id, kstubs[j]->id);
 			for (int k = 0; k<info_coexec->num_configs; k++) {
 				double s1, s2;
 				s1 = info_coexec->tpms[k][0]/smk_info_solo1->tpms[smk_info_solo1->num_configs-1];
@@ -541,7 +639,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 				sp_smk[k] = s;
 				double s_th = smk_info_solo1->tpms[info_coexec->pairs[k][0]-1]/smk_info_solo1->tpms[smk_info_solo1->num_configs-1]+smk_info_solo2->tpms[info_coexec->pairs[k][1]-1]/smk_info_solo2->tpms[smk_info_solo2->num_configs-1];
 				//printf("Solo prediction %d %d %f %f %f \n", info_coexec->pairs[k][0], info_coexec->pairs[k][1], smk_info_solo1->tpms[info_coexec->pairs[k][0]-1], smk_info_solo2->tpms[info_coexec->pairs[k][1]-1], s_th);
-				printf("%f %f\n", s1, s2);
+				//printf("%f %f\n", s1, s2);
 				if (s > speedup) {
 					speedup = s;
 					b0 = info_coexec->pairs[k][0];
@@ -566,7 +664,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 					double val0 = info_coexec->tpms[k+1][0]/info_coexec->tpms[k][0];
 					double val1 = info_coexec->tpms[k+1][1]/info_coexec->tpms[k][1];
 					
-					//printf("%d, %f, %f\n", k+1, val0+val1, 1.0/val0 + 1.0/val1);		
+					printf("%d, b0=%d, b1=%d, %f, %f\n", k+1, b0, b1, (val0+val1), (1.0/val0 + 1.0/val1));		
 					
 					if (val0+val1 < 2.0 && max_pos == -1){ // Chequeo de memjora global de las tpms de los dos kernels
 						max_pos = k; 

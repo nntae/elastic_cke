@@ -147,6 +147,11 @@ preempt_SMT_vectorAdd(const float *A, const float *B, float *C, int numelements,
 	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
 			return;
 			
+	#ifdef SHOW_SM
+		if (threadIdx.x == 0) 
+			printf("%d, VA\n", SM_id);
+	#endif
+			
 	//if (threadIdx.x==0) // Ojo, esto es una prueba. Habría que tener en cuenta iteraciones entre distintos bloques
 	//	*status = RUNNING;
 		
@@ -702,7 +707,7 @@ int launch_orig_VA(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_VA_params * params = (t_VA_params *)kstub->params;
 	
-	original_vectorAdd<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(
+	original_vectorAdd<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
 		params->d_A, params->d_B, params->d_C, 
 		kstub->kconf.coarsening,
 		params->numElements);

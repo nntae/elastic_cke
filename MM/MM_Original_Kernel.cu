@@ -174,8 +174,8 @@ profiling_matrixMulCUDA(float *C, float *A, float *B, int wA, int wB, int gridDi
 		
 		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
 		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{
-			if (threadIdx.x == 0 && threadIdx.y== 0)
-				printf ("SM=%d CTA=%d Executed_tasks= %d \n", SM_id, CTA_cont, cont_task);	
+			//if (threadIdx.x == 0 && threadIdx.y== 0)
+			//	printf ("SM=%d CTA=%d Executed_tasks= %d \n", SM_id, CTA_cont, cont_task);	
 			return;
 		}
 		
@@ -272,6 +272,11 @@ SMT_matrixMulCUDA(float *C, float *A, float *B, int wA, int wB, int gridDimX,
 		
 	//if (threadIdx.x==0 && threadIdx.y== 0) // Ojo, esto es una prueba. Habría que tener en cuenta iteraciones entre distintos bloques
 	//	printf("SMID=%d \n", SM_id);
+	
+	#ifdef SHOW_SM
+		if (threadIdx.x==0 && threadIdx.y== 0)
+			printf("%d, MM\n", SM_id);
+	#endif
 	
 	while (1){
 	
@@ -942,11 +947,11 @@ int launch_orig_MM(void *arg)
     // Performs warmup operation using matrixMul CUDA kernel
     if (kstub->kconf.blocksize.x == 16)
     {
-        original_matrixMulCUDA<16><<< kstub->kconf.gridsize.x, threads >>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX);
+        original_matrixMulCUDA<16><<< kstub->kconf.gridsize.x, threads, 0, *(kstub->execution_s) >>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX);
     }
     else
     {
-        original_matrixMulCUDA<32><<< kstub->kconf.gridsize.x, threads >>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX);
+        original_matrixMulCUDA<32><<< kstub->kconf.gridsize.x, threads, 0, *(kstub->execution_s) >>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX);
     }
 		
 		return 0;

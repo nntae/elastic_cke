@@ -661,6 +661,7 @@ int reduce_start_mallocs(void *arg)
 	params->d_idata = NULL;
 	params->d_odata = NULL;
 
+	//printf("Reduction %d bytes\n", bytes);
 	checkCudaErrors(cudaMalloc((float **) &params->d_idata, bytes));
 	checkCudaErrors(cudaMalloc((float **) &params->d_odata, kstub->kconf.gridsize.x*sizeof(float)));
 

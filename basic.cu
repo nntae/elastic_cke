@@ -20,6 +20,15 @@ int create_coexec(t_kcoexec *coexec, int num_kernels)
 	return 0;
 }
 
+int remove_coexec(t_kcoexec *coexec)
+{
+	free(coexec->kstr);
+	free(coexec->num_streams);
+	free(coexec->queue_index);
+	
+	return 0;
+}
+
 int create_kstreams(t_kernel_stub *kstub, t_kstreams *kstr)
 {
 	cudaError_t err;
@@ -34,7 +43,7 @@ int create_kstreams(t_kernel_stub *kstub, t_kstreams *kstr)
 	return 0;
 }
 
-int remove_kstream(t_kstreams *kstr)
+int remove_kstreams(t_kstreams *kstr)
 {
 	for (int i=0; i<MAX_STREAMS_PER_KERNEL; i++)
 		cudaStreamDestroy(kstr->str[i]);
@@ -107,7 +116,7 @@ int wait_for_kernel_termination(t_kcoexec *info, int *kernelid)
 			for (int j=0; j < info->kstr[i]->num_streams; j++){ // For each stream
 				if (mask[i][j] == 0) {
 					if (cudaStreamQuery(info->kstr[i]->str[j]) == cudaSuccess) {
-						printf("stream %d de kernel %d finalizado\n", j, info->kstr[i]->kstub->id);
+						//printf("stream %d de kernel %d finalizado\n", j, info->kstr[i]->kstub->id);
 					
 						mask[i][j] = 1; // Masking			
 						pending_streams[i]--;
@@ -167,7 +176,7 @@ int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int 
 				for (int j=0; j < info->kstr[i]->num_streams; j++){ // For each stream
 					if (mask[i][j] == 0) {
 						if (cudaStreamQuery(info->kstr[i]->str[j]) == cudaSuccess) {
-							printf("stream %d de kernel %d finalizado\n", j, info->kstr[i]->kstub->id);
+							//printf("stream %d de kernel %d finalizado\n", j, info->kstr[i]->kstub->id);
 					
 							mask[i][j] = 1; // Masking			
 							pending_streams[i]--;
@@ -176,7 +185,7 @@ int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int 
 				}
 			
 				if (pending_streams[i] == 0 ) {//All the streams of a kernel have finished
-					printf("Kernel %d terminado con pending %d. El otro %d\n", info->kstr[i]->kstub->id, pending_streams[i], pending_streams[(i+1) % 2]); 
+					//printf("Kernel %d terminado con pending %d. El otro %d\n", info->kstr[i]->kstub->id, pending_streams[i], pending_streams[(i+1) % 2]); 
 					info->kstr[i]->num_streams=0;
 					
 					*kernelid = i;
@@ -238,15 +247,22 @@ int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int 
 }
 
 // Coexecution with a ls kernel
-int ls_coexec_wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, double min_tpms, int *kernelid, int *return_code)
+int ls_coexec_wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, double min_tpms, 
+									double start_time, double sampl_interval, double *acc_numstreams_time, int *kernelid, int *return_code)
 {
 	int prev_executed_tasks[MAX_NUM_COEXEC_KERNELS];
 	int curr_executed_tasks[MAX_NUM_COEXEC_KERNELS];
 	double  task_per_second[MAX_NUM_COEXEC_KERNELS];
 	struct timespec now;
-	double init_time, prev_time, curr_time;
 	double s = 1.0;
 	
+	/** Save executed task of LS kernel on function entry */
+	int prev_tasks = *(sched->cont_tasks_zc + 0);
+	
+	// Get current time
+	clock_gettime(CLOCK_REALTIME, &now);
+	double prev_time = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+		
 	// Obtain the number of streams per kernel
 	int *pending_streams = (int *) calloc(MAX_NUM_COEXEC_KERNELS, sizeof(int));
 	int **mask = (int **)calloc(MAX_NUM_COEXEC_KERNELS, sizeof(int)); 
@@ -258,17 +274,8 @@ int ls_coexec_wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *
 			mask[i] = (int *)calloc(info->kstr[i]->num_streams, sizeof(int));
 		}
 	}		
-		
-	// Current value of number of executed tasks
-	clock_gettime(CLOCK_REALTIME, &now);
-	init_time = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-	
-	// Assume that ls kernel kas index 0 in coexec
-	prev_executed_tasks[0] = *(sched->cont_tasks_zc + 0);
 	
 	while(1){
-		
-		// Check streams
 		
 		// Check streams
 		for (int i = 0; i < MAX_NUM_COEXEC_KERNELS; i++) { // For each kernel
@@ -302,22 +309,33 @@ int ls_coexec_wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *
 			}
 		}
 			
-		// Get current time
-		clock_gettime(CLOCK_REALTIME, &now);
- 		curr_time = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
-		
-		// If enough time has passed
-		if (curr_time - init_time > 0.0008){ // Si ya se lleva más de 400us desde que se lanzo la coejecución
-			curr_executed_tasks[0] = *(sched->cont_tasks_zc + 0);
-			double tpms = (double)(curr_executed_tasks[0] - prev_executed_tasks[0])/ ((curr_time - init_time)*1000.0);
+		if (sampl_interval > 0) { // profiling is deactivated when sampl_interval <=0
 			
-			if (tpms < min_tpms){ // If current tpms of ls kernel is below min value, indicate s that more streams are added
-				free(pending_streams);
-				for (int j=0; j<info->num_kernels; j++)
-					free(mask[j]);
-				free(mask);
-				*return_code = 1;
-				return 1;
+			// Get current time
+			clock_gettime(CLOCK_REALTIME, &now);
+			double curr_time = (double)now.tv_sec+(double)now.tv_nsec*1e-9;
+		
+			// If enough time has passed, check
+			if ((curr_time - prev_time) > sampl_interval){ // 
+				*acc_numstreams_time += (curr_time - prev_time) * info->num_streams[1]; // Product time * num_streams of NON LS kernel
+				curr_executed_tasks[0] = *(sched->cont_tasks_zc + 0); // In sched->cont_tasks_zc + 0 is mapped the task counter for LS kernel
+				int curr_tasks = curr_executed_tasks[0] - prev_tasks;
+				double tpms = (double)curr_tasks/ ((curr_time - prev_time)*1000.0);
+				printf("tpms_total=%f tpms=%f tpms_min=%f\n", (double)curr_executed_tasks[0]/((curr_time -start_time)*1000.0), tpms, min_tpms);
+
+				if (tpms < min_tpms || tpms > 1.1 * min_tpms){ // If current tpms of ls kernel is below min value, indicate s that more streams are added
+					free(pending_streams);
+					for (int j=0; j<info->num_kernels; j++)
+						free(mask[j]);
+					free(mask);
+					if (tpms < min_tpms)
+						*return_code = 1;
+					if (tpms > 1.1 * min_tpms)
+						*return_code = 2;
+					return 0; 
+				}
+				prev_tasks = curr_executed_tasks[0];
+				prev_time = curr_time;
 			}
 		}
 	}
@@ -702,6 +720,8 @@ int add_kernel_for_coexecution(t_kcoexec *coexec, t_sched * sched, t_kstreams *k
 	//for (int j=0; j<num_streams; j++)
 	//	sched->kernel_evict_zc[MAX_NUM_COEXEC_KERNELS *i + j] = PREP; // Se actualizará gm_state (via proxy) antes de lanzar el kernel?
 	
+	kstr->save_d_executed_tasks = kstr->kstub->d_executed_tasks; // Save original position of taks counter
+	kstr->saved_max_persistent_blocks = kstr->kstub->kconf.max_persistent_blocks;
 	coexec->kstr[i]->kstub->d_executed_tasks = sched->gm_cont_tasks+i; // Remaping kernel task counter to scheduler memory
 	cudaMemcpyAsync(sched->gm_cont_tasks+i, &(kstr->save_cont_tasks),  sizeof(int),  cudaMemcpyHostToDevice, *(coexec->kstr[i]->kstub->preemp_s)); // Set counter task for this kernelid
 	cudaStreamSynchronize(*(coexec->kstr[i]->kstub->preemp_s)); // This instruction could be delayed to increase concurrency
@@ -749,6 +769,10 @@ int rem_kernel_from_coexecution(t_kcoexec *coexec, t_sched *sched, t_kstreams *k
 	coexec->num_streams[i] = 0;
 	coexec->queue_index[i] = -1;
 	coexec->num_kernels--;
+	
+	//printf("Restaurando valores para kernel %d\n", kstr->kstub->id);
+	kstr->kstub->d_executed_tasks = kstr->save_d_executed_tasks; // Restore original pointer to task counter
+	kstr->kstub->kconf.max_persistent_blocks = kstr->saved_max_persistent_blocks; // Restore original number of persistent blocks
 	
 	return 0;
 }
@@ -1181,13 +1205,18 @@ int main(int argc, char **argv)
 	kid[7]=RCONV; // Ojo: en profiling se procesa tambien CCONV
 	kid[8]=HST256;
 	
-	//all_profiling(kid, num_kernels, 2);
+	online_profiler_overhead(kid, 2, 2);
 	
-	greedy_coexecution(2);
+	//all_profiling(kid, 2/*num_kernels*/, 2);
+	
+	//smk_check_CTA_allocation(kid, 2, 2);
+	
+	//greedy_coexecution(2);
 
 	//fast_solo_profiling(2, MM);
 
-	//rt_scheduler(2);
+	
+	//rt_scheduler(2, atof(argv[2]), (t_Kernel)atoi(argv[1]));
 	return 0;
 }
 

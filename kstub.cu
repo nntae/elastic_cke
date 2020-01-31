@@ -339,8 +339,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			#ifdef DATA_SET_1
 			SPMV_params->nItems = (long int)SPMV_params->numRows * (long int)SPMV_params->numRows * 0.05; // 5% of entries will be non-zero
 			#else
+			SPMV_params->nItems = (long int)SPMV_params->numRows * (long int)SPMV_params->numRows * 0.00017; //	
+		
 			//--> ESto habia antes SPMV_params->nItems = SPMV_params->numRows * SPMV_params->numRows / 20;
-			SPMV_params->nItems = (long int)SPMV_params->numRows * (long int)SPMV_params->numRows * 0.00017; // 
 			#endif
 			
 			SPMV_params->numNonZeroes = SPMV_params->nItems;
@@ -361,7 +362,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			
 			// reduction_params->size = 1<<24;
 			// reduction_params->size *= 50;
-			reduction_params->size = 802816000 / 2;
+			reduction_params->size =  802816000 / 2;
 		
 			if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
 					k_stub->kconf.numSMs = 28;
@@ -483,8 +484,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			CONV_params->conv_rows=6144;
 			CONV_params->conv_cols=6144;
 			#else
-			CONV_params->conv_rows=16384;
-			CONV_params->conv_cols=16384;
+			CONV_params->conv_rows=8192;//16384;
+			CONV_params->conv_cols=8192; //16384;
 			#endif
 			
 			k_stub->params = (void *)CONV_params;

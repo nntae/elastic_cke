@@ -13,6 +13,8 @@
 #define MIN_SPEEDUP 1.0
 
 #define ZEROCOPY
+
+//#define SHOW_SM // print the SM where a CTA runs
  
 #define C_S 1000000000 // Chunksize: 18Mbytes/s // Changed to 2MBytes to reduce preemption delay
 
@@ -230,17 +232,19 @@ typedef struct {
 	t_Kernel id[2];
 	int blocks[2];
 	float speedup;
-}t_cke_performance;
+}t_cke_performance; 
 
 typedef struct {
 	t_Kernel id;
 	double max_tpms;
 }t_solo_performance;
-
+ 
 __device__ uint get_smid(void);
 
 typedef struct{
 	t_kernel_stub *kstub;
+	int *save_d_executed_tasks; // Save kernel pointer to task counter
+	int saved_max_persistent_blocks; 
 	int save_cont_task; // Storage value of yye task counter (0 at the beginning and X after a complete kernel eviction
 	int num_streams; // Numner of executing streams of the kernel
 	int save_cont_tasks; // Here we save the number if executed tasks of the kernel when it is evicted (used to start with this value kernel is restarted)
@@ -332,7 +336,9 @@ int smk_fill_solo();
 
 int create_sched(t_sched *sched);
 int create_kstreams(t_kernel_stub *kstub, t_kstreams *kstr);
+int remove_kstreams(t_kstreams *kstr);
 int create_coexec(t_kcoexec *coexec, int num_kernels);
+int remove_coexec(t_kcoexec *coexec);
 int kernel_in_coexec(t_kcoexec *coexec, t_kstreams *kstr, int *pos);
 int add_kernel_for_coexecution(t_kcoexec *coexec, t_sched * sched, t_kstreams *kstr, int num_streams, int pos);
 int rem_kernel_from_coexecution(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr);
@@ -340,12 +346,16 @@ int evict_streams(t_kstreams *kstr, int num_streams);
 int add_streams_to_kernel(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr, int num_streams);
 int launch_coexec(t_kcoexec *coexec);
 int wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, int *kernelid, double *speedup);
-int ls_coexec_wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, double min_tpms, int *kernelid, int *return_code);
+int ls_coexec_wait_for_kernel_termination_with_proxy(t_sched *sched, t_kcoexec *info, double min_tpms, 
+									double start_time, double sampl_interval, double *acc_numstreams_time, int *kernelid, int *return_code);
 int add_streams_to_kernel(t_kcoexec *coexec, t_sched *sched, t_kstreams *kstr, int num_streams);
 int greedy_coexecution(int deviceId);
-int rt_scheduler(int deviceId);
-
+int rt_scheduler(int deviceId, double slow, t_Kernel kid);
 int smk_solo_prof(t_kernel_stub *kstub);
+int smk_check_CTA_allocation(t_Kernel *kid, int num_kernels, int deviceId);
+int launch_SMK_kernel(t_kstreams *kstr, int new_streams);
+
+int read_profling_tables();
 
 //PROF
 int prof_BS(void * arg);
@@ -360,6 +370,9 @@ int prof_HST256(void *arg);
 
 int fast_solo_profiling(int deviceId, t_Kernel kid);
 int fast_cke_profiling(int deviceId, t_Kernel *kid);
+
+int online_profiler_overhead(t_Kernel *kid, int num_kernels, int deviceId);
+
 
 
 #ifdef ZEROCOPY
