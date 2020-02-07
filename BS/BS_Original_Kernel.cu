@@ -3,7 +3,6 @@
  #include <helper_cuda.h>   
  #include "../elastic_kernel.h"
  #include "BS.h"
- #include "../memaddrcnt.cuh"
 
  extern t_tqueue *tqueues;
  
@@ -400,108 +399,6 @@ __global__ void preemp_SMT_BlackScholesGPU(
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//Process an array of optN options on GPU
-////////////////////////////////////////////////////////////////////////////////
-__global__ void memaddr_preemp_SMT_BlackScholesGPU(
-    float *d_CallResult_1,
-    float *d_PutResult_1,
-    float *d_StockPrice_1,
-    float *d_OptionStrike_1,
-    float *d_OptionYears_1,
-    float Riskfree,
-    float Volatility,
-    int optN,
-	
-	int *numUniqueAddr, 
-	int SIMD_min,
-	int SIMD_max,
-	int num_subtask,
-	int iter_per_subtask,
-	int *cont_subtask,
-	State *status
-	
-)
-{
-	__shared__ int s_bid;
-	
-	unsigned int SM_id = get_smid();
-	
-	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
-			return;
-	
-	//int warpid = threadIdx.x >> 5;
-	
-	//int thIdxwarp = threadIdx.x & 0x1F;
-	
-	//if (threadIdx.x == 0) printf("I am executing BS\n");
-	
-	//if (threadIdx.x==0) // Ojo, esto es una prueba. Habría que tener en cuenta iteraciones entre distintos bloques
-	//	*status = RUNNING;
-		
-	while (1){
-		
-		/********** Task Id calculation *************/
-		if (threadIdx.x == 0) {
-			if (*status == TOEVICT)
-				s_bid = -1;
-			else
-				s_bid = atomicAdd(cont_subtask, 1);
-		}
-		
-	//	if ( thIdxwarp == 0) {
-	//		if (*status == TOEVICT)
-	//			s_bid[warpid] = -1;
-	//		else
-	//			s_bid[warpid] = atomicAdd(cont_subtask + warpid, 1); //subtask_id
-	//	}
-		
-		__syncthreads();
-		
-		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
-		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
-		/*if (blockIdx.x == 0 && threadIdx.x == 0)
-			printf("BS finished: execute dtask =%d\n", *cont_subtask);*/
-			return;
-		}
-			
-		
-		for (int j=0; j<iter_per_subtask; j++) {
-			
-			//const int opt = s_bid[warpid] * blockDim.x * iter_per_subtask +  j * blockDim.x + threadIdx.x;
-			const int opt = s_bid * blockDim.x * iter_per_subtask +  j * blockDim.x + threadIdx.x;
-            //No matter how small is execution grid or how large OptN is,
-            //exactly OptN indices will be processed with perfect memory coalescing
-            //for (int opt = tid; opt < optN; opt += THREAD_N)
-			if (opt < optN){
-#if defined(COUNT_ALL_TASKS)
-				if ( s_bid == 0 )
-#endif
-				{
-					get_unique_lines((intptr_t) &d_CallResult_1[opt], numUniqueAddr);
-					get_unique_lines((intptr_t) &d_PutResult_1[opt], numUniqueAddr);
-					get_unique_lines((intptr_t) &d_StockPrice_1[opt], numUniqueAddr);
-					get_unique_lines((intptr_t) &d_OptionStrike_1[opt], numUniqueAddr);
-					get_unique_lines((intptr_t) &d_OptionYears_1[opt], numUniqueAddr);
-				}
-				BlackScholesBodyGPU(
-					d_CallResult_1[opt],
-					d_PutResult_1[opt],
-					d_StockPrice_1[opt], 
-					d_OptionStrike_1[opt],
-					d_OptionYears_1[opt],
-					Riskfree,
-					Volatility
-				);
-			}
-		}
-		
-		/*** Status cheking ****/
-		//if (*status == TOEVICT)
-		//	return;
-	}
-}
-
 /*
  * Copyright 1993-2013 NVIDIA Corporation.  All rights reserved.
  *
@@ -776,7 +673,7 @@ int BS_start_mallocs(void *arg)
     checkCudaErrors(cudaMemset(params->d_PutResult, 0, OPT_SZ/*, kstub->transfer_s[0])*/));
 		
 #else
-	#if defined MANAGED_MEM
+	#ifdef MANAGED_MEM
 	params->h_CallResultCPU = (float *)malloc(OPT_SZ);
     params->h_PutResultCPU  = (float *)malloc(OPT_SZ);
 	
@@ -820,7 +717,7 @@ int BS_start_transfers(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_BS_params * params = (t_BS_params *)kstub->params;
 	
-#if defined MEMCPY_SYNC
+#ifdef MEMCPY_SYNC
 	//printf("...copying input data to GPU mem.\n");
     //Copy options data to GPU memory for further processing
     /*checkCudaErrors(cudaMemcpy(d_StockPrice,  h_StockPrice,   OPT_SZ, cudaMemcpyHostToDevice));
@@ -843,7 +740,7 @@ int BS_start_transfers(void *arg)
 
 	
 #else
-	#if defined MEMCPY_ASYNC	
+	#ifdef MEMCPY_ASYNC	
 
 	
 	checkCudaErrors(cudaMemcpyAsync(params->d_StockPrice,  params->h_StockPrice,   OPT_SZ, cudaMemcpyHostToDevice, kstub->transfer_s[0]));
@@ -866,7 +763,7 @@ int BS_start_transfers(void *arg)
 	kstub->HtD_tranfers_finished = 1;
 	
 	#else
-	#if defined MANAGED_MEM
+	#ifdef MANAGED_MEM
 	
 	cudaDeviceProp p;
     cudaGetDeviceProperties(&p, kstub->deviceId);
@@ -921,7 +818,7 @@ int BS_end_kernel_dummy(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_BS_params * params = (t_BS_params *)kstub->params;
 	
-#if defined MEMCPY_SYNC
+#ifdef MEMCPY_SYNC
 	
 	cudaEventSynchronize(kstub->end_Exec);
     // printf("\nReading back GPU results...\n");
@@ -937,7 +834,7 @@ int BS_end_kernel_dummy(void *arg)
 
 	
 #else
-	#if defined MEMCPY_ASYNC
+	#ifdef MEMCPY_ASYNC
 
 	//cudaEventSynchronize(kstub->end_Exec);
 
@@ -963,7 +860,7 @@ int BS_end_kernel_dummy(void *arg)
 	/*cudaEventSynchronize(kstub->end_DtH);*/
 	
 	#else
-		#if defined MANAGED_MEM
+		#ifdef MANAGED_MEM
 			cudaStreamSynchronize(*(kstub->execution_s)); // To be sure kernel execution has finished before processing output data
 		#endif
 	#endif
@@ -1109,10 +1006,9 @@ int launch_preemp_BS(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_BS_params * params = (t_BS_params *)kstub->params;
 	
-	#if defined SMT
+	#ifdef SMT
 	
-	if ( !(kstub->memaddr_profile) )	
-		preemp_SMT_BlackScholesGPU<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
+	preemp_SMT_BlackScholesGPU<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
 			params->d_CallResult,
             params->d_PutResult,
             params->d_StockPrice,
@@ -1127,25 +1023,8 @@ int launch_preemp_BS(void *arg)
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
 			kstub->d_executed_tasks,
-			&kstub->gm_state[kstub->stream_index]);
-	else
-		memaddr_preemp_SMT_BlackScholesGPU<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
-			params->d_CallResult,
-            params->d_PutResult,
-            params->d_StockPrice,
-            params->d_OptionStrike,
-            params->d_OptionYears,
-            RISKFREE,
-            VOLATILITY,
-            OPT_N,
-			kstub->d_numUniqueAddr,				
-			kstub->idSMs[0],
-			kstub->idSMs[1],
-			kstub->total_tasks,
-			kstub->kconf.coarsening,
-			kstub->d_executed_tasks,
-			&kstub->gm_state[kstub->stream_index]);	
-
+			&kstub->gm_state[kstub->stream_index]
+    );
 	#else
 	preemp_SMK_BlackScholesGPU<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution)>>>(
 			params->d_CallResult,
@@ -1158,7 +1037,7 @@ int launch_preemp_BS(void *arg)
             OPT_N,
 			
 			kstub->num_blocks_per_SM,
-			kstub->total_tasks,
+			kstub->total_tasks, 
 			kstub->kconf.coarsening,
 			kstub->d_SMs_cont,
 			kstub->d_executed_tasks,

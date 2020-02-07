@@ -18,12 +18,12 @@ typedef struct {
     //'d_' prefix - GPU (device) memory space
     float
     //Results calculated by GPU
-    *d_CallResult=NULL,
-    *d_PutResult=NULL,
+    *d_CallResult,
+    *d_PutResult,
     //GPU instance of input data
-    *d_StockPrice=NULL,
-    *d_OptionStrike=NULL,
-    *d_OptionYears=NULL;
+    *d_StockPrice,
+    *d_OptionStrike,
+    *d_OptionYears;
 } t_BS_params;
 
 /*__global__ void original_BlackScholesGPU(
