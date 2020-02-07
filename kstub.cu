@@ -1401,6 +1401,10 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 	checkCudaErrors(cudaHostAlloc((void **)&(k_stub->h_executed_tasks), sizeof(int), cudaHostAllocDefault)); // In Pinned memory
 	checkCudaErrors(cudaHostAlloc((void **)&(k_stub->h_SMs_cont), sizeof(int)*k_stub->kconf.numSMs, cudaHostAllocDefault)); // In Pinned memory
 	
+	 // Allocate and initialize memory address calculation support in CP     U memory
+    k_stub->num_addr_counters = 2;
+	checkCudaErrors(cudaHostAlloc((void **)&(k_stub->h_numUniqueAddr),      k_stub->num_addr_counters * sizeof(int), cudaHostAllocDefault)); // In Pinn     ed memory
+
 	// Proxy support for zero-copy
 	#ifdef ZEROCOPY
 
@@ -1434,4 +1438,3 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 	
 	return 0;
 }
-

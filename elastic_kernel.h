@@ -94,7 +94,13 @@ typedef struct {
 	int *d_proxy_eviction;
 	
 	cudaStream_t *proxy_s;
-	#endif
+	#endif 
+	
+	// Memory addresses calculation support^M
+    bool memaddr_profile;
+    int num_addr_counters; // One for global and another for shared memory^M
+    int *h_numUniqueAddr;
+    int *d_numUniqueAddr;	
 	
 	// SMT & SMK support for application kernels
 	int *idSMs; // SMs to be used by the permanent blocks
@@ -356,7 +362,7 @@ int smk_check_CTA_allocation(t_Kernel *kid, int num_kernels, int deviceId);
 int launch_SMK_kernel(t_kstreams *kstr, int new_streams);
 
 int read_profling_tables();
-
+ 
 //PROF
 int prof_BS(void * arg);
 int prof_MM(void *arg);
@@ -366,7 +372,7 @@ int prof_VA(void *arg);
 int prof_Reduction(void *arg);
 int prof_RCONV(void *arg);
 int prof_GCEDD(void *arg);
-int prof_HST256(void *arg);
+int prof_HST256(void *arg); 
 
 int fast_solo_profiling(int deviceId, t_Kernel kid);
 int fast_cke_profiling(int deviceId, t_Kernel *kid);

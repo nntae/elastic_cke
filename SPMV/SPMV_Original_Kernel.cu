@@ -7,6 +7,7 @@
 #include <semaphore.h>
 #include "../elastic_kernel.h"
 
+#include "../memaddrcnt.cuh"
 
 texture<float, 1> vecTex;  // vector textures
 texture<int2, 1>  vecTexD;
@@ -307,6 +308,105 @@ preemp_SMT_spmv_csr_scalar_kernel(const float * __restrict__ val,
 	}
 }
 
+__global__ void
+memaddr_preemp_SMT_spmv_csr_scalar_kernel(const float * __restrict__ val,
+                       const int    * __restrict__ cols,
+                       const int    * __restrict__ rowDelimiters,
+                       const int dim, float * __restrict__ out,
+
+						int *numUniqueAddr, int SIMD_min,
+						int SIMD_max,
+						int num_subtask,
+						int iter_per_subtask,
+						int *cont_subtask,
+						State *status
+					   )
+{
+	int myRow;
+	__shared__ int s_bid;
+	
+	unsigned int SM_id = get_smid_SPMV();
+	
+	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
+			return;
+			
+	/*if (threadIdx.x == 0 && blockIdx.x % 40 == 0)
+		printf("Bloque=%d SM_id=%d\n", blockIdx.x, SM_id);  */
+		
+	while (1){
+		
+		/********** Task Id calculation *************/
+		if (threadIdx.x == 0) {
+			if (*status == TOEVICT) {
+				//printf("Sennal eviction %d %d %d %d\n", blockIdx.x, *cont_subtask, iter_per_subtask, num_subtask);
+				s_bid = -1;
+			}
+			else
+				s_bid = atomicAdd((int *)cont_subtask, 1);
+		}
+		
+		__syncthreads();
+		
+		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
+			//if (blockIdx.x ==0 && threadIdx.x == 0) printf("Blk=%d num_tasks=%d Saliendo por %d\n", blockIdx.x, num_subtask, s_bid );
+			return;
+		}
+		
+		//for (int iter=0; iter<iter_per_subtask; iter++) {
+	
+			myRow = s_bid * blockDim.x + threadIdx.x;
+			//int myRow = s_bid * blockDim.x * iter_per_subtask + iter * blockDim.x + threadIdx.x;
+			texReaderSP vecTexReader;
+
+			//if (blockIdx.x==0 && threadIdx.x==0)
+				//printf("bid=%d Row=%d, start=%d, end=%d ", s_bid, myRow, rowDelimiters[myRow], rowDelimiters[myRow+1]);
+			if (myRow < dim)
+			{
+				float t = 0.0f;
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &rowDelimiters[myRow], numUniqueAddr);
+				}
+				int start = rowDelimiters[myRow];
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &rowDelimiters[myRow+1], numUniqueAddr);
+				}
+				int end = rowDelimiters[myRow+1];
+				for (int j = start; j < end; j++) {
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_unique_lines((intptr_t) &cols[j], numUniqueAddr);
+					}
+					int col = cols[j];
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_unique_lines((intptr_t) &val[j], numUniqueAddr);
+					}
+					t += val[j] * vecTexReader(col);
+				}
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &out[myRow], numUniqueAddr);
+				}
+				out[myRow] = t;
+				//if (blockIdx.x==0 && threadIdx.x==0)
+				//	printf("Result=%f\n", t);
+			}
+		//}
+	}
+}
+
 // ****************************************************************************
 // Function: spmv_csr_vector_kernel
 //
@@ -544,7 +644,173 @@ preemp_SMT_spmv_csr_vector_kernel(const float * __restrict__ val,
 		
 }
 
+template <int BLOCK_SIZE>
+__global__ void
+memaddr_preemp_SMT_spmv_csr_vector_kernel(const float * __restrict__ val,
+                       const int    * __restrict__ cols,
+                       const int    * __restrict__ rowDelimiters,
+                       const int dim, float * __restrict__ out,
+						
+						int *numUniqueAddr,
+						int SIMD_min,
+						int SIMD_max,
+						int num_subtask,
+						int iter_per_subtask,
+						int *cont_subtask,
+						State *status				   
+					   )
+{
+	
+	__shared__ int s_bid;
+	__shared__ volatile float partialSums[BLOCK_SIZE];
+	
+	unsigned int SM_id = get_smid_SPMV();
+	
+	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
+			return;
+		
+	while (1){
+		
+		/********** Task Id calculation *************/
+		if (threadIdx.x == 0) {
+			if (*status == TOEVICT){
+				s_bid = -1;
+			}
+			else {
+				s_bid = atomicAdd(cont_subtask, 1);
+			}
+		}
+		
+		__syncthreads();
+		
+		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
+			return;
+		}
+		
+		for (int iter=0; iter<iter_per_subtask; iter++) {
+	
+			// Thread ID in block
+			int t = threadIdx.x;
+			// Thread ID within warp
+			int id = t & (warpSize-1);
+			int warpsPerBlock = blockDim.x / warpSize;
+			// One row per warp
+			int myRow = (s_bid * warpsPerBlock * iter_per_subtask + iter * warpsPerBlock) + (t / warpSize);
+			// Texture reader for the dense vector
+			texReaderSP vecTexReader;
 
+			if (myRow < dim)
+			{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &rowDelimiters[myRow], numUniqueAddr);
+				}
+				int warpStart = rowDelimiters[myRow];
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &rowDelimiters[myRow+1], numUniqueAddr);
+				}
+				int warpEnd = rowDelimiters[myRow+1];
+				float mySum = 0;
+				for (int j = warpStart + id; j < warpEnd; j += warpSize) {
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_unique_lines((intptr_t) &cols[j], numUniqueAddr);
+					}
+					int col = cols[j];
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_unique_lines((intptr_t) &val[j], numUniqueAddr);
+					}
+					mySum += val[j] * vecTexReader(col);
+				}
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					get_conflicting_banks( (intptr_t) &partialSums[t], &numUniqueAddr[1] );					
+				partialSums[t] = mySum;
+
+				// Reduce partial sums
+				if (id < 16)
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &partialSums[t], &numUniqueAddr[1] );					
+						get_conflicting_banks( (intptr_t) &partialSums[t+16], &numUniqueAddr[1] );					
+					}
+					partialSums[t] += partialSums[t+16];
+				}
+				if (id <  8)
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &partialSums[t], &numUniqueAddr[1] );					
+						get_conflicting_banks( (intptr_t) &partialSums[t+8], &numUniqueAddr[1] );					
+					}
+					partialSums[t] += partialSums[t+ 8];
+				}
+				if (id <  4)
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &partialSums[t], &numUniqueAddr[1] );					
+						get_conflicting_banks( (intptr_t) &partialSums[t+4], &numUniqueAddr[1] );					
+					}
+					partialSums[t] += partialSums[t+ 4];
+				}
+				if (id <  2)
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &partialSums[t], &numUniqueAddr[1] );					
+						get_conflicting_banks( (intptr_t) &partialSums[t+2], &numUniqueAddr[1] );					
+					}
+					partialSums[t] += partialSums[t+ 2];
+				}
+				if (id <  1)
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &partialSums[t], &numUniqueAddr[1] );					
+						get_conflicting_banks( (intptr_t) &partialSums[t+1], &numUniqueAddr[1] );					
+					}
+					partialSums[t] += partialSums[t+ 1];
+				}
+
+				// Write result
+				if (id == 0) {
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_unique_lines((intptr_t) &out[myRow], numUniqueAddr);
+						get_conflicting_banks( (intptr_t) &partialSums[t], &numUniqueAddr[1] );					
+					}
+					out[myRow] = partialSums[t];
+				}
+			}
+		}
+	}
+		
+}
 
 // ****************************************************************************
 // Function: spmv_ellpackr_kernel
@@ -703,6 +969,81 @@ preemp_SMT_spmv_ellpackr_kernel(const float * __restrict__ val,
 					int ind = i*dim+t;
 					result += val[ind] * vecTexReader(cols[ind]);
 				}
+				out[t] = result;
+			}
+		}
+    }
+}
+
+__global__ void
+memaddr_preemp_SMT_spmv_ellpackr_kernel(const float * __restrict__ val,
+                     const int    * __restrict__ cols,
+                     const int    * __restrict__ rowLengths,
+                     const int dim, float * __restrict__ out,
+					 						
+						int *numUniqueAddr,
+						int SIMD_min,
+						int SIMD_max,
+						int num_subtask,
+						int iter_per_subtask,
+						int *cont_subtask,
+						State *status			   
+					 )
+{
+	__shared__ int s_bid;
+	
+	unsigned int SM_id = get_smid_SPMV();
+	
+	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
+			return;
+		
+	while (1){
+		
+		/********** Task Id calculation *************/
+		if (threadIdx.x == 0) {
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else
+				s_bid = atomicAdd(cont_subtask, 1);
+		}
+		
+		__syncthreads();
+		
+		if (s_bid >= num_subtask || s_bid == -1){ /* If all subtasks have been executed */
+			return;
+		}
+		
+		for (int iter=0; iter<iter_per_subtask; iter++) {
+	
+			int t = blockIdx.x * blockDim.x * iter_per_subtask + iter * blockDim.x + threadIdx.x;
+			texReaderSP vecTexReader;
+
+			if (t < dim)
+			{
+				float result = 0.0f;
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &rowLengths[t], numUniqueAddr);
+				}
+				int max = rowLengths[t];
+				for (int i = 0; i < max; i++) {
+					int ind = i*dim+t;
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_unique_lines((intptr_t) &val[ind], numUniqueAddr);
+					}
+					result += val[ind] * vecTexReader(cols[ind]);
+				}
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &out[t], numUniqueAddr);
+				}				
 				out[t] = result;
 			}
 		}
@@ -960,16 +1301,25 @@ int launch_preemp_SPMVcsr(void *arg)
 	t_SPMV_params * params = (t_SPMV_params *)kstub->params;
 	
 	#ifdef SMT
-	preemp_SMT_spmv_csr_scalar_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>
+	if ( !(kstub->memaddr_profile) )	
+		preemp_SMT_spmv_csr_scalar_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>
 			(params->d_val, params->d_cols, params->d_rowDelimiters, params->numRows, params->d_out,
 			kstub->idSMs[0],
 			kstub->idSMs[1],
 			kstub->total_tasks, 
 			kstub->kconf.coarsening,
 			kstub->d_executed_tasks,
-			kstub->gm_state
-	);
-	
+			kstub->gm_state);
+	else	
+		memaddr_preemp_SMT_spmv_csr_scalar_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>
+			(params->d_val, params->d_cols, params->d_rowDelimiters, params->numRows, params->d_out,
+			kstub->d_numUniqueAddr,				
+			kstub->idSMs[0],
+			kstub->idSMs[1],
+			kstub->total_tasks, 
+			kstub->kconf.coarsening,
+			kstub->d_executed_tasks,
+			kstub->gm_state);
 	#else
 		
 	preemp_SMK_spmv_csr_scalar_kernel<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>

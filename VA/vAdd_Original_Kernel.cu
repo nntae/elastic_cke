@@ -26,6 +26,7 @@
 #include <semaphore.h>
 #include "../elastic_kernel.h"
 #include "VA.h"
+#include "../memaddrcnt.cuh"
 
 //extern t_tqueue *tqueues;
 
@@ -192,7 +193,75 @@ preempt_SMT_vectorAdd(const float *A, const float *B, float *C, int numelements,
 }
 
 __global__ void
-profiling_SMT_vectorAdd(const float *A, const float *B, float *C, int numelements, 
+memaddr_preempt_SMT_vectorAdd(const float *A, const float *B, float *C, int numelements, 
+			int *numUniqueAddr, int SIMD_min, int SIMD_max,
+			int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
+{
+	int i;
+	
+	__shared__ int s_bid;
+	
+	unsigned int SM_id = get_smid_VA();
+	
+	//int warpid = threadIdx.x >> 5;
+	
+	//int thIdxwarp = threadIdx.x & 0x1F;
+	
+	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
+			return;
+			
+	//if (threadIdx.x==0) // Ojo, esto es una prueba. Habría que tener en cuenta iteraciones entre distintos bloques
+	//	*status = RUNNING;
+		
+	while (1){
+		
+		/********** Task Id calculation *************/
+		
+		if (threadIdx.x == 0) {
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else
+				s_bid = atomicAdd(cont_subtask, 1); //subtask_id
+		}
+		
+		//if ( thIdxwarp == 0) {
+		//	if (*status == TOEVICT)
+		//		s_bid[warpid] = -1;
+		//	else
+		//		s_bid[warpid] = atomicAdd(cont_subtask + warpid, 1); //subtask_id
+		//}
+			
+		__syncthreads();
+		
+		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
+		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */
+			return;
+	
+		for (int j=0; j<iter_per_subtask; j++) {
+			
+			 i = s_bid * blockDim.x * iter_per_subtask +  j * blockDim.x + threadIdx.x;
+			
+			if (i < numelements)
+			{
+#if defined(COUNT_ALL_TASKS)
+
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &A[i], numUniqueAddr);
+					get_unique_lines((intptr_t) &B[i], numUniqueAddr);
+					get_unique_lines((intptr_t) &C[i], numUniqueAddr);
+				}
+				C[i] = A[i] + B[i];
+			}
+		}
+		
+	}
+
+}
+
+__global__ void
+profiling_SMT_vectorAdd(const float *A, const float *B, float *C, int numelements, 						
 						int num_subtask,
 						int iter_per_subtask,
 						int *cont_SM,
@@ -263,7 +332,7 @@ profiling_SMT_vectorAdd(const float *A, const float *B, float *C, int numelement
 			 i = s_bid * blockDim.x * iter_per_subtask +  j * blockDim.x + threadIdx.x;
 			
 			if (i < numelements)
-					C[i] = A[i] + B[i];
+				C[i] = A[i] + B[i];
 		}
 		
 	}
@@ -722,7 +791,6 @@ int prof_VA(void *arg)
 	
 	profiling_SMT_vectorAdd<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>/*(VAparams->d_A, VAparams->d_B, VAparams->d_C, VAparams->numElements, */
 			(params->d_A, params->d_B, params->d_C, params->numElements,
-			
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
 			kstub->d_SMs_cont,
@@ -737,16 +805,26 @@ int launch_preemp_VA(void *arg)
 	t_VA_params * params = (t_VA_params *)kstub->params;
 	
 	#ifdef SMT
-	
-	preempt_SMT_vectorAdd<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>/*(VAparams->d_A, VAparams->d_B, VAparams->d_C, VAparams->numElements, */
+
+	if ( !(kstub->memaddr_profile) )
+		preempt_SMT_vectorAdd<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>/*(VAparams->d_A, VAparams->d_B, VAparams->d_C, VAparams->numElements, */
 			(params->d_A, params->d_B, params->d_C, params->numElements,
 			kstub->idSMs[0],
 			kstub->idSMs[1],
 			kstub->total_tasks,
 			kstub->kconf.coarsening,
 			kstub->d_executed_tasks,
-			&(kstub->gm_state[kstub->stream_index])
-	);
+			&(kstub->gm_state[kstub->stream_index]));
+	else
+		memaddr_preempt_SMT_vectorAdd<<<kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>/*(VAparams->d_A, VAparams->d_B, VAparams->d_C, VAparams->numElements, */
+			(params->d_A, params->d_B, params->d_C, params->numElements,
+			kstub->d_numUniqueAddr,
+			kstub->idSMs[0],
+			kstub->idSMs[1],
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_executed_tasks,
+			&(kstub->gm_state[kstub->stream_index]));
 	
 	#else
 		

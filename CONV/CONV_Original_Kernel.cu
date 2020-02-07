@@ -21,6 +21,7 @@ using namespace std;
 
 #include "../elastic_kernel.h"
 #include "CONV.h"
+#include "../memaddrcnt.cuh"
 
 extern t_tqueue *tqueues;
 
@@ -331,6 +332,168 @@ SMT_rowsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int imageH, 
 }
 
 __global__ void
+memaddr_SMT_rowsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int imageH, int pitch,
+					int gridDimX,
+					int *numUniqueAddr, int SIMD_min, int SIMD_max,
+					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
+{
+	
+	__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
+	__shared__ int s_bid;
+	
+	unsigned int SM_id = get_smid_CONV();
+	
+	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
+			return;
+	
+	while (1){
+		
+		/********** Task Id calculation *************/
+		
+		if (threadIdx.x == 0 && threadIdx.y == 0) { 
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else {
+				s_bid = atomicAdd(cont_subtask, 1);				//subtask_id
+				//printf("Blq=%d cont=%d\n", blockIdx.x, s_bid);
+			}
+		}
+		
+		__syncthreads();
+		
+		
+		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
+		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{
+			//if (threadIdx.x == 0)  printf("El bloque %d se sale con %d\n", blockIdx.x, s_bid); 
+			return;
+		}
+		
+		for(int iter = 0; iter < iter_per_subtask; iter++){
+			
+			float *d_Src, *d_Dst;
+
+			//Offset to the left halo edge
+			
+			//const int baseX = (((s_bid + iter * blockDim.x) / gridDimY)* ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+			//const int baseY = ((s_bid + iter * blockDim.x) - ((s_bid / gridDimY) * gridDimY)) * ROWS_BLOCKDIM_Y + threadIdx.y;
+			
+			int row = (s_bid * iter_per_subtask + iter ) / gridDimX;
+			int col = (s_bid * iter_per_subtask + iter ) - col * gridDimX;  
+			
+			const int baseX = (col * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+			const int baseY = row * ROWS_BLOCKDIM_Y + threadIdx.y;	
+
+			d_Src = d_Src_p + baseY * pitch + baseX;
+			d_Dst = d_Dst_p + baseY * pitch + baseX;
+
+			//Load main data
+			#pragma unroll
+
+			for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
+			{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &d_Src[i * ROWS_BLOCKDIM_X], numUniqueAddr);
+					get_conflicting_banks( (intptr_t) &s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X], &numUniqueAddr[1] );				
+				}
+				s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = d_Src[i * ROWS_BLOCKDIM_X];
+			}
+
+			//Load left halo
+			#pragma unroll
+
+			for (int i = 0; i < ROWS_HALO_STEPS; i++)
+			{
+				// Cambiamos la expresion condicional para usar if
+//				s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (baseX >= -i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
+				if ( baseX >= -i * ROWS_BLOCKDIM_X )
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_unique_lines((intptr_t) &d_Src[i * ROWS_BLOCKDIM_X], numUniqueAddr);
+						get_conflicting_banks( (intptr_t) &s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X], &numUniqueAddr[1] );
+					}				
+					s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = d_Src[i * ROWS_BLOCKDIM_X];
+				}
+				else
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X], &numUniqueAddr[1] );
+					}				
+					s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = 0;
+				}
+			}
+
+			//Load right halo
+			#pragma unroll
+
+			for (int i = ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS + ROWS_HALO_STEPS; i++)
+			{
+//				s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (imageW - baseX > i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
+				if (imageW - baseX > i * ROWS_BLOCKDIM_X)
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_unique_lines((intptr_t) &d_Src[i * ROWS_BLOCKDIM_X], numUniqueAddr);
+						get_conflicting_banks( (intptr_t) &s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X], &numUniqueAddr[1] );
+					}				
+					s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = d_Src[i * ROWS_BLOCKDIM_X];
+				}
+				else
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X], &numUniqueAddr[1] );
+					}				
+					s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = 0;
+				}
+			}
+
+			//Compute and store results
+			__syncthreads();
+			#pragma unroll
+
+			for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
+			{
+				float sum = 0;
+
+				#pragma unroll
+
+				for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X + j], &numUniqueAddr[1] );
+					}
+					sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X + j];
+				}
+
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &d_Dst[i * ROWS_BLOCKDIM_X], numUniqueAddr);
+				}				
+				d_Dst[i * ROWS_BLOCKDIM_X] = sum;
+			}
+		}
+	}
+}
+
+__global__ void
 SMK_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int pitch,
 					int gridDimY,
 					int max_blocks_per_SM,
@@ -478,6 +641,7 @@ int launch_preemp_RCONV(void *arg)
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	#ifdef SMT
+	if ( !(kstub->memaddr_profile) )	
 		SMT_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
 			
@@ -489,6 +653,20 @@ int launch_preemp_RCONV(void *arg)
 			kstub->kconf.coarsening,
 			kstub->d_executed_tasks,
 			kstub->gm_state);
+	else
+		memaddr_SMT_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
+			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
+			
+			kstub->kconf.gridsize.y,
+			
+			kstub->d_numUniqueAddr,				
+			kstub->idSMs[0],
+			kstub->idSMs[1],
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_executed_tasks,
+			kstub->gm_state);
+				
 	#else
 		SMK_rowsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Buffer, params->d_Input, imageW, imageH, imageW,
@@ -662,6 +840,164 @@ SMT_colsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int imageH, 
 }
 
 __global__ void
+memaddr_SMT_colsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int imageH, int pitch,
+					int gridDimX,
+					int *numUniqueAddr, int SIMD_min, int SIMD_max,
+					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
+{
+	__shared__ float s_Data[COLUMNS_BLOCKDIM_X][(COLUMNS_RESULT_STEPS + 2 * COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + 1];
+	__shared__ int s_bid;
+	
+	unsigned int SM_id = get_smid_CONV();
+	
+	if (SM_id <SIMD_min || SM_id > SIMD_max) /* Only blocks executing within SIMD_min and SIMD_max can progress */ 
+			return;
+	
+	while (1){
+		
+		/********** Task Id calculation *************/
+		
+		if (threadIdx.x == 0 && threadIdx.y == 0) { 
+			if (*status == TOEVICT)
+				s_bid = -1;
+			else {
+				s_bid = atomicAdd(cont_subtask, 1);				//subtask_id
+				//printf("Blq=%d cont=%d\n", blockIdx.x, s_bid);
+			}
+		}
+		
+		__syncthreads();
+		
+		//if (s_bid[warpid] >= num_subtask || s_bid[warpid] == -1)
+		if (s_bid >=num_subtask || s_bid ==-1) /* If all subtasks have been executed */{
+			//if (threadIdx.x == 0)  printf("El bloque %d se sale con %d\n", blockIdx.x, s_bid); 
+			return;
+		}
+		
+		for(int iter = 0; iter < iter_per_subtask; iter++){
+			float *d_Src, *d_Dst;
+			
+			int row = (s_bid * iter_per_subtask + iter ) / gridDimX;
+			int col = (s_bid * iter_per_subtask + iter ) - col * gridDimX;  
+			
+			const int baseX = col * COLUMNS_BLOCKDIM_X + threadIdx.x;
+			const int baseY = (row * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;	
+
+			//Offset to the upper halo edge
+			// const int baseX = blockIdx.x * COLUMNS_BLOCKDIM_X + threadIdx.x;
+			// const int baseY = (blockIdx.y * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
+			//const int baseX = ((s_bid + iter * blockDim.x) / gridDimY) * COLUMNS_BLOCKDIM_X + threadIdx.x;
+			//const int baseY = (((s_bid + iter * blockDim.x) - ((s_bid / gridDimY) * gridDimY)) * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
+			
+			d_Src = d_Src_p + baseY * pitch + baseX;
+			d_Dst = d_Dst_p + baseY * pitch + baseX;
+
+			//Main data
+			#pragma unroll
+
+			for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
+			{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &d_Src[i * COLUMNS_BLOCKDIM_Y * pitch], numUniqueAddr);
+					get_conflicting_banks( (intptr_t) &s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y], &numUniqueAddr[1] );			
+				}
+				s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = d_Src[i * COLUMNS_BLOCKDIM_Y * pitch];
+			}
+
+			//Upper halo
+			#pragma unroll
+
+			for (int i = 0; i < COLUMNS_HALO_STEPS; i++)
+			{
+				// s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = (baseY >= -i * COLUMNS_BLOCKDIM_Y) ? d_Src[i * COLUMNS_BLOCKDIM_Y * pitch] : 0;
+				if (baseY >= -i * COLUMNS_BLOCKDIM_Y)
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_unique_lines((intptr_t) &d_Src[i * COLUMNS_BLOCKDIM_Y * pitch], numUniqueAddr);
+						get_conflicting_banks( (intptr_t) &s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y], &numUniqueAddr[1] );
+					}				
+					s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = d_Src[i * COLUMNS_BLOCKDIM_Y * pitch];
+				}
+				else
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y], &numUniqueAddr[1] );
+					}	
+					s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = 0;		
+				}
+			}
+
+			//Lower halo
+			#pragma unroll
+
+			for (int i = COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS + COLUMNS_HALO_STEPS; i++)
+			{
+				//s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y]= (imageH - baseY > i * COLUMNS_BLOCKDIM_Y) ? d_Src[i * COLUMNS_BLOCKDIM_Y * pitch] : 0;
+				if (imageH - baseY > i * COLUMNS_BLOCKDIM_Y)
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_unique_lines((intptr_t) &d_Src[i * COLUMNS_BLOCKDIM_Y * pitch], numUniqueAddr);
+						get_conflicting_banks( (intptr_t) &s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y], &numUniqueAddr[1] );
+					}				
+					s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = d_Src[i * COLUMNS_BLOCKDIM_Y * pitch];
+				}
+				else
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y], &numUniqueAddr[1] );
+					}
+					s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = 0;					}
+			}
+
+			//Compute and store results
+			__syncthreads();
+			#pragma unroll
+
+			for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
+			{
+				float sum = 0;
+				#pragma unroll
+
+				for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+				{
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+					{
+						get_conflicting_banks( (intptr_t) &s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y + j], &numUniqueAddr[1] );
+					}
+					sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y + j];
+				}
+				
+#if defined(COUNT_ALL_TASKS)
+				if ( s_bid == 0 )
+#endif
+				{
+					get_unique_lines((intptr_t) &d_Dst[i * COLUMNS_BLOCKDIM_Y * pitch], numUniqueAddr);
+				}	
+				d_Dst[i * COLUMNS_BLOCKDIM_Y * pitch] = sum;
+			}
+		}
+	}
+}
+
+
+__global__ void
 SMK_colsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int pitch,
 					int gridDimY,
 					int max_blocks_per_SM,
@@ -785,11 +1121,25 @@ int launch_preemp_CCONV(void *arg)
     dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
 	
 	#ifdef SMT
+	if ( !(kstub->memaddr_profile) )	
 		SMT_colsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
 			params->d_Output, params->d_Buffer, imageW, imageH, imageW,
 			
 			kstub->kconf.gridsize.x,
 			
+			kstub->idSMs[0],
+			kstub->idSMs[1],
+			kstub->total_tasks,
+			kstub->kconf.coarsening,
+			kstub->d_executed_tasks,
+			&(kstub->gm_state[kstub->stream_index]));
+	else
+		memaddr_SMT_colsConvolutionCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, 0, *(kstub->execution_s) >>>(
+			params->d_Output, params->d_Buffer, imageW, imageH, imageW,
+			
+			kstub->kconf.gridsize.x,
+
+			kstub->d_numUniqueAddr,				
 			kstub->idSMs[0],
 			kstub->idSMs[1],
 			kstub->total_tasks,

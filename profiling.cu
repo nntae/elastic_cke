@@ -333,7 +333,7 @@ int smk_coexec_prof(t_kernel_stub **kstub)
 				flag = 0;
 				break;
 			}
-				
+				 
 			if (cudaStreamQuery(*kstub[1]->execution_s) == cudaSuccess) {
 				flag = 1;
 				break;
