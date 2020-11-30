@@ -1,0 +1,754 @@
+Device=TITAN X (Pascal)
+Overhead SMK wrt original
+kid=VA Ori=0.007220 SMK=0.007218 Over=0.999740
+kid=MM Ori=0.010351 SMK=0.009901 Over=0.956565
+kid=BS Ori=0.004472 SMK=0.004489 Over=1.003943
+kid=Reduction Ori=0.005041 SMK=0.004327 Over=0.858351
+kid=PF Ori=0.006744 SMK=0.006777 Over=1.004808
+kid=GCEDD Ori=0.005250 SMK=0.005499 Over=1.047455
+kid=SCEDD Ori=0.009522 SMK=0.009760 Over=1.025064
+kid=NCEDD Ori=0.007071 SMK=0.006827 Over=0.965568
+kid=HCEDD Ori=0.002149 SMK=0.002050 Over=0.953817
+kid=SPMV_CSRscalar Ori=0.010418 SMK=0.011002 Over=1.056064
+kid=RCONV Ori=0.001438 SMK=0.001443 Over=1.003278
+kid=CCONV Ori=0.001603 SMK=0.001601 Over=0.998755
+kid=HST256 Ori=0.004171 SMK=0.003798 Over=0.910604
+Overhead SMT wrt original
+kid=VA Ori=0.007220 SMT=0.007190 Over=0.995943
+kid=MM Ori=0.010351 SMT=0.009903 Over=0.956726
+kid=BS Ori=0.004472 SMT=0.004497 Over=1.005756
+kid=Reduction Ori=0.005041 SMT=0.004325 Over=0.858020
+kid=PF Ori=0.006744 SMT=0.006764 Over=1.002864
+kid=GCEDD Ori=0.005250 SMT=0.005493 Over=1.046319
+kid=SCEDD Ori=0.009522 SMT=0.009939 Over=1.043793
+kid=NCEDD Ori=0.007071 SMT=0.006856 Over=0.969648
+kid=HCEDD Ori=0.002149 SMT=0.002062 Over=0.959697
+kid=SPMV_CSRscalar Ori=0.010418 SMT=0.010770 Over=1.033774
+kid=RCONV Ori=0.001438 SMT=0.001453 Over=1.010074
+kid=CCONV Ori=0.001603 SMT=0.001605 Over=1.001284
+kid=HST256 Ori=0.004171 SMT=0.003816 Over=0.914719
+ *** bk0=7 bk1=1 time=0.007499 exec_task0=22400 exec_task1=782 tpms0=2987.168053, tmps1=104.284170
+ *** bk0=6 bk1=2 time=0.007854 exec_task0=22400 exec_task1=1765 tpms0=2851.882273, tmps1=224.713045
+ *** bk0=5 bk1=3 time=0.008307 exec_task0=22400 exec_task1=3036 tpms0=2696.527455, tmps1=365.475775
+ *** bk0=4 bk1=4 time=0.008945 exec_task0=22400 exec_task1=4773 tpms0=2504.195575, tmps1=533.594888
+ *** bk0=3 bk1=5 time=0.009953 exec_task0=22400 exec_task1=7343 tpms0=2250.518830, tmps1=737.748204
+ *** bk0=2 bk1=6 time=0.012166 exec_task0=22400 exec_task1=11776 tpms0=1841.265425, tmps1=967.979538
+ *** bk0=1 bk1=7 time=0.013321 exec_task0=15729 exec_task1=16384 tpms0=1180.795182, tmps1=1229.966830
+ *** bk0=7 bk1=1 time=0.007642 exec_task0=22400 exec_task1=1402 tpms0=2931.066625, tmps1=183.453366
+ *** bk0=6 bk1=2 time=0.008243 exec_task0=22400 exec_task1=3189 tpms0=2717.508160, tmps1=386.880961
+ *** bk0=5 bk1=3 time=0.009047 exec_task0=22400 exec_task1=5598 tpms0=2475.950287, tmps1=618.766505
+ *** bk0=4 bk1=4 time=0.010229 exec_task0=22400 exec_task1=9084 tpms0=2189.828678, tmps1=888.053737
+ *** bk0=3 bk1=5 time=0.009387 exec_task0=17457 exec_task1=11200 tpms0=1859.790829, tmps1=1193.197988
+ *** bk0=2 bk1=6 time=0.007162 exec_task0=10060 exec_task1=11200 tpms0=1404.570362, tmps1=1563.736387
+ *** bk0=1 bk1=7 time=0.005696 exec_task0=4508 exec_task1=11200 tpms0=791.490746, tmps1=1966.436636
+ *** bk0=1 bk1=7 time=0.007211 exec_task0=8463 exec_task1=392000 tpms0=1173.628525, tmps1=54361.619044
+ *** bk0=2 bk1=6 time=0.010498 exec_task0=19025 exec_task1=392000 tpms0=1812.283019, tmps1=37341.127115
+ *** bk0=3 bk1=5 time=0.009968 exec_task0=22400 exec_task1=262389 tpms0=2247.181459, tmps1=26323.022131
+ *** bk0=4 bk1=4 time=0.008840 exec_task0=22400 exec_task1=159109 tpms0=2533.980894, tmps1=17999.069912
+ *** bk0=5 bk1=3 time=0.008183 exec_task0=22400 exec_task1=96378 tpms0=2737.461309, tmps1=11778.171700
+ *** bk0=6 bk1=2 time=0.007745 exec_task0=22400 exec_task1=54071 tpms0=2892.089195, tmps1=6981.167629
+ *** bk0=7 bk1=1 time=0.007434 exec_task0=22400 exec_task1=23476 tpms0=3013.226735, tmps1=3157.969234
+ *** bk0=1 bk1=7 time=0.009828 exec_task0=17333 exec_task1=7500 tpms0=1763.618243, tmps1=763.118723
+ *** bk0=2 bk1=6 time=0.008330 exec_task0=22400 exec_task1=4492 tpms0=2689.195111, tmps1=539.279662
+ *** bk0=3 bk1=5 time=0.007539 exec_task0=22400 exec_task1=2528 tpms0=2971.390923, tmps1=335.342690
+ *** bk0=4 bk1=4 time=0.007419 exec_task0=22400 exec_task1=1558 tpms0=3019.424399, tmps1=210.011751
+ *** bk0=5 bk1=3 time=0.007303 exec_task0=22400 exec_task1=924 tpms0=3067.332994, tmps1=126.527486
+ *** bk0=6 bk1=2 time=0.007232 exec_task0=22400 exec_task1=535 tpms0=3097.264113, tmps1=73.974835
+ *** bk0=7 bk1=1 time=0.007227 exec_task0=22400 exec_task1=224 tpms0=3099.512061, tmps1=30.995121
+ *** bk0=1 bk1=7 time=0.008723 exec_task0=13969 exec_task1=34969 tpms0=1601.438599, tmps1=4008.927365
+ *** bk0=2 bk1=6 time=0.008962 exec_task0=22400 exec_task1=24935 tpms0=2499.399032, tmps1=2782.255127
+ *** bk0=3 bk1=5 time=0.008061 exec_task0=22400 exec_task1=14246 tpms0=2778.834948, tmps1=1767.289405
+ *** bk0=4 bk1=4 time=0.007763 exec_task0=22400 exec_task1=8657 tpms0=2885.604890, tmps1=1115.208997
+ *** bk0=5 bk1=3 time=0.007586 exec_task0=22400 exec_task1=5225 tpms0=2952.899695, tmps1=688.790219
+ *** bk0=6 bk1=2 time=0.007452 exec_task0=22400 exec_task1=2919 tpms0=3006.092327, tmps1=391.731406
+ *** bk0=7 bk1=1 time=0.007325 exec_task0=22400 exec_task1=1266 tpms0=3057.848970, tmps1=172.823071
+ *** bk0=1 bk1=7 time=0.013285 exec_task0=21430 exec_task1=559504 tpms0=1613.106992, tmps1=42115.716969
+ *** bk0=2 bk1=6 time=0.008688 exec_task0=22400 exec_task1=268392 tpms0=2578.135382, tmps1=30890.665693
+ *** bk0=3 bk1=5 time=0.007748 exec_task0=22400 exec_task1=158567 tpms0=2890.932324, tmps1=20464.574367
+ *** bk0=4 bk1=4 time=0.007484 exec_task0=22400 exec_task1=98959 tpms0=2992.877472, tmps1=13221.971507
+ *** bk0=5 bk1=3 time=0.007337 exec_task0=22400 exec_task1=60962 tpms0=3052.880897, tmps1=8308.469876
+ *** bk0=6 bk1=2 time=0.007276 exec_task0=22400 exec_task1=34479 tpms0=3078.589999, tmps1=4738.692169
+ *** bk0=7 bk1=1 time=0.007237 exec_task0=22400 exec_task1=15016 tpms0=3095.325325, tmps1=2074.973441
+ *** bk0=1 bk1=7 time=0.010948 exec_task0=18048 exec_task1=279752 tpms0=1648.564802, tmps1=25553.485182
+ *** bk0=2 bk1=6 time=0.008796 exec_task0=22400 exec_task1=152015 tpms0=2546.549835, tmps1=17281.864871
+ *** bk0=3 bk1=5 time=0.007823 exec_task0=22400 exec_task1=86235 tpms0=2863.355163, tmps1=11023.278235
+ *** bk0=4 bk1=4 time=0.007550 exec_task0=22400 exec_task1=52453 tpms0=2967.074360, tmps1=6947.854973
+ *** bk0=5 bk1=3 time=0.007398 exec_task0=22400 exec_task1=31778 tpms0=3027.890348, tmps1=4295.549084
+ *** bk0=6 bk1=2 time=0.007323 exec_task0=22400 exec_task1=17785 tpms0=3058.944117, tmps1=2428.719693
+ *** bk0=7 bk1=1 time=0.007240 exec_task0=22400 exec_task1=7701 tpms0=3093.796417, tmps1=1063.630634
+ *** bk0=1 bk1=7 time=0.002691 exec_task0=3856 exec_task1=139876 tpms0=1433.162271, tmps1=51987.812699
+ *** bk0=2 bk1=6 time=0.003680 exec_task0=8223 exec_task1=139876 tpms0=2234.516475, tmps1=38009.877959
+ *** bk0=3 bk1=5 time=0.005417 exec_task0=14082 exec_task1=139876 tpms0=2599.656203, tmps1=25822.291651
+ *** bk0=4 bk1=4 time=0.008053 exec_task0=22400 exec_task1=137776 tpms0=2781.632212, tmps1=17109.024985
+ *** bk0=5 bk1=3 time=0.007690 exec_task0=22400 exec_task1=82915 tpms0=2912.891722, tmps1=10782.250765
+ *** bk0=6 bk1=2 time=0.007452 exec_task0=22400 exec_task1=46235 tpms0=3006.092327, tmps1=6204.762444
+ *** bk0=7 bk1=1 time=0.007279 exec_task0=22400 exec_task1=19805 tpms0=3077.178357, tmps1=2720.692739
+ *** bk0=1 bk1=14 time=0.010857 exec_task0=2388 exec_task1=573440 tpms0=219.943300, tmps1=52815.865209
+ *** bk0=2 bk1=12 time=0.010999 exec_task0=5580 exec_task1=573440 tpms0=507.309497, tmps1=52134.687774
+ *** bk0=3 bk1=10 time=0.011813 exec_task0=10093 exec_task1=573440 tpms0=854.368610, tmps1=48541.477845
+ *** bk0=4 bk1=8 time=0.013519 exec_task0=16969 exec_task1=573440 tpms0=1255.236144, tmps1=42418.681959
+ *** bk0=5 bk1=6 time=0.014842 exec_task0=22400 exec_task1=435934 tpms0=1509.202924, tmps1=29371.110146
+ *** bk0=6 bk1=4 time=0.012947 exec_task0=22400 exec_task1=206550 tpms0=1730.183227, tmps1=15953.988641
+ *** bk0=7 bk1=2 time=0.010673 exec_task0=22400 exec_task1=58220 tpms0=2098.791681, tmps1=5454.984449
+ *** bk0=1 bk1=28 time=0.001451 exec_task0=1545 exec_task1=131072 tpms0=1064.596629, tmps1=90316.381450
+ *** bk0=2 bk1=24 time=0.001455 exec_task0=2922 exec_task1=131072 tpms0=2007.823769, tmps1=90064.845001
+ *** bk0=3 bk1=20 time=0.001500 exec_task0=3462 exec_task1=131072 tpms0=2308.167294, tmps1=87387.667126
+ *** bk0=4 bk1=16 time=0.001732 exec_task0=4250 exec_task1=131072 tpms0=2454.329065, tmps1=75692.663347
+ *** bk0=5 bk1=12 time=0.002271 exec_task0=5980 exec_task1=131072 tpms0=2632.721520, tmps1=57705.029273
+ *** bk0=6 bk1=8 time=0.003447 exec_task0=9636 exec_task1=131072 tpms0=2795.429060, tmps1=38024.333510
+ *** bk0=7 bk1=4 time=0.006957 exec_task0=20403 exec_task1=131072 tpms0=2932.807310, tmps1=18840.803793
+ *** bk0=7 bk1=2 time=0.008172 exec_task0=20613 exec_task1=65536 tpms0=2522.309080, tmps1=8019.310527
+ *** bk0=6 bk1=4 time=0.004488 exec_task0=9109 exec_task1=65536 tpms0=2029.854167, tmps1=14604.075388
+ *** bk0=5 bk1=6 time=0.003237 exec_task0=5208 exec_task1=65536 tpms0=1608.892630, tmps1=20245.850110
+ *** bk0=4 bk1=8 time=0.002609 exec_task0=3235 exec_task1=65536 tpms0=1239.931777, tmps1=25119.063049
+ *** bk0=3 bk1=10 time=0.002219 exec_task0=2010 exec_task1=65536 tpms0=905.731740, tmps1=29531.360866
+ *** bk0=2 bk1=12 time=0.001948 exec_task0=1157 exec_task1=65536 tpms0=593.979159, tmps1=33644.786652
+ *** bk0=1 bk1=7 time=0.005925 exec_task0=7161 exec_task1=136192 tpms0=1208.619812, tmps1=22986.223909
+ *** bk0=2 bk1=6 time=0.008414 exec_task0=15555 exec_task1=136192 tpms0=1848.802707, tmps1=16187.215573
+ *** bk0=3 bk1=5 time=0.009883 exec_task0=22400 exec_task1=114382 tpms0=2266.425667, tmps1=11573.138422
+ *** bk0=4 bk1=4 time=0.008865 exec_task0=22400 exec_task1=70325 tpms0=2526.757109, tmps1=7932.776505
+ *** bk0=5 bk1=3 time=0.008209 exec_task0=22400 exec_task1=42840 tpms0=2728.794935, tmps1=5218.820313
+ *** bk0=6 bk1=2 time=0.007791 exec_task0=22400 exec_task1=24011 tpms0=2875.272665, tmps1=3082.061248
+ *** bk0=7 bk1=1 time=0.007451 exec_task0=22400 exec_task1=10472 tpms0=3006.284705, tmps1=1405.438100
+ *** bk0=1 bk1=7 time=0.004906 exec_task0=921 exec_task1=11200 tpms0=187.713396, tmps1=2282.725341
+ *** bk0=2 bk1=6 time=0.005448 exec_task0=2093 exec_task1=11200 tpms0=384.153609, tmps1=2055.671486
+ *** bk0=3 bk1=5 time=0.006174 exec_task0=3659 exec_task1=11200 tpms0=592.615297, tmps1=1813.963193
+ *** bk0=4 bk1=4 time=0.007235 exec_task0=5814 exec_task1=11200 tpms0=803.561586, tmps1=1547.968656
+ *** bk0=5 bk1=3 time=0.008961 exec_task0=9174 exec_task1=11200 tpms0=1023.801216, tmps1=1249.899021
+ *** bk0=6 bk1=2 time=0.012611 exec_task0=15595 exec_task1=11200 tpms0=1236.627422, tmps1=888.119726
+ *** bk0=7 bk1=1 time=0.011298 exec_task0=16384 exec_task1=5410 tpms0=1450.206321, tmps1=478.858411
+ *** bk0=1 bk1=7 time=0.005220 exec_task0=1650 exec_task1=392000 tpms0=316.095807, tmps1=75096.700831
+ *** bk0=2 bk1=6 time=0.006341 exec_task0=3805 exec_task1=392000 tpms0=600.087487, tmps1=61822.416544
+ *** bk0=3 bk1=5 time=0.008038 exec_task0=6650 exec_task1=392000 tpms0=827.315703, tmps1=48768.083526
+ *** bk0=4 bk1=4 time=0.010446 exec_task0=10634 exec_task1=392000 tpms0=1018.013574, tmps1=37526.925068
+ *** bk0=5 bk1=3 time=0.014033 exec_task0=16384 exec_task1=379807 tpms0=1167.566759, tmps1=27066.041751
+ *** bk0=6 bk1=2 time=0.012274 exec_task0=16384 exec_task1=213338 tpms0=1334.825312, tmps1=17380.918122
+ *** bk0=7 bk1=1 time=0.010728 exec_task0=16384 exec_task1=87556 tpms0=1527.167357, tmps1=8161.173408
+ *** bk0=1 bk1=7 time=0.008678 exec_task0=2795 exec_task1=7500 tpms0=322.071477, tmps1=864.234732
+ *** bk0=2 bk1=6 time=0.010964 exec_task0=6695 exec_task1=7500 tpms0=610.626161, tmps1=684.047231
+ *** bk0=3 bk1=5 time=0.014242 exec_task0=12017 exec_task1=7500 tpms0=843.775863, tmps1=526.613878
+ *** bk0=4 bk1=4 time=0.015816 exec_task0=16384 exec_task1=6267 tpms0=1035.914749, tmps1=396.244979
+ *** bk0=5 bk1=3 time=0.013612 exec_task0=16384 exec_task1=3753 tpms0=1203.662102, tmps1=275.716789
+ *** bk0=6 bk1=2 time=0.012139 exec_task0=16384 exec_task1=2072 tpms0=1349.716713, tmps1=170.691713
+ *** bk0=7 bk1=1 time=0.010726 exec_task0=16384 exec_task1=894 tpms0=1527.472865, tmps1=83.347213
+ *** bk0=1 bk1=7 time=0.006775 exec_task0=2268 exec_task1=34969 tpms0=334.753193, tmps1=5161.368778
+ *** bk0=2 bk1=6 time=0.008418 exec_task0=5095 exec_task1=34969 tpms0=605.278958, tmps1=4154.268866
+ *** bk0=3 bk1=5 time=0.010716 exec_task0=8914 exec_task1=34969 tpms0=831.824724, tmps1=3263.190348
+ *** bk0=4 bk1=4 time=0.014095 exec_task0=14398 exec_task1=34969 tpms0=1021.474780, tmps1=2480.896762
+ *** bk0=5 bk1=3 time=0.013883 exec_task0=16384 exec_task1=24786 tpms0=1180.138704, tmps1=1785.334346
+ *** bk0=6 bk1=2 time=0.012285 exec_task0=16384 exec_task1=13990 tpms0=1333.685455, tmps1=1138.809785
+ *** bk0=7 bk1=1 time=0.010689 exec_task0=16384 exec_task1=6110 tpms0=1532.719454, tmps1=571.589103
+ *** bk0=1 bk1=7 time=0.011580 exec_task0=3495 exec_task1=559504 tpms0=301.813722, tmps1=48316.447709
+ *** bk0=2 bk1=6 time=0.013746 exec_task0=7945 exec_task1=559504 tpms0=577.985349, tmps1=40702.972252
+ *** bk0=3 bk1=5 time=0.017002 exec_task0=14018 exec_task1=559504 tpms0=824.486110, tmps1=32907.923845
+ *** bk0=4 bk1=4 time=0.015932 exec_task0=16384 exec_task1=402511 tpms0=1028.349820, tmps1=25263.800933
+ *** bk0=5 bk1=3 time=0.013816 exec_task0=16384 exec_task1=247245 tpms0=1185.861305, tmps1=17895.402724
+ *** bk0=6 bk1=2 time=0.012249 exec_task0=16384 exec_task1=141031 tpms0=1337.579351, tmps1=11513.681241
+ *** bk0=7 bk1=1 time=0.010690 exec_task0=16384 exec_task1=61223 tpms0=1532.651086, tmps1=5727.142177
+ *** bk0=1 bk1=7 time=0.008331 exec_task0=3024 exec_task1=279752 tpms0=362.999780, tmps1=33581.320873
+ *** bk0=2 bk1=6 time=0.010302 exec_task0=6748 exec_task1=279752 tpms0=654.999037, tmps1=27154.311000
+ *** bk0=3 bk1=5 time=0.013193 exec_task0=11716 exec_task1=279752 tpms0=888.070005, tmps1=21205.134865
+ *** bk0=4 bk1=4 time=0.015331 exec_task0=16384 exec_task1=242515 tpms0=1068.698901, tmps1=15818.817993
+ *** bk0=5 bk1=3 time=0.013393 exec_task0=16384 exec_task1=148634 tpms0=1223.288891, tmps1=11097.553773
+ *** bk0=6 bk1=2 time=0.012044 exec_task0=16384 exec_task1=83407 tpms0=1360.296859, tmps1=6924.943856
+ *** bk0=7 bk1=1 time=0.010601 exec_task0=16384 exec_task1=35994 tpms0=1545.577723, tmps1=3395.478795
+ *** bk0=1 bk1=7 time=0.002393 exec_task0=728 exec_task1=139876 tpms0=304.250031, tmps1=58457.798556
+ *** bk0=2 bk1=6 time=0.002825 exec_task0=1654 exec_task1=139876 tpms0=585.383412, tmps1=49504.891258
+ *** bk0=3 bk1=5 time=0.003466 exec_task0=2884 exec_task1=139876 tpms0=832.109289, tmps1=40357.877575
+ *** bk0=4 bk1=4 time=0.004423 exec_task0=4609 exec_task1=139876 tpms0=1042.019574, tmps1=31623.677571
+ *** bk0=5 bk1=3 time=0.006011 exec_task0=7279 exec_task1=139876 tpms0=1210.992774, tmps1=23270.892321
+ *** bk0=6 bk1=2 time=0.009148 exec_task0=12451 exec_task1=139876 tpms0=1361.115490, tmps1=15290.931670
+ *** bk0=7 bk1=1 time=0.010653 exec_task0=16384 exec_task1=84050 tpms0=1538.036632, tmps1=7890.135434
+ *** bk0=1 bk1=14 time=0.010654 exec_task0=417 exec_task1=573440 tpms0=39.138578, tmps1=53821.645313
+ *** bk0=2 bk1=12 time=0.010565 exec_task0=972 exec_task1=573440 tpms0=92.001523, tmps1=54277.112490
+ *** bk0=3 bk1=10 time=0.010927 exec_task0=1835 exec_task1=573440 tpms0=167.925901, tmps1=52477.072977
+ *** bk0=4 bk1=8 time=0.011077 exec_task0=3129 exec_task1=573440 tpms0=282.472982, tmps1=51767.755446
+ *** bk0=5 bk1=6 time=0.011698 exec_task0=5332 exec_task1=573440 tpms0=455.785537, tmps1=49018.315482
+ *** bk0=6 bk1=4 time=0.012591 exec_task0=9467 exec_task1=573440 tpms0=751.878888, tmps1=45543.195277
+ *** bk0=7 bk1=2 time=0.014199 exec_task0=16384 exec_task1=427840 tpms0=1153.863200, tmps1=30131.154264
+ *** bk0=1 bk1=28 time=0.001510 exec_task0=126 exec_task1=131072 tpms0=83.462145, tmps1=86821.827841
+ *** bk0=2 bk1=24 time=0.001595 exec_task0=280 exec_task1=131072 tpms0=175.572600, tmps1=82188.042142
+ *** bk0=3 bk1=20 time=0.001714 exec_task0=518 exec_task1=131072 tpms0=302.218594, tmps1=76471.806077
+ *** bk0=4 bk1=16 time=0.001884 exec_task0=812 exec_task1=131072 tpms0=430.892567, tmps1=69554.126251
+ *** bk0=5 bk1=12 time=0.002180 exec_task0=1341 exec_task1=131072 tpms0=615.176820, tmps1=60128.602635
+ *** bk0=6 bk1=8 time=0.002777 exec_task0=2389 exec_task1=131072 tpms0=860.397755, tmps1=47205.548161
+ *** bk0=7 bk1=4 time=0.004641 exec_task0=5495 exec_task1=131072 tpms0=1183.997764, tmps1=28241.848037
+ *** bk0=7 bk1=2 time=0.004858 exec_task0=5269 exec_task1=65536 tpms0=1084.492481, tmps1=13488.954114
+ *** bk0=6 bk1=4 time=0.002815 exec_task0=2284 exec_task1=65536 tpms0=811.502782, tmps1=23284.871406
+ *** bk0=5 bk1=6 time=0.002100 exec_task0=1260 exec_task1=65536 tpms0=600.070744, tmps1=31211.298620
+ *** bk0=4 bk1=8 time=0.001830 exec_task0=784 exec_task1=65536 tpms0=428.503302, tmps1=35819.378022
+ *** bk0=3 bk1=10 time=0.001726 exec_task0=503 exec_task1=65536 tpms0=291.359607, tmps1=37961.318457
+ *** bk0=2 bk1=12 time=0.001666 exec_task0=280 exec_task1=65536 tpms0=168.084317, tmps1=39341.334900
+ *** bk0=1 bk1=14 time=0.001626 exec_task0=114 exec_task1=65536 tpms0=70.110067, tmps1=40304.678438
+ *** bk0=1 bk1=7 time=0.004408 exec_task0=1063 exec_task1=136192 tpms0=241.132783, tmps1=30894.031929
+ *** bk0=2 bk1=6 time=0.005209 exec_task0=2358 exec_task1=136192 tpms0=452.660023, tmps1=26144.475737
+ *** bk0=3 bk1=5 time=0.006331 exec_task0=4156 exec_task1=136192 tpms0=656.406365, tmps1=21510.417622
+ *** bk0=4 bk1=4 time=0.008007 exec_task0=6849 exec_task1=136192 tpms0=855.422193, tmps1=17010.024727
+ *** bk0=5 bk1=3 time=0.010782 exec_task0=11300 exec_task1=136192 tpms0=1048.042704, tmps1=12631.418755
+ *** bk0=6 bk1=2 time=0.013373 exec_task0=16384 exec_task1=112068 tpms0=1225.142656, tmps1=8380.083448
+ *** bk0=7 bk1=1 time=0.011494 exec_task0=16384 exec_task1=48159 tpms0=1425.449122, tmps1=4189.953875
+ *** bk0=1 bk1=7 time=0.005529 exec_task0=2843 exec_task1=392000 tpms0=514.226843, tmps1=70902.892233
+ *** bk0=2 bk1=6 time=0.007124 exec_task0=6734 exec_task1=392000 tpms0=945.294124, tmps1=55027.516584
+ *** bk0=3 bk1=5 time=0.008640 exec_task0=11200 exec_task1=361242 tpms0=1296.288661, tmps1=41810.170412
+ *** bk0=4 bk1=4 time=0.007005 exec_task0=11200 exec_task1=214213 tpms0=1598.808958, tmps1=30579.077080
+ *** bk0=5 bk1=3 time=0.005986 exec_task0=11200 exec_task1=127001 tpms0=1870.965621, tmps1=21215.580783
+ *** bk0=6 bk1=2 time=0.005300 exec_task0=11200 exec_task1=70042 tpms0=2113.094544, tmps1=13214.765002
+ *** bk0=7 bk1=1 time=0.004831 exec_task0=11200 exec_task1=29776 tpms0=2318.553122, tmps1=6164.039085
+ *** bk0=1 bk1=7 time=0.008302 exec_task0=4968 exec_task1=7500 tpms0=598.429129, tmps1=903.425617
+ *** bk0=2 bk1=6 time=0.009713 exec_task0=11200 exec_task1=7144 tpms0=1153.101569, tmps1=735.514072
+ *** bk0=3 bk1=5 time=0.006874 exec_task0=11200 exec_task1=3774 tpms0=1629.307880, tmps1=549.018566
+ *** bk0=4 bk1=4 time=0.005668 exec_task0=11200 exec_task1=2151 tpms0=1975.865607, tmps1=379.472046
+ *** bk0=5 bk1=3 time=0.005091 exec_task0=11200 exec_task1=1260 tpms0=2199.878468, tmps1=247.486328
+ *** bk0=6 bk1=2 time=0.004769 exec_task0=11200 exec_task1=672 tpms0=2348.340572, tmps1=140.900434
+ *** bk0=7 bk1=1 time=0.004594 exec_task0=11200 exec_task1=280 tpms0=2438.042599, tmps1=60.951065
+ *** bk0=1 bk1=7 time=0.006962 exec_task0=4014 exec_task1=34969 tpms0=576.553414, tmps1=5022.794308
+ *** bk0=2 bk1=6 time=0.008945 exec_task0=9778 exec_task1=34969 tpms0=1093.126086, tmps1=3909.339959
+ *** bk0=3 bk1=5 time=0.007367 exec_task0=11200 exec_task1=21949 tpms0=1520.363933, tmps1=2979.506068
+ *** bk0=4 bk1=4 time=0.006053 exec_task0=11200 exec_task1=12859 tpms0=1850.258175, tmps1=2124.327667
+ *** bk0=5 bk1=3 time=0.005352 exec_task0=11200 exec_task1=7539 tpms0=2092.854174, tmps1=1408.752466
+ *** bk0=6 bk1=2 time=0.004927 exec_task0=11200 exec_task1=4063 tpms0=2273.005506, tmps1=824.573337
+ *** bk0=7 bk1=1 time=0.004668 exec_task0=11200 exec_task1=1686 tpms0=2399.193299, tmps1=361.164277
+ *** bk0=1 bk1=7 time=0.011838 exec_task0=5542 exec_task1=559504 tpms0=468.136158, tmps1=47261.647908
+ *** bk0=2 bk1=6 time=0.011864 exec_task0=11200 exec_task1=460260 tpms0=944.036591, tmps1=38794.846547
+ *** bk0=3 bk1=5 time=0.008008 exec_task0=11200 exec_task1=242967 tpms0=1398.559195, tmps1=30339.618922
+ *** bk0=4 bk1=4 time=0.006220 exec_task0=11200 exec_task1=139077 tpms0=1800.751516, tmps1=22360.992732
+ *** bk0=5 bk1=3 time=0.005357 exec_task0=11200 exec_task1=80839 tpms0=2090.711861, tmps1=15090.272867
+ *** bk0=6 bk1=2 time=0.004900 exec_task0=11200 exec_task1=44088 tpms0=2285.724251, tmps1=8997.590247
+ *** bk0=7 bk1=1 time=0.004647 exec_task0=11200 exec_task1=18763 tpms0=2410.272181, tmps1=4037.851511
+ *** bk0=1 bk1=7 time=0.008602 exec_task0=5149 exec_task1=279752 tpms0=598.571821, tmps1=32521.201015
+ *** bk0=2 bk1=6 time=0.009904 exec_task0=11200 exec_task1=251064 tpms0=1130.866750, tmps1=25349.993728
+ *** bk0=3 bk1=5 time=0.007156 exec_task0=11200 exec_task1=134392 tpms0=1565.195242, tmps1=18781.224908
+ *** bk0=4 bk1=4 time=0.021475 exec_task0=11200 exec_task1=279864 tpms0=521.546389, tmps1=13032.326661
+ *** bk0=5 bk1=3 time=0.005265 exec_task0=11200 exec_task1=45799 tpms0=2127.160152, tmps1=8698.375697
+ *** bk0=6 bk1=2 time=0.004893 exec_task0=11200 exec_task1=24899 tpms0=2288.954091, tmps1=5088.631063
+ *** bk0=7 bk1=1 time=0.004657 exec_task0=11200 exec_task1=10456 tpms0=2404.966201, tmps1=2245.207732
+ *** bk0=1 bk1=7 time=0.002436 exec_task0=1155 exec_task1=139876 tpms0=474.060194, tmps1=57410.946893
+ *** bk0=2 bk1=6 time=0.002949 exec_task0=2742 exec_task1=139876 tpms0=929.882080, tmps1=47435.516357
+ *** bk0=3 bk1=5 time=0.003744 exec_task0=5067 exec_task1=139876 tpms0=1353.320069, tmps1=37358.791792
+ *** bk0=4 bk1=4 time=0.005047 exec_task0=8643 exec_task1=139876 tpms0=1712.393456, tmps1=27712.917634
+ *** bk0=5 bk1=3 time=0.005667 exec_task0=11200 exec_task1=108589 tpms0=1976.281228, tmps1=19160.928778
+ *** bk0=6 bk1=2 time=0.005105 exec_task0=11200 exec_task1=59552 tpms0=2194.021989, tmps1=11665.928346
+ *** bk0=7 bk1=1 time=0.004749 exec_task0=11200 exec_task1=25219 tpms0=2358.361604, tmps1=5310.314402
+ *** bk0=1 bk1=14 time=0.010762 exec_task0=744 exec_task1=573440 tpms0=69.132284, tmps1=53283.893878
+ *** bk0=2 bk1=12 time=0.010257 exec_task0=1829 exec_task1=573440 tpms0=178.317148, tmps1=55907.154314
+ *** bk0=3 bk1=10 time=0.010013 exec_task0=3449 exec_task1=573440 tpms0=344.465056, tmps1=57271.685060
+ *** bk0=4 bk1=8 time=0.010487 exec_task0=6039 exec_task1=573440 tpms0=575.851449, tmps1=54680.618510
+ *** bk0=5 bk1=6 time=0.011417 exec_task0=10517 exec_task1=573440 tpms0=921.177279, tmps1=50227.241485
+ *** bk0=6 bk1=4 time=0.009847 exec_task0=11200 exec_task1=302206 tpms0=1137.383294, tmps1=30689.647829
+ *** bk0=7 bk1=2 time=0.007631 exec_task0=11200 exec_task1=97773 tpms0=1467.639490, tmps1=12812.099631
+ *** bk0=1 bk1=28 time=0.001448 exec_task0=322 exec_task1=131072 tpms0=222.351974, tmps1=90509.682892
+ *** bk0=2 bk1=24 time=0.001451 exec_task0=778 exec_task1=131072 tpms0=536.176226, tmps1=90331.221474
+ *** bk0=3 bk1=20 time=0.001454 exec_task0=1472 exec_task1=131072 tpms0=1012.133687, tmps1=90123.903916
+ *** bk0=4 bk1=16 time=0.001470 exec_task0=2256 exec_task1=131072 tpms0=1534.352169, tmps1=89144.772805
+ *** bk0=5 bk1=12 time=0.001621 exec_task0=3022 exec_task1=131072 tpms0=1864.272200, tmps1=80858.334150
+ *** bk0=6 bk1=8 time=0.002162 exec_task0=4529 exec_task1=131072 tpms0=2094.377378, tmps1=60612.548389
+ *** bk0=7 bk1=4 time=0.003995 exec_task0=9175 exec_task1=131072 tpms0=2296.654285, tmps1=32809.489967
+ *** bk0=7 bk1=2 time=0.004832 exec_task0=9166 exec_task1=65536 tpms0=1896.831975, tmps1=13562.162371
+ *** bk0=6 bk1=4 time=0.002890 exec_task0=4020 exec_task1=65536 tpms0=1391.065265, tmps1=22677.824185
+ *** bk0=5 bk1=6 time=0.002311 exec_task0=2266 exec_task1=65536 tpms0=980.733966, tmps1=28364.245892
+ *** bk0=4 bk1=8 time=0.002028 exec_task0=1418 exec_task1=65536 tpms0=699.379477, tmps1=32323.366292
+ *** bk0=3 bk1=10 time=0.001861 exec_task0=874 exec_task1=65536 tpms0=469.555744, tmps1=35209.159337
+ *** bk0=2 bk1=12 time=0.001746 exec_task0=520 exec_task1=65536 tpms0=297.793293, tmps1=37531.117824
+ *** bk0=1 bk1=7 time=0.004534 exec_task0=2266 exec_task1=136192 tpms0=499.831337, tmps1=30041.054450
+ *** bk0=2 bk1=6 time=0.005692 exec_task0=5301 exec_task1=136192 tpms0=931.345265, tmps1=23927.895546
+ *** bk0=3 bk1=5 time=0.007419 exec_task0=9640 exec_task1=136192 tpms0=1299.430857, tmps1=18358.100346
+ *** bk0=4 bk1=4 time=0.007050 exec_task0=11200 exec_task1=95716 tpms0=1588.644058, tmps1=13576.665596
+ *** bk0=5 bk1=3 time=0.006032 exec_task0=11200 exec_task1=57430 tpms0=1856.766988, tmps1=9520.904297
+ *** bk0=6 bk1=2 time=0.005342 exec_task0=11200 exec_task1=31915 tpms0=2096.777575, tmps1=5974.880029
+ *** bk0=7 bk1=1 time=0.004847 exec_task0=11200 exec_task1=13749 tpms0=2310.797619, tmps1=2836.710399
+ *** bk0=1 bk1=7 time=0.007757 exec_task0=103614 exec_task1=7500 tpms0=13357.982869, tmps1=966.904777
+ *** bk0=2 bk1=6 time=0.009005 exec_task0=237967 exec_task1=7500 tpms0=26426.591648, tmps1=832.886229
+ *** bk0=3 bk1=5 time=0.009931 exec_task0=392000 exec_task1=6949 tpms0=39472.959163, tmps1=699.738758
+ *** bk0=4 bk1=4 time=0.007497 exec_task0=392000 exec_task1=4111 tpms0=52288.740873, tmps1=548.364831
+ *** bk0=5 bk1=3 time=0.006122 exec_task0=392000 exec_task1=2436 tpms0=64035.175573, tmps1=397.932877
+ *** bk0=6 bk1=2 time=0.005253 exec_task0=392000 exec_task1=1344 tpms0=74629.711225, tmps1=255.873296
+ *** bk0=7 bk1=1 time=0.004645 exec_task0=392000 exec_task1=560 tpms0=84385.504414, tmps1=120.550721
+ *** bk0=1 bk1=7 time=0.006355 exec_task0=80285 exec_task1=34969 tpms0=12632.791741, tmps1=5502.349061
+ *** bk0=2 bk1=6 time=0.007643 exec_task0=186199 exec_task1=34969 tpms0=24361.320435, tmps1=4575.164283
+ *** bk0=3 bk1=5 time=0.009195 exec_task0=335603 exec_task1=34969 tpms0=36497.122104, tmps1=3802.909577
+ *** bk0=4 bk1=4 time=0.008111 exec_task0=392000 exec_task1=24708 tpms0=48326.587737, tmps1=3046.054413
+ *** bk0=5 bk1=3 time=0.006557 exec_task0=392000 exec_task1=14797 tpms0=59787.897018, tmps1=2256.840592
+ *** bk0=6 bk1=2 time=0.005543 exec_task0=392000 exec_task1=8166 tpms0=70713.825986, tmps1=1473.084446
+ *** bk0=7 bk1=1 time=0.004864 exec_task0=392000 exec_task1=3475 tpms0=80600.380803, tmps1=714.505927
+ *** bk0=1 bk1=7 time=0.011164 exec_task0=126724 exec_task1=559504 tpms0=11351.179500, tmps1=50117.028622
+ *** bk0=2 bk1=6 time=0.012659 exec_task0=292958 exec_task1=559504 tpms0=23143.008838, tmps1=44199.530365
+ *** bk0=3 bk1=5 time=0.011039 exec_task0=392000 exec_task1=414363 tpms0=35509.636042, tmps1=37535.406426
+ *** bk0=4 bk1=4 time=0.008171 exec_task0=392000 exec_task1=248009 tpms0=47974.065359, tmps1=30352.040754
+ *** bk0=5 bk1=3 time=0.006526 exec_task0=392000 exec_task1=149248 tpms0=60063.095200, tmps1=22868.104164
+ *** bk0=6 bk1=2 time=0.005485 exec_task0=392000 exec_task1=83135 tpms0=71463.779198, tmps1=15155.972662
+ *** bk0=7 bk1=1 time=0.004820 exec_task0=392000 exec_task1=35824 tpms0=81325.971608, tmps1=7432.197977
+ *** bk0=1 bk1=7 time=0.007967 exec_task0=105876 exec_task1=279752 tpms0=13288.531040, tmps1=35111.764097
+ *** bk0=2 bk1=6 time=0.009390 exec_task0=247037 exec_task1=279752 tpms0=26308.863428, tmps1=29792.934507
+ *** bk0=3 bk1=5 time=0.010097 exec_task0=392000 exec_task1=247202 tpms0=38823.309752, tmps1=24482.652595
+ *** bk0=4 bk1=4 time=0.007730 exec_task0=392000 exec_task1=147373 tpms0=50711.466535, tmps1=19065.053463
+ *** bk0=5 bk1=3 time=0.006315 exec_task0=392000 exec_task1=88525 tpms0=62079.183236, tmps1=14019.284939
+ *** bk0=6 bk1=2 time=0.005388 exec_task0=392000 exec_task1=49165 tpms0=72750.759646, tmps1=9124.467087
+ *** bk0=7 bk1=1 time=0.004781 exec_task0=392000 exec_task1=21043 tpms0=81999.260286, tmps1=4401.812332
+ *** bk0=1 bk1=7 time=0.002301 exec_task0=23939 exec_task1=139876 tpms0=10403.838302, tmps1=60789.811036
+ *** bk0=2 bk1=6 time=0.002633 exec_task0=55035 exec_task1=139876 tpms0=20899.368098, tmps1=53117.470919
+ *** bk0=3 bk1=5 time=0.003081 exec_task0=99598 exec_task1=139876 tpms0=32325.643410, tmps1=45398.318216
+ *** bk0=4 bk1=4 time=0.003782 exec_task0=167207 exec_task1=139876 tpms0=44210.867360, tmps1=36984.332491
+ *** bk0=5 bk1=3 time=0.005001 exec_task0=278511 exec_task1=139876 tpms0=55690.303268, tmps1=27969.225129
+ *** bk0=6 bk1=2 time=0.005863 exec_task0=392000 exec_task1=109712 tpms0=66857.806116, tmps1=18711.999042
+ *** bk0=7 bk1=1 time=0.005023 exec_task0=392000 exec_task1=46941 tpms0=78048.379759, tmps1=9346.094373
+ *** bk0=7 bk1=2 time=0.007198 exec_task0=392000 exec_task1=262345 tpms0=54462.458776, tmps1=36448.861601
+ *** bk0=6 bk1=4 time=0.009203 exec_task0=339979 exec_task1=573440 tpms0=36940.450744, tmps1=62307.178016
+ *** bk0=5 bk1=6 time=0.009594 exec_task0=196001 exec_task1=573440 tpms0=20428.601419, tmps1=59767.946070
+ *** bk0=4 bk1=8 time=0.010077 exec_task0=115666 exec_task1=573440 tpms0=11478.218106, tmps1=56905.827042
+ *** bk0=3 bk1=10 time=0.009982 exec_task0=68550 exec_task1=573440 tpms0=6867.286214, tmps1=57446.777629
+ *** bk0=2 bk1=12 time=0.010373 exec_task0=37848 exec_task1=573440 tpms0=3648.578864, tmps1=55280.095745
+ *** bk0=1 bk1=14 time=0.010620 exec_task0=15807 exec_task1=573440 tpms0=1488.435070, tmps1=53996.849915
+ *** bk0=1 bk1=28 time=0.001459 exec_task0=4848 exec_task1=131072 tpms0=3323.089687, tmps1=89844.061756
+ *** bk0=2 bk1=24 time=0.001472 exec_task0=10931 exec_task1=131072 tpms0=7428.376057, tmps1=89072.555717
+ *** bk0=3 bk1=20 time=0.001492 exec_task0=19679 exec_task1=131072 tpms0=13191.578778, tmps1=87862.524195
+ *** bk0=4 bk1=16 time=0.001521 exec_task0=32609 exec_task1=131072 tpms0=21444.349190, tmps1=86195.643444
+ *** bk0=5 bk1=12 time=0.001572 exec_task0=51252 exec_task1=131072 tpms0=32600.313711, tmps1=83372.128281
+ *** bk0=6 bk1=8 time=0.001776 exec_task0=88509 exec_task1=131072 tpms0=49836.709993, tmps1=73802.633090
+ *** bk0=7 bk1=4 time=0.002685 exec_task0=184104 exec_task1=131072 tpms0=68577.987888, tmps1=48823.784537
+ *** bk0=7 bk1=2 time=0.003631 exec_task0=178007 exec_task1=65536 tpms0=49025.902694, tmps1=18049.636020
+ *** bk0=6 bk1=4 time=0.002349 exec_task0=75243 exec_task1=65536 tpms0=32033.294343, tmps1=27900.721371
+ *** bk0=5 bk1=6 time=0.001986 exec_task0=40920 exec_task1=65536 tpms0=20606.425703, tmps1=33002.510139
+ *** bk0=4 bk1=8 time=0.001821 exec_task0=24635 exec_task1=65536 tpms0=13526.204875, tmps1=35983.493513
+ *** bk0=3 bk1=10 time=0.001726 exec_task0=15014 exec_task1=65536 tpms0=8696.765675, tmps1=37961.318457
+ *** bk0=2 bk1=12 time=0.001666 exec_task0=8478 exec_task1=65536 tpms0=5089.352986, tmps1=39341.334900
+ *** bk0=1 bk1=7 time=0.004203 exec_task0=38002 exec_task1=136192 tpms0=9040.949552, tmps1=32401.057877
+ *** bk0=2 bk1=6 time=0.004763 exec_task0=89784 exec_task1=136192 tpms0=18848.860821, tmps1=28591.553650
+ *** bk0=3 bk1=5 time=0.005591 exec_task0=163411 exec_task1=136192 tpms0=29226.702953, tmps1=24358.477266
+ *** bk0=4 bk1=4 time=0.006777 exec_task0=277388 exec_task1=136192 tpms0=40933.384863, tmps1=20097.479167
+ *** bk0=5 bk1=3 time=0.007408 exec_task0=392000 exec_task1=114593 tpms0=52916.454829, tmps1=15469.018643
+ *** bk0=6 bk1=2 time=0.006031 exec_task0=392000 exec_task1=63062 tpms0=65002.260141, tmps1=10457.072778
+ *** bk0=7 bk1=1 time=0.005058 exec_task0=392000 exec_task1=26791 tpms0=77500.220033, tmps1=5296.705089
+ *** bk0=1 bk1=7 time=0.006177 exec_task0=784 exec_task1=34969 tpms0=126.918613, tmps1=5660.991029
+ *** bk0=2 bk1=6 time=0.007091 exec_task0=1792 exec_task1=34969 tpms0=252.730086, tmps1=4931.762494
+ *** bk0=3 bk1=5 time=0.008384 exec_task0=3309 exec_task1=34969 tpms0=394.658400, tmps1=4170.688901
+ *** bk0=4 bk1=4 time=0.010357 exec_task0=5576 exec_task1=34969 tpms0=538.384878, tmps1=3376.395409
+ *** bk0=5 bk1=3 time=0.011200 exec_task0=7500 exec_task1=28755 tpms0=669.617268, tmps1=2567.312604
+ *** bk0=6 bk1=2 time=0.009218 exec_task0=7500 exec_task1=15878 tpms0=813.648544, tmps1=1722.548210
+ *** bk0=7 bk1=1 time=0.007853 exec_task0=7500 exec_task1=6787 tpms0=955.074233, tmps1=864.278509
+ *** bk0=1 bk1=7 time=0.011209 exec_task0=1260 exec_task1=559504 tpms0=112.411951, tmps1=49916.615941
+ *** bk0=2 bk1=6 time=0.012801 exec_task0=3021 exec_task1=559504 tpms0=236.002838, tmps1=43708.881826
+ *** bk0=3 bk1=5 time=0.015041 exec_task0=5568 exec_task1=559504 tpms0=370.197110, tmps1=37199.490611
+ *** bk0=4 bk1=4 time=0.014992 exec_task0=7500 exec_task1=456530 tpms0=500.266853, tmps1=30451.576869
+ *** bk0=5 bk1=3 time=0.011729 exec_task0=7500 exec_task1=273073 tpms0=639.427596, tmps1=23281.388247
+ *** bk0=6 bk1=2 time=0.009539 exec_task0=7500 exec_task1=150900 tpms0=786.255093, tmps1=15819.452463
+ *** bk0=7 bk1=1 time=0.007991 exec_task0=7500 exec_task1=64681 tpms0=938.519005, tmps1=8093.913033
+ *** bk0=1 bk1=7 time=0.007933 exec_task0=1036 exec_task1=279752 tpms0=130.587496, tmps1=35262.657629
+ *** bk0=2 bk1=6 time=0.009226 exec_task0=2424 exec_task1=279752 tpms0=262.740151, tmps1=30322.641426
+ *** bk0=3 bk1=5 time=0.011019 exec_task0=4452 exec_task1=279752 tpms0=404.038459, tmps1=25388.716735
+ *** bk0=4 bk1=4 time=0.013659 exec_task0=7457 exec_task1=279752 tpms0=545.940390, tmps1=20481.147366
+ *** bk0=5 bk1=3 time=0.011070 exec_task0=7500 exec_task1=170957 tpms0=677.505977, tmps1=15443.251899
+ *** bk0=6 bk1=2 time=0.009151 exec_task0=7500 exec_task1=94557 tpms0=819.626889, tmps1=10333.527966
+ *** bk0=7 bk1=1 time=0.007821 exec_task0=7500 exec_task1=40575 tpms0=959.004939, tmps1=5188.216718
+ *** bk0=1 bk1=7 time=0.002288 exec_task0=252 exec_task1=139876 tpms0=110.146374, tmps1=61138.231170
+ *** bk0=2 bk1=6 time=0.002591 exec_task0=582 exec_task1=139876 tpms0=224.591492, tmps1=53977.593735
+ *** bk0=3 bk1=5 time=0.003014 exec_task0=1008 exec_task1=139876 tpms0=334.403103, tmps1=46403.738535
+ *** bk0=4 bk1=4 time=0.003651 exec_task0=1721 exec_task1=139876 tpms0=471.359356, tmps1=38310.204147
+ *** bk0=5 bk1=3 time=0.004723 exec_task0=2937 exec_task1=139876 tpms0=621.903819, tmps1=29618.460536
+ *** bk0=6 bk1=2 time=0.006866 exec_task0=5235 exec_task1=139876 tpms0=762.428607, tmps1=20371.626317
+ *** bk0=7 bk1=1 time=0.008221 exec_task0=7500 exec_task1=86873 tpms0=912.254734, tmps1=10566.707403
+ *** bk0=7 bk1=2 time=0.009684 exec_task0=7388 exec_task1=573440 tpms0=762.919909, tmps1=59216.133288
+ *** bk0=6 bk1=4 time=0.008513 exec_task0=3198 exec_task1=573440 tpms0=375.651390, tmps1=67358.828402
+ *** bk0=5 bk1=6 time=0.009208 exec_task0=1821 exec_task1=573440 tpms0=197.753349, tmps1=62273.300514
+ *** bk0=4 bk1=8 time=0.009955 exec_task0=1107 exec_task1=573440 tpms0=111.203854, tmps1=57605.002892
+ *** bk0=3 bk1=10 time=0.009956 exec_task0=640 exec_task1=573440 tpms0=64.285139, tmps1=57599.484775
+ *** bk0=2 bk1=12 time=0.010129 exec_task0=354 exec_task1=573440 tpms0=34.948420, tmps1=56612.491132
+ *** bk0=1 bk1=14 time=0.010495 exec_task0=157 exec_task1=573440 tpms0=14.958900, tmps1=54637.143313
+ *** bk0=1 bk1=28 time=0.001474 exec_task0=56 exec_task1=131072 tpms0=37.982054, tmps1=88899.711172
+ *** bk0=2 bk1=24 time=0.001514 exec_task0=140 exec_task1=131072 tpms0=92.458284, tmps1=86562.086898
+ *** bk0=3 bk1=20 time=0.001569 exec_task0=252 exec_task1=131072 tpms0=160.584109, tmps1=83524.128515
+ *** bk0=4 bk1=16 time=0.001652 exec_task0=377 exec_task1=131072 tpms0=228.207910, tmps1=79341.292234
+ *** bk0=5 bk1=12 time=0.001786 exec_task0=592 exec_task1=131072 tpms0=331.423915, tmps1=73379.046168
+ *** bk0=6 bk1=8 time=0.002039 exec_task0=1007 exec_task1=131072 tpms0=493.880277, tmps1=64283.888434
+ *** bk0=7 bk1=4 time=0.002863 exec_task0=2042 exec_task1=131072 tpms0=713.136450, tmps1=45774.838792
+ *** bk0=7 bk1=2 time=0.002869 exec_task0=1946 exec_task1=65536 tpms0=678.367319, tmps1=22845.570723
+ *** bk0=6 bk1=4 time=0.001908 exec_task0=840 exec_task1=65536 tpms0=440.181829, tmps1=34342.567084
+ *** bk0=5 bk1=6 time=0.001704 exec_task0=420 exec_task1=65536 tpms0=246.551110, tmps1=38471.365562
+ *** bk0=4 bk1=8 time=0.001608 exec_task0=324 exec_task1=65536 tpms0=201.445967, tmps1=40746.799132
+ *** bk0=3 bk1=10 time=0.001604 exec_task0=168 exec_task1=65536 tpms0=104.748487, tmps1=40861.885974
+ *** bk0=2 bk1=12 time=0.001606 exec_task0=112 exec_task1=65536 tpms0=69.739021, tmps1=40807.290223
+ *** bk0=1 bk1=7 time=0.004152 exec_task0=392 exec_task1=136192 tpms0=94.421821, tmps1=32804.838360
+ *** bk0=2 bk1=6 time=0.004629 exec_task0=948 exec_task1=136192 tpms0=204.800422, tmps1=29422.129816
+ *** bk0=3 bk1=5 time=0.005311 exec_task0=1707 exec_task1=136192 tpms0=321.407655, tmps1=25643.322426
+ *** bk0=4 bk1=4 time=0.006370 exec_task0=2906 exec_task1=136192 tpms0=456.213176, tmps1=21380.793142
+ *** bk0=5 bk1=3 time=0.008172 exec_task0=4883 exec_task1=136192 tpms0=597.560437, tmps1=16666.588387
+ *** bk0=6 bk1=2 time=0.010149 exec_task0=7500 exec_task1=117072 tpms0=738.954193, tmps1=11534.779373
+ *** bk0=7 bk1=1 time=0.008270 exec_task0=7500 exec_task1=49344 tpms0=906.889613, tmps1=5966.608141
+ *** bk0=1 bk1=7 time=0.011662 exec_task0=8635 exec_task1=559504 tpms0=740.438628, tmps1=47976.650145
+ *** bk0=2 bk1=6 time=0.012313 exec_task0=18698 exec_task1=559504 tpms0=1518.512493, tmps1=45438.753538
+ *** bk0=3 bk1=5 time=0.013961 exec_task0=34942 exec_task1=559504 tpms0=2502.772813, tmps1=40075.307647
+ *** bk0=4 bk1=4 time=0.011205 exec_task0=34969 exec_task1=361427 tpms0=3120.717815, tmps1=32254.616307
+ *** bk0=5 bk1=3 time=0.008867 exec_task0=34969 exec_task1=217231 tpms0=3943.712634, tmps1=24498.745724
+ *** bk0=6 bk1=2 time=0.007331 exec_task0=34969 exec_task1=120750 tpms0=4770.241538, tmps1=16471.922724
+ *** bk0=7 bk1=1 time=0.006258 exec_task0=34969 exec_task1=52121 tpms0=5588.090699, tmps1=8329.002125
+ *** bk0=1 bk1=7 time=0.007876 exec_task0=6743 exec_task1=279752 tpms0=856.179937, tmps1=35520.992117
+ *** bk0=2 bk1=6 time=0.009223 exec_task0=15638 exec_task1=279752 tpms0=1695.502803, tmps1=30331.263606
+ *** bk0=3 bk1=5 time=0.011091 exec_task0=28078 exec_task1=279752 tpms0=2531.712443, tmps1=25224.432629
+ *** bk0=4 bk1=4 time=0.010513 exec_task0=34969 exec_task1=211646 tpms0=3326.392320, tmps1=20132.621150
+ *** bk0=5 bk1=3 time=0.008488 exec_task0=34969 exec_task1=127875 tpms0=4119.729694, tmps1=15065.070052
+ *** bk0=6 bk1=2 time=0.007125 exec_task0=34969 exec_task1=71439 tpms0=4907.833916, tmps1=10026.330382
+ *** bk0=7 bk1=1 time=0.006209 exec_task0=34969 exec_task1=30989 tpms0=5632.079586, tmps1=4991.063922
+ *** bk0=1 bk1=7 time=0.002291 exec_task0=1493 exec_task1=139876 tpms0=651.622880, tmps1=61049.164027
+ *** bk0=2 bk1=6 time=0.002820 exec_task0=3655 exec_task1=139876 tpms0=1295.873298, tmps1=49592.769764
+ *** bk0=3 bk1=5 time=0.003154 exec_task0=6460 exec_task1=139876 tpms0=2048.476891, tmps1=44354.915423
+ *** bk0=4 bk1=4 time=0.003650 exec_task0=10387 exec_task1=139876 tpms0=2845.792387, tmps1=38322.716461
+ *** bk0=5 bk1=3 time=0.004519 exec_task0=16593 exec_task1=139876 tpms0=3671.454224, tmps1=30949.697526
+ *** bk0=6 bk1=2 time=0.006423 exec_task0=29081 exec_task1=139876 tpms0=4527.805584, tmps1=21778.182795
+ *** bk0=7 bk1=1 time=0.006499 exec_task0=34969 exec_task1=73441 tpms0=5380.630859, tmps1=11300.263402
+ *** bk0=7 bk1=2 time=0.009509 exec_task0=34969 exec_task1=439924 tpms0=3677.522167, tmps1=46264.699067
+ *** bk0=6 bk1=4 time=0.009414 exec_task0=20304 exec_task1=573440 tpms0=2156.742856, tmps1=60912.264746
+ *** bk0=5 bk1=6 time=0.009812 exec_task0=11798 exec_task1=573440 tpms0=1202.361711, tmps1=58440.608557
+ *** bk0=4 bk1=8 time=0.010122 exec_task0=6985 exec_task1=573440 tpms0=690.076868, tmps1=56652.495248
+ *** bk0=3 bk1=10 time=0.009997 exec_task0=4110 exec_task1=573440 tpms0=411.118014, tmps1=57360.465664
+ *** bk0=2 bk1=12 time=0.009873 exec_task0=2267 exec_task1=573440 tpms0=229.612595, tmps1=58080.743903
+ *** bk0=1 bk1=14 time=0.010751 exec_task0=981 exec_task1=573440 tpms0=91.245226, tmps1=53337.066700
+ *** bk0=7 bk1=4 time=0.002819 exec_task0=13320 exec_task1=131072 tpms0=4724.977104, tmps1=46494.909835
+ *** bk0=6 bk1=8 time=0.001940 exec_task0=6645 exec_task1=131072 tpms0=3425.236584, tmps1=67562.469447
+ *** bk0=5 bk1=12 time=0.001716 exec_task0=4195 exec_task1=131072 tpms0=2444.783282, tmps1=76386.801985
+ *** bk0=4 bk1=16 time=0.001609 exec_task0=2653 exec_task1=131072 tpms0=1648.761077, tmps1=81457.373520
+ *** bk0=3 bk1=20 time=0.001540 exec_task0=1545 exec_task1=131072 tpms0=1003.126885, tmps1=85101.519178
+ *** bk0=2 bk1=24 time=0.001497 exec_task0=848 exec_task1=131072 tpms0=566.635302, tmps1=87582.573505
+ *** bk0=1 bk1=25 time=0.001472 exec_task0=420 exec_task1=131072 tpms0=285.234404, tmps1=89014.866238
+ *** bk0=7 bk1=2 time=0.002897 exec_task0=11670 exec_task1=65536 tpms0=4028.934701, tmps1=22625.558231
+ *** bk0=6 bk1=4 time=0.002021 exec_task0=5044 exec_task1=65536 tpms0=2495.408042, tmps1=32422.494332
+ *** bk0=5 bk1=6 time=0.001814 exec_task0=2594 exec_task1=65536 tpms0=1430.264832, tmps1=36134.863539
+ *** bk0=4 bk1=8 time=0.001746 exec_task0=1490 exec_task1=65536 tpms0=853.408843, tmps1=37536.242926
+ *** bk0=3 bk1=10 time=0.001697 exec_task0=887 exec_task1=65536 tpms0=522.667554, tmps1=38617.295159
+ *** bk0=2 bk1=12 time=0.001661 exec_task0=502 exec_task1=65536 tpms0=302.259634, tmps1=39459.934962
+ *** bk0=1 bk1=7 time=0.004203 exec_task0=2569 exec_task1=136192 tpms0=611.183606, tmps1=32401.057877
+ *** bk0=2 bk1=6 time=0.004717 exec_task0=5969 exec_task1=136192 tpms0=1265.456964, tmps1=28873.364859
+ *** bk0=3 bk1=5 time=0.005443 exec_task0=10816 exec_task1=136192 tpms0=1987.191382, tmps1=25022.149475
+ *** bk0=4 bk1=4 time=0.006563 exec_task0=18038 exec_task1=136192 tpms0=2748.459896, tmps1=20751.649303
+ *** bk0=5 bk1=3 time=0.008469 exec_task0=30034 exec_task1=136192 tpms0=3546.401462, tmps1=16081.491241
+ *** bk0=6 bk1=2 time=0.007980 exec_task0=34969 exec_task1=88667 tpms0=4382.282607, tmps1=11111.666102
+ *** bk0=7 bk1=1 time=0.006539 exec_task0=34969 exec_task1=37725 tpms0=5348.062592, tmps1=5769.557644
+ *** bk0=1 bk1=7 time=0.007826 exec_task0=76889 exec_task1=279752 tpms0=9825.001226, tmps1=35747.164654
+ *** bk0=2 bk1=6 time=0.008132 exec_task0=161072 exec_task1=279752 tpms0=19806.066663, tmps1=34399.441003
+ *** bk0=3 bk1=5 time=0.009856 exec_task0=289773 exec_task1=279752 tpms0=29402.134964, tmps1=28385.343218
+ *** bk0=4 bk1=4 time=0.012415 exec_task0=482274 exec_task1=279752 tpms0=38844.793319, tmps1=22532.644556
+ *** bk0=5 bk1=3 time=0.011632 exec_task0=559504 exec_task1=195890 tpms0=48100.554751, tmps1=16840.661855
+ *** bk0=6 bk1=2 time=0.009784 exec_task0=559504 exec_task1=109183 tpms0=57185.707172, tmps1=11159.360909
+ *** bk0=7 bk1=1 time=0.008484 exec_task0=559504 exec_task1=46685 tpms0=65947.164963, tmps1=5502.629823
+ *** bk0=1 bk1=7 time=0.002183 exec_task0=16453 exec_task1=139876 tpms0=7537.012201, tmps1=64076.285092
+ *** bk0=2 bk1=6 time=0.002504 exec_task0=38534 exec_task1=139876 tpms0=15389.764839, tmps1=55863.879861
+ *** bk0=3 bk1=5 time=0.002953 exec_task0=69964 exec_task1=139876 tpms0=23692.094708, tmps1=47366.580519
+ *** bk0=4 bk1=4 time=0.003612 exec_task0=118244 exec_task1=139876 tpms0=32733.897576, tmps1=38722.359336
+ *** bk0=5 bk1=3 time=0.004716 exec_task0=199042 exec_task1=139876 tpms0=42204.269590, tmps1=29658.888140
+ *** bk0=6 bk1=2 time=0.006902 exec_task0=361014 exec_task1=139876 tpms0=52307.671143, tmps1=20266.770288
+ *** bk0=7 bk1=1 time=0.008874 exec_task0=559504 exec_task1=92129 tpms0=63051.932218, tmps1=10382.251893
+ *** bk0=7 bk1=2 time=0.010306 exec_task0=538059 exec_task1=573440 tpms0=52207.717768, tmps1=55640.726531
+ *** bk0=6 bk1=4 time=0.008556 exec_task0=244146 exec_task1=573440 tpms0=28536.228073, tmps1=67024.709092
+ *** bk0=5 bk1=6 time=0.009459 exec_task0=140335 exec_task1=573440 tpms0=14836.105556, tmps1=60623.624685
+ *** bk0=4 bk1=8 time=0.009982 exec_task0=81796 exec_task1=573440 tpms0=8194.651746, tmps1=57449.521945
+ *** bk0=3 bk1=10 time=0.009795 exec_task0=48094 exec_task1=573440 tpms0=4910.080972, tmps1=58544.451130
+ *** bk0=2 bk1=12 time=0.010135 exec_task0=26008 exec_task1=573440 tpms0=2566.112878, tmps1=56579.197501
+ *** bk0=1 bk1=14 time=0.010532 exec_task0=11105 exec_task1=573440 tpms0=1054.439271, tmps1=54449.136028
+ *** bk0=7 bk1=4 time=0.002770 exec_task0=160216 exec_task1=131072 tpms0=57830.861417, tmps1=47311.171591
+ *** bk0=6 bk1=8 time=0.001903 exec_task0=80963 exec_task1=131072 tpms0=42554.315132, tmps1=68891.706001
+ *** bk0=5 bk1=12 time=0.001690 exec_task0=51321 exec_task1=131072 tpms0=30373.342117, tmps1=77572.430350
+ *** bk0=4 bk1=16 time=0.001592 exec_task0=32553 exec_task1=131072 tpms0=20445.818825, tmps1=82323.422265
+ *** bk0=3 bk1=20 time=0.001531 exec_task0=19123 exec_task1=131072 tpms0=12493.407382, tmps1=85631.746712
+ *** bk0=2 bk1=24 time=0.001491 exec_task0=10461 exec_task1=131072 tpms0=7014.646546, tmps1=87890.617728
+ *** bk0=1 bk1=25 time=0.001469 exec_task0=5123 exec_task1=131072 tpms0=3487.651257, tmps1=89231.588036
+ *** bk0=7 bk1=2 time=0.002907 exec_task0=142705 exec_task1=65536 tpms0=49097.543460, tmps1=22547.609461
+ *** bk0=6 bk1=4 time=0.001979 exec_task0=61575 exec_task1=65536 tpms0=31119.926353, tmps1=33121.810693
+ *** bk0=5 bk1=6 time=0.001735 exec_task0=32548 exec_task1=65536 tpms0=18754.802389, tmps1=37763.141495
+ *** bk0=4 bk1=8 time=0.001635 exec_task0=18257 exec_task1=65536 tpms0=11165.851287, tmps1=40081.351260
+ *** bk0=3 bk1=10 time=0.001611 exec_task0=10866 exec_task1=65536 tpms0=6743.904597, tmps1=40674.446130
+ *** bk0=2 bk1=12 time=0.001604 exec_task0=6033 exec_task1=65536 tpms0=3761.033893, tmps1=40855.812566
+ *** bk0=7 bk1=1 time=0.009065 exec_task0=559504 exec_task1=49531 tpms0=61723.562999, tmps1=5464.178628
+ *** bk0=6 bk1=2 time=0.010926 exec_task0=559504 exec_task1=117810 tpms0=51206.220193, tmps1=10782.058396
+ *** bk0=5 bk1=4 time=0.008597 exec_task0=355729 exec_task1=136192 tpms0=41377.619114, tmps1=15841.555516
+ *** bk0=4 bk1=5 time=0.006618 exec_task0=210931 exec_task1=136192 tpms0=31874.504144, tmps1=20580.438477
+ *** bk0=3 bk1=6 time=0.005451 exec_task0=125600 exec_task1=136192 tpms0=23042.803884, tmps1=24986.031422
+ *** bk0=2 bk1=7 time=0.004710 exec_task0=69231 exec_task1=136192 tpms0=14698.109953, tmps1=28914.286818
+ *** bk0=1 bk1=8 time=0.004199 exec_task0=29553 exec_task1=136192 tpms0=7037.657759, tmps1=32432.331254
+ *** bk0=1 bk1=7 time=0.002150 exec_task0=9624 exec_task1=139876 tpms0=4477.149700, tmps1=65071.258463
+ *** bk0=2 bk1=6 time=0.002431 exec_task0=22289 exec_task1=139876 tpms0=9168.972328, tmps1=57540.453737
+ *** bk0=3 bk1=5 time=0.002823 exec_task0=40432 exec_task1=139876 tpms0=14321.771753, tmps1=49546.699291
+ *** bk0=4 bk1=4 time=0.003414 exec_task0=67731 exec_task1=139876 tpms0=19839.681837, tmps1=40972.307166
+ *** bk0=5 bk1=3 time=0.004400 exec_task0=113199 exec_task1=139876 tpms0=25726.958466, tmps1=31789.892512
+ *** bk0=6 bk1=2 time=0.006360 exec_task0=204325 exec_task1=139876 tpms0=32126.299475, tmps1=21992.894973
+ *** bk0=7 bk1=1 time=0.007150 exec_task0=279752 exec_task1=81965 tpms0=39123.901591, tmps1=11462.976472
+ *** bk0=7 bk1=2 time=0.009393 exec_task0=279752 exec_task1=526194 tpms0=29783.103602, tmps1=56019.940579
+ *** bk0=6 bk1=4 time=0.008679 exec_task0=137230 exec_task1=573440 tpms0=15811.019062, tmps1=66069.159591
+ *** bk0=5 bk1=6 time=0.009751 exec_task0=78794 exec_task1=573440 tpms0=8080.737185, tmps1=58809.273944
+ *** bk0=4 bk1=8 time=0.009868 exec_task0=46908 exec_task1=573440 tpms0=4753.706679, tmps1=58113.020338
+ *** bk0=3 bk1=10 time=0.010007 exec_task0=27842 exec_task1=573440 tpms0=2782.278947, tmps1=57304.433569
+ *** bk0=2 bk1=12 time=0.010220 exec_task0=15404 exec_task1=573440 tpms0=1507.268373, tmps1=56110.619054
+ *** bk0=1 bk1=14 time=0.010704 exec_task0=6584 exec_task1=573440 tpms0=615.122233, tmps1=53574.680041
+ *** bk0=7 bk1=4 time=0.002412 exec_task0=88032 exec_task1=131072 tpms0=36503.506646, tmps1=54350.550063
+ *** bk0=6 bk1=8 time=0.001723 exec_task0=45960 exec_task1=131072 tpms0=26673.614479, tmps1=76069.712728
+ *** bk0=5 bk1=12 time=0.001578 exec_task0=30247 exec_task1=131072 tpms0=19163.914364, tmps1=83044.684877
+ *** bk0=4 bk1=16 time=0.001527 exec_task0=19756 exec_task1=131072 tpms0=12941.225960, tmps1=85859.099467
+ *** bk0=3 bk1=20 time=0.001494 exec_task0=11672 exec_task1=131072 tpms0=7814.192544, tmps1=87750.329431
+ *** bk0=2 bk1=24 time=0.001472 exec_task0=6373 exec_task1=131072 tpms0=4330.195916, tmps1=89058.126339
+ *** bk0=1 bk1=25 time=0.001460 exec_task0=3216 exec_task1=131072 tpms0=2202.266394, tmps1=89756.051247
+ *** bk0=7 bk1=2 time=0.002722 exec_task0=77585 exec_task1=65536 tpms0=28500.181804, tmps1=24074.085387
+ *** bk0=6 bk1=4 time=0.001945 exec_task0=33254 exec_task1=65536 tpms0=17097.007259, tmps1=33694.276409
+ *** bk0=5 bk1=6 time=0.001726 exec_task0=17365 exec_task1=65536 tpms0=10059.957039, tmps1=37966.561733
+ *** bk0=4 bk1=8 time=0.001657 exec_task0=9643 exec_task1=65536 tpms0=5818.684142, tmps1=39545.088037
+ *** bk0=3 bk1=10 time=0.001643 exec_task0=5680 exec_task1=65536 tpms0=3457.211830, tmps1=39889.407480
+ *** bk0=2 bk1=12 time=0.001621 exec_task0=3155 exec_task1=65536 tpms0=1946.606225, tmps1=40435.114290
+ *** bk0=7 bk1=1 time=0.007134 exec_task0=279752 exec_task1=43718 tpms0=39214.121135, tmps1=6128.152606
+ *** bk0=6 bk1=2 time=0.008740 exec_task0=279752 exec_task1=103651 tpms0=32009.300614, tmps1=11859.775866
+ *** bk0=5 bk1=4 time=0.007964 exec_task0=203169 exec_task1=136192 tpms0=25512.021717, tmps1=17101.690030
+ *** bk0=4 bk1=5 time=0.006261 exec_task0=121133 exec_task1=136192 tpms0=19348.361569, tmps1=21753.709218
+ *** bk0=3 bk1=6 time=0.005258 exec_task0=72301 exec_task1=136192 tpms0=13751.694790, tmps1=25903.802393
+ *** bk0=2 bk1=7 time=0.004611 exec_task0=40051 exec_task1=136192 tpms0=8686.837807, tmps1=29539.282778
+ *** bk0=1 bk1=8 time=0.004159 exec_task0=17145 exec_task1=136192 tpms0=4122.647600, tmps1=32748.417724
+ *** bk0=7 bk1=2 time=0.004709 exec_task0=139876 exec_task1=66910 tpms0=29703.937335, tmps1=14208.945402
+ *** bk0=6 bk1=4 time=0.007560 exec_task0=139876 exec_task1=216925 tpms0=18501.496888, tmps1=28692.822302
+ *** bk0=5 bk1=6 time=0.010329 exec_task0=139876 exec_task1=479751 tpms0=13541.742829, tmps1=46445.885382
+ *** bk0=4 bk1=8 time=0.010439 exec_task0=95095 exec_task1=573440 tpms0=9109.659667, tmps1=54932.890685
+ *** bk0=3 bk1=10 time=0.010164 exec_task0=55850 exec_task1=573440 tpms0=5494.613994, tmps1=56415.961480
+ *** bk0=2 bk1=12 time=0.010148 exec_task0=29921 exec_task1=573440 tpms0=2948.517961, tmps1=56508.744350
+ *** bk0=1 bk1=14 time=0.010809 exec_task0=12372 exec_task1=573440 tpms0=1144.557084, tmps1=53050.017331
+ *** bk0=7 bk1=4 time=0.002332 exec_task0=139876 exec_task1=110857 tpms0=59981.849126, tmps1=47537.875322
+ *** bk0=6 bk1=8 time=0.001757 exec_task0=85842 exec_task1=131072 tpms0=48859.742702, tmps1=74603.855868
+ *** bk0=5 bk1=12 time=0.001537 exec_task0=58899 exec_task1=131072 tpms0=38324.590645, tmps1=85286.350277
+ *** bk0=4 bk1=16 time=0.001487 exec_task0=41113 exec_task1=131072 tpms0=27656.843681, tmps1=88172.544328
+ *** bk0=3 bk1=20 time=0.001469 exec_task0=25549 exec_task1=131072 tpms0=17396.148197, tmps1=89246.073683
+ *** bk0=2 bk1=24 time=0.001458 exec_task0=13425 exec_task1=131072 tpms0=9205.252771, tmps1=89873.436961
+ *** bk0=1 bk1=25 time=0.001453 exec_task0=6176 exec_task1=131072 tpms0=4251.439603, tmps1=90227.443605
+ *** bk0=7 bk1=2 time=0.002845 exec_task0=139876 exec_task1=59067 tpms0=49164.708481, tmps1=20761.330291
+ *** bk0=6 bk1=4 time=0.002155 exec_task0=68916 exec_task1=65536 tpms0=31982.148093, tmps1=30413.576781
+ *** bk0=5 bk1=6 time=0.001846 exec_task0=37574 exec_task1=65536 tpms0=20356.080922, tmps1=35504.767107
+ *** bk0=4 bk1=8 time=0.001722 exec_task0=22530 exec_task1=65536 tpms0=13086.507287, tmps1=38066.459901
+ *** bk0=3 bk1=10 time=0.001667 exec_task0=13665 exec_task1=65536 tpms0=8197.248879, tmps1=39313.201794
+ *** bk0=2 bk1=12 time=0.001639 exec_task0=7780 exec_task1=65536 tpms0=4747.808107, tmps1=39993.875592
+ *** bk0=7 bk1=1 time=0.002228 exec_task0=139876 exec_task1=10822 tpms0=62787.079014, tmps1=4857.743781
+ *** bk0=6 bk1=2 time=0.002593 exec_task0=139876 exec_task1=25254 tpms0=53937.893381, tmps1=9738.250732
+ *** bk0=5 bk1=4 time=0.003114 exec_task0=139876 exec_task1=45587 tpms0=44922.087772, tmps1=14640.561749
+ *** bk0=4 bk1=5 time=0.003916 exec_task0=139876 exec_task1=75793 tpms0=35716.697084, tmps1=19353.396023
+ *** bk0=3 bk1=6 time=0.005291 exec_task0=139876 exec_task1=126116 tpms0=26435.473632, tmps1=23834.940894
+ *** bk0=2 bk1=7 time=0.004878 exec_task0=84716 exec_task1=136192 tpms0=17366.796562, tmps1=27919.386626
+ *** bk0=1 bk1=8 time=0.004278 exec_task0=36391 exec_task1=136192 tpms0=8506.655345, tmps1=31835.849655
+ *** bk0=1 bk1=30 time=0.001461 exec_task0=1445 exec_task1=131072 tpms0=989.351825, tmps1=89741.399590
+ *** bk0=2 bk1=28 time=0.001704 exec_task0=1667 exec_task1=131072 tpms0=978.436156, tmps1=76931.963880
+ *** bk0=3 bk1=26 time=0.002686 exec_task0=2130 exec_task1=131072 tpms0=792.923362, tmps1=48793.451131
+ *** bk0=4 bk1=24 time=0.004221 exec_task0=2818 exec_task1=131072 tpms0=667.657949, tmps1=31054.387047
+ *** bk0=5 bk1=22 time=0.006680 exec_task0=3855 exec_task1=131072 tpms0=577.135991, tmps1=19622.923111
+ *** bk0=6 bk1=20 time=0.008827 exec_task0=19273 exec_task1=131072 tpms0=2183.303740, tmps1=14848.232651
+ *** bk0=7 bk1=18 time=0.009608 exec_task0=62015 exec_task1=131072 tpms0=6454.496701, tmps1=13641.921980
+ *** bk0=8 bk1=16 time=0.010015 exec_task0=107637 exec_task1=131072 tpms0=10747.567006, tmps1=13087.554490
+ *** bk0=9 bk1=14 time=0.010396 exec_task0=166124 exec_task1=131072 tpms0=15979.601819, tmps1=12607.921610
+ *** bk0=10 bk1=12 time=0.010688 exec_task0=234128 exec_task1=131072 tpms0=21905.552364, tmps1=12263.396772
+ *** bk0=11 bk1=10 time=0.010711 exec_task0=320055 exec_task1=131072 tpms0=29881.089966, tmps1=12237.191183
+ *** bk0=12 bk1=8 time=0.011280 exec_task0=460310 exec_task1=131072 tpms0=40806.545225, tmps1=11619.550946
+ *** bk0=13 bk1=6 time=0.011340 exec_task0=573440 exec_task1=117174 tpms0=50566.208047, tmps1=10332.458255
+ *** bk0=14 bk1=4 time=0.011246 exec_task0=573440 exec_task1=78449 tpms0=50990.728779, tmps1=6975.745818
+ *** bk0=15 bk1=2 time=0.011198 exec_task0=573440 exec_task1=37929 tpms0=51207.853813, tmps1=3387.037331
+ *** bk0=15 bk1=1 time=0.011180 exec_task0=573440 exec_task1=16575 tpms0=51290.846944, tmps1=1482.536600
+ *** bk0=14 bk1=2 time=0.011468 exec_task0=573440 exec_task1=35739 tpms0=50003.777251, tmps1=3116.428912
+ *** bk0=13 bk1=3 time=0.011567 exec_task0=573440 exec_task1=57563 tpms0=49577.064059, tmps1=4976.640169
+ *** bk0=12 bk1=4 time=0.011453 exec_task0=437318 exec_task1=65536 tpms0=38183.201563, tmps1=5722.093071
+ *** bk0=11 bk1=5 time=0.011420 exec_task0=293150 exec_task1=65536 tpms0=25670.923390, tmps1=5738.937866
+ *** bk0=10 bk1=6 time=0.011182 exec_task0=195041 exec_task1=65536 tpms0=17441.926708, tmps1=5860.686260
+ *** bk0=9 bk1=7 time=0.011485 exec_task0=128510 exec_task1=65536 tpms0=11189.512508, tmps1=5706.294388
+ *** bk0=8 bk1=8 time=0.011578 exec_task0=80048 exec_task1=65536 tpms0=6913.752452, tmps1=5660.349799
+ *** bk0=7 bk1=9 time=0.011686 exec_task0=43944 exec_task1=65536 tpms0=3760.445893, tmps1=5608.150874
+ *** bk0=6 bk1=10 time=0.011345 exec_task0=15242 exec_task1=65536 tpms0=1343.510036, tmps1=5776.687688
+ *** bk0=5 bk1=11 time=0.009212 exec_task0=3748 exec_task1=65536 tpms0=406.880924, tmps1=7114.553964
+ *** bk0=4 bk1=12 time=0.006581 exec_task0=2710 exec_task1=65536 tpms0=411.772346, tmps1=9957.901280
+ *** bk0=3 bk1=13 time=0.004618 exec_task0=1912 exec_task1=65536 tpms0=414.059751, tmps1=14192.374378
+ *** bk0=2 bk1=14 time=0.003090 exec_task0=1245 exec_task1=65536 tpms0=402.862867, tmps1=21206.442443
+ *** bk0=1 bk1=15 time=0.002100 exec_task0=597 exec_task1=65536 tpms0=284.254681, tmps1=31204.212390
+ *** bk0=2 bk1=7 time=0.006514 exec_task0=167272 exec_task1=136192 tpms0=25678.560087, tmps1=20907.351232
+ *** bk0=4 bk1=6 time=0.009145 exec_task0=444021 exec_task1=136192 tpms0=48554.569204, tmps1=14892.862925
+ *** bk0=6 bk1=5 time=0.010055 exec_task0=573440 exec_task1=95949 tpms0=57031.315907, tmps1=9542.581142
+ *** bk0=8 bk1=4 time=0.009968 exec_task0=573440 exec_task1=55608 tpms0=57529.221339, tmps1=5578.761405
+ *** bk0=10 bk1=3 time=0.009946 exec_task0=573440 exec_task1=32327 tpms0=57654.713564, tmps1=3250.216109
+ *** bk0=12 bk1=2 time=0.010173 exec_task0=573440 exec_task1=17507 tpms0=56367.042085, tmps1=1720.873685
+ *** bk0=14 bk1=1 time=0.010694 exec_task0=573440 exec_task1=7074 tpms0=53622.456988, tmps1=661.490759
+ *** bk0=30 bk1=1 time=0.001499 exec_task0=131072 exec_task1=4589 tpms0=87415.457766, tmps1=3060.528074
+ *** bk0=28 bk1=2 time=0.001582 exec_task0=131072 exec_task1=10869 tpms0=82831.974369, tmps1=6868.749462
+ *** bk0=26 bk1=3 time=0.001668 exec_task0=131072 exec_task1=17399 tpms0=78558.990267, tmps1=10428.221677
+ *** bk0=24 bk1=4 time=0.001785 exec_task0=131072 exec_task1=26216 tpms0=73418.244376, tmps1=14684.545094
+ *** bk0=22 bk1=5 time=0.001905 exec_task0=131072 exec_task1=35170 tpms0=68796.873218, tmps1=18459.976433
+ *** bk0=20 bk1=6 time=0.002057 exec_task0=131072 exec_task1=46296 tpms0=63717.641851, tmps1=22505.736901
+ *** bk0=18 bk1=7 time=0.002231 exec_task0=131072 exec_task1=58752 tpms0=58753.426727, tmps1=26335.764519
+ *** bk0=16 bk1=8 time=0.002190 exec_task0=117930 exec_task1=65536 tpms0=53852.397465, tmps1=29926.827103
+ *** bk0=14 bk1=9 time=0.001979 exec_task0=94670 exec_task1=65536 tpms0=47828.807478, tmps1=33109.841839
+ *** bk0=12 bk1=10 time=0.001831 exec_task0=75453 exec_task1=65536 tpms0=41218.132289, tmps1=35800.717237
+ *** bk0=10 bk1=11 time=0.001769 exec_task0=58726 exec_task1=65536 tpms0=33191.577510, tmps1=37040.548032
+ *** bk0=8 bk1=12 time=0.001734 exec_task0=43804 exec_task1=65536 tpms0=25268.503977, tmps1=37804.690819
+ *** bk0=6 bk1=13 time=0.001712 exec_task0=30799 exec_task1=65536 tpms0=17991.694832, tmps1=38283.831051
+ *** bk0=4 bk1=14 time=0.001707 exec_task0=19468 exec_task1=65536 tpms0=11405.882144, tmps1=38396.131714
+ *** bk0=2 bk1=15 time=0.001684 exec_task0=9352 exec_task1=65536 tpms0=5552.035528, tmps1=38906.993198
+ *** bk0=4 bk1=7 time=0.004112 exec_task0=131072 exec_task1=111813 tpms0=31871.749892, tmps1=27188.689962
+ *** bk0=8 bk1=6 time=0.002655 exec_task0=131072 exec_task1=54338 tpms0=49367.440184, tmps1=20466.064184
+ *** bk0=12 bk1=5 time=0.002150 exec_task0=131072 exec_task1=32405 tpms0=60975.578293, tmps1=15075.024525
+ *** bk0=16 bk1=4 time=0.001875 exec_task0=131072 exec_task1=20069 tpms0=69916.801970, tmps1=10705.263510
+ *** bk0=20 bk1=3 time=0.001693 exec_task0=131072 exec_task1=11757 tpms0=77430.396322, tmps1=6945.412976
+ *** bk0=24 bk1=2 time=0.001579 exec_task0=131072 exec_task1=6471 tpms0=83019.603426, tmps1=4098.662214
+ *** bk0=28 bk1=1 time=0.001495 exec_task0=131072 exec_task1=2579 tpms0=87652.393796, tmps1=1724.666776
+ *** bk0=2 bk1=7 time=0.004157 exec_task0=65536 exec_task1=88320 tpms0=15765.867906, tmps1=21246.970420
+ *** bk0=4 bk1=6 time=0.002567 exec_task0=65536 exec_task1=37561 tpms0=25532.036684, tmps1=14633.313445
+ *** bk0=6 bk1=5 time=0.002082 exec_task0=65536 exec_task1=19659 tpms0=31475.770863, tmps1=9441.866751
+ *** bk0=8 bk1=4 time=0.001874 exec_task0=65536 exec_task1=11627 tpms0=34967.295121, tmps1=6203.685614
+ *** bk0=10 bk1=3 time=0.001749 exec_task0=65536 exec_task1=7021 tpms0=37474.833939, tmps1=4014.752336
+ *** bk0=12 bk1=2 time=0.001679 exec_task0=65536 exec_task1=3961 tpms0=39034.068012, tmps1=2359.221548
+ *** bk0=14 bk1=1 time=0.001617 exec_task0=65536 exec_task1=1733 tpms0=40530.508249, tmps1=1071.767743
+**************** SMK Experiment *************
+Kernels 	Blocks_co		Blocks_solo 	Blocks_ibc 	Blocks_fair 	Speedup_colo 	Speedup_th 	Speedup_real 	Speedup_inc 	Speedup_fair 	Min_speedup
+VA/MM 	 2_6 	 3_5 	 2_6 	 2_6 	 1.178261 	 1.772333 	 1.170995 	1.178261 	1.178261 	1.025536
+VA/BS 	 2_6 	 3_5 	 2_6 	 3_5 	 1.079352 	 1.899149 	 1.077513 	1.079352 	1.077513 	1.017969
+VA/Reduction 	 4_4 	 2_6 	 2_6 	 2_6 	 1.015149 	 1.765331 	 0.996089 	0.996089 	0.996089 	0.978162
+VA/PF 	 2_6 	 2_6 	 2_6 	 1_7 	 1.353782 	 1.702381 	 1.353782 	1.353782 	1.257801 	1.026720
+VA/GCEDD 	 2_6 	 2_6 	 2_6 	 1_7 	 1.242858 	 1.723029 	 1.242858 	1.242858 	1.146415 	1.012465
+VA/SCEDD 	 2_6 	 3_5 	 2_6 	 1_7 	 1.369596 	 1.777896 	 1.288504 	1.369596 	1.254465 	1.033562
+VA/NCEDD 	 2_6 	 2_6 	 2_6 	 1_7 	 1.242304 	 1.715282 	 1.242304 	1.242304 	1.154828 	1.022830
+VA/HCEDD 	 2_6 	 3_5 	 2_6 	 2_6 	 1.276979 	 1.767129 	 1.216041 	1.276979 	1.276979 	1.031385
+VA/SPMV_CSRscalar 	 4_8 	 6_4 	 4_8 	 5_6 	 1.218288 	 2.634066 	 0.863581 	1.218288 	1.049794 	0.780922
+VA/RCONV 	 3_20 	 5_12 	 3_20 	 4_16 	 1.705897 	 2.002647 	 1.483658 	1.705897 	1.624227 	1.152442
+VA/CCONV 	 2_12 	 4_8 	 4_8 	 5_6 	 1.013299 	 2.004232 	 1.013161 	1.013161 	1.012998 	1.008633
+VA/HST256 	 3_5 	 3_5 	 2_6 	 2_6 	 1.053062 	 1.791283 	 1.053062 	1.047187 	1.047187 	1.007873
+MM/BS 	 5_3 	 4_4 	 5_3 	 5_3 	 1.119695 	 1.564294 	 1.106070 	1.119695 	1.119695 	1.028402
+MM/Reduction 	 2_6 	 3_5 	 3_5 	 3_5 	 1.044995 	 1.381075 	 1.038232 	1.038232 	1.038232 	0.998507
+MM/PF 	 7_1 	 3_5 	 3_5 	 3_5 	 0.998403 	 1.306299 	 0.985751 	0.985751 	0.985751 	0.969902
+MM/GCEDD 	 2_6 	 3_5 	 3_5 	 3_5 	 1.019046 	 1.349377 	 1.015831 	1.015831 	1.015831 	0.985060
+MM/SCEDD 	 3_5 	 3_5 	 4_4 	 3_5 	 1.072328 	 1.404592 	 1.072328 	1.062178 	1.072328 	1.009187
+MM/NCEDD 	 2_6 	 3_5 	 3_5 	 3_5 	 1.058535 	 1.333931 	 1.054196 	1.054196 	1.054196 	0.991067
+MM/HCEDD 	 3_5 	 3_5 	 4_4 	 3_5 	 1.094253 	 1.393825 	 1.094253 	1.093120 	1.094253 	1.040483
+MM/SPMV_CSRscalar 	 6_4 	 6_4 	 6_4 	 7_2 	 1.328157 	 2.496698 	 1.328157 	1.328157 	1.275396 	1.056256
+MM/RCONV 	 6_8 	 6_8 	 6_8 	 6_8 	 1.039710 	 1.858702 	 1.039710 	1.039710 	1.039710 	1.006376
+MM/CCONV 	 4_8 	 6_4 	 5_6 	 6_4 	 1.133988 	 1.796150 	 1.059239 	1.125100 	1.059239 	0.984910
+MM/HST256 	 1_7 	 3_5 	 4_4 	 4_4 	 1.007378 	 1.417979 	 0.996624 	0.991375 	0.991375 	0.974112
+BS/Reduction 	 7_1 	 3_5 	 3_5 	 3_5 	 0.997356 	 1.515438 	 0.981046 	0.981046 	0.981046 	0.978342
+BS/PF 	 3_5 	 3_5 	 3_5 	 3_5 	 1.149138 	 1.440661 	 1.149138 	1.149138 	1.149138 	1.032290
+BS/GCEDD 	 3_5 	 4_4 	 3_5 	 3_5 	 1.077920 	 1.483852 	 1.075672 	1.077920 	1.077920 	1.018438
+BS/SCEDD 	 4_4 	 4_4 	 4_4 	 3_5 	 1.111858 	 1.539486 	 1.111858 	1.111858 	1.089836 	1.012104
+BS/NCEDD 	 3_5 	 3_5 	 3_5 	 4_4 	 1.085718 	 1.468293 	 1.085718 	1.085718 	0.527100 	0.527100
+BS/HCEDD 	 4_4 	 4_4 	 4_4 	 3_5 	 1.092455 	 1.529626 	 1.092455 	1.092455 	1.089878 	1.023094
+BS/SPMV_CSRscalar 	 5_6 	 6_4 	 5_6 	 6_4 	 1.332869 	 2.585296 	 1.044687 	1.332869 	1.044687 	0.834068
+BS/RCONV 	 5_12 	 6_8 	 5_12 	 5_12 	 1.637515 	 1.947299 	 1.506833 	1.637515 	1.637515 	1.085666
+BS/CCONV 	 6_4 	 5_6 	 6_4 	 6_4 	 1.111564 	 1.896643 	 1.086009 	1.111564 	1.111564 	1.036210
+BS/HST256 	 2_6 	 4_4 	 3_5 	 3_5 	 1.040667 	 1.555156 	 1.015422 	1.032857 	1.032857 	1.005332
+Reduction/PF 	 4_4 	 4_4 	 4_4 	 4_4 	 1.072610 	 1.237623 	 1.072610 	1.072610 	1.072610 	1.021105
+Reduction/GCEDD 	 5_3 	 4_4 	 4_4 	 4_4 	 1.014780 	 1.285515 	 1.012383 	1.012383 	1.012383 	0.988327
+Reduction/SCEDD 	 5_3 	 4_4 	 5_3 	 4_4 	 1.061856 	 1.341150 	 1.058982 	1.061856 	1.058982 	0.999562
+Reduction/NCEDD 	 5_3 	 4_4 	 4_4 	 4_4 	 1.027321 	 1.257450 	 1.024996 	1.024996 	1.024996 	1.003572
+Reduction/HCEDD 	 4_4 	 4_4 	 5_3 	 4_4 	 1.029917 	 1.331289 	 1.029917 	1.024514 	1.029917 	0.998389
+Reduction/SPMV_CSRscalar 	 6_4 	 6_4 	 6_4 	 7_2 	 1.603123 	 2.508824 	 1.603123 	1.603123 	1.300408 	1.052393
+Reduction/RCONV 	 6_8 	 6_8 	 6_8 	 7_4 	 1.362650 	 1.870827 	 1.362650 	1.362650 	1.294475 	1.025892
+Reduction/CCONV 	 6_4 	 6_4 	 6_4 	 7_2 	 1.035145 	 1.808275 	 1.035145 	1.035145 	0.982044 	0.982044
+Reduction/HST256 	 5_3 	 4_4 	 5_3 	 4_4 	 1.015491 	 1.356819 	 1.012322 	1.015491 	1.012322 	1.001955
+PF/GCEDD 	 4_4 	 4_4 	 5_3 	 4_4 	 1.017410 	 1.215058 	 1.017410 	1.008760 	1.017410 	0.998889
+PF/SCEDD 	 7_1 	 4_4 	 5_3 	 4_4 	 0.989218 	 1.270693 	 0.983247 	0.983907 	0.983247 	0.972353
+PF/NCEDD 	 7_1 	 4_4 	 4_4 	 4_4 	 0.993151 	 1.186993 	 0.993141 	0.993141 	0.993141 	0.977430
+PF/HCEDD 	 5_3 	 4_4 	 5_3 	 5_3 	 0.995953 	 1.260832 	 0.987290 	0.995953 	0.995953 	0.979130
+PF/SPMV_CSRscalar 	 7_2 	 6_4 	 7_2 	 7_2 	 1.825456 	 2.445874 	 1.631753 	1.825456 	1.825456 	1.061766
+PF/RCONV 	 6_8 	 6_8 	 6_8 	 7_4 	 1.154045 	 1.807877 	 1.154045 	1.154045 	1.148369 	1.013136
+PF/CCONV 	 6_4 	 6_4 	 6_4 	 7_2 	 1.236693 	 1.745325 	 1.236693 	1.236693 	1.171051 	1.059897
+PF/HST256 	 4_4 	 4_4 	 5_3 	 5_3 	 1.008547 	 1.286362 	 1.008547 	1.004783 	1.004783 	0.985855
+GCEDD/SCEDD 	 3_5 	 4_4 	 5_3 	 4_4 	 1.092664 	 1.318585 	 1.053406 	1.047523 	1.053406 	0.953373
+GCEDD/NCEDD 	 6_2 	 4_4 	 4_4 	 4_4 	 1.016451 	 1.234885 	 1.014413 	1.014413 	1.014413 	1.001525
+GCEDD/HCEDD 	 6_2 	 4_4 	 5_3 	 4_4 	 1.031127 	 1.308724 	 1.009067 	1.030861 	1.009067 	0.930488
+GCEDD/SPMV_CSRscalar 	 6_4 	 6_4 	 7_2 	 7_2 	 1.507791 	 2.466522 	 1.507791 	1.465910 	1.465910 	1.037655
+GCEDD/RCONV 	 6_8 	 6_8 	 6_8 	 6_8 	 1.282505 	 1.828525 	 1.282505 	1.282505 	1.282505 	1.024937
+GCEDD/CCONV 	 7_2 	 6_4 	 6_4 	 7_2 	 1.186272 	 1.765973 	 1.184454 	1.184454 	1.186272 	1.011498
+GCEDD/HST256 	 4_4 	 4_4 	 5_3 	 5_3 	 1.010973 	 1.334254 	 1.010973 	1.006196 	1.006196 	0.999027
+SCEDD/NCEDD 	 7_1 	 4_4 	 4_4 	 4_4 	 1.284720 	 1.290519 	 1.227546 	1.227546 	1.227546 	1.043805
+SCEDD/HCEDD 	 7_1 	 4_4 	 5_3 	 4_4 	 1.252059 	 1.364359 	 1.138454 	1.170850 	1.138454 	1.070428
+SCEDD/SPMV_CSRscalar 	 7_2 	 6_4 	 7_2 	 7_2 	 1.978252 	 2.511966 	 1.783719 	1.978252 	1.978252 	1.063037
+SCEDD/RCONV 	 7_4 	 6_8 	 6_8 	 6_8 	 1.529754 	 1.873969 	 1.500869 	1.500869 	1.500869 	1.043311
+SCEDD/CCONV 	 7_2 	 6_4 	 6_4 	 6_4 	 1.407308 	 1.811417 	 1.352011 	1.352011 	1.352011 	1.063678
+SCEDD/HST256 	 7_1 	 5_4 	 4_5 	 4_5 	 1.229149 	 1.496443 	 1.163652 	1.130043 	1.130043 	1.027329
+NCEDD/HCEDD 	 7_1 	 4_4 	 5_3 	 4_4 	 1.122793 	 1.280658 	 1.084579 	1.093703 	1.084579 	1.062792
+NCEDD/SPMV_CSRscalar 	 7_2 	 6_4 	 7_2 	 7_2 	 1.801637 	 2.458775 	 1.653449 	1.801637 	1.801637 	1.042878
+NCEDD/RCONV 	 7_4 	 6_8 	 6_8 	 6_8 	 1.489287 	 1.820779 	 1.488524 	1.488524 	1.488524 	1.041991
+NCEDD/CCONV 	 7_2 	 6_4 	 7_2 	 7_2 	 1.283654 	 1.758227 	 1.240371 	1.283654 	1.283654 	1.035297
+NCEDD/HST256 	 7_1 	 5_4 	 4_5 	 4_5 	 1.127940 	 1.425783 	 1.099599 	1.078923 	1.078923 	1.013988
+HCEDD/SPMV_CSRscalar 	 4_8 	 6_4 	 5_6 	 7_2 	 1.187413 	 2.503788 	 0.821604 	1.089530 	0.707877 	0.707877
+HCEDD/RCONV 	 6_8 	 6_8 	 6_8 	 6_8 	 1.537384 	 1.865791 	 1.537384 	1.537384 	1.537384 	1.055734
+HCEDD/CCONV 	 7_2 	 6_4 	 6_4 	 7_2 	 1.227618 	 1.803239 	 1.211627 	1.211627 	1.227618 	1.046584
+HCEDD/HST256 	 5_4 	 5_4 	 4_5 	 4_5 	 1.066604 	 1.485677 	 1.066604 	1.063157 	1.063157 	1.012576
+SPMV_CSRscalar/RCONV 	 13_6 	 4_24 	 1_30 	 7_18 	 1.083910 	 2.634232 	 0.354729 	1.007065 	0.274036 	0.205372
+SPMV_CSRscalar/CCONV 	 13_3 	 4_12 	 13_3 	 8_8 	 1.072743 	 2.635998 	 0.251162 	1.072743 	0.270922 	0.166895
+SPMV_CSRscalar/HST256 	 6_5 	 4_6 	 4_6 	 2_7 	 1.360332 	 2.519543 	 1.346923 	1.346923 	1.075780 	1.047232
+RCONV/CCONV 	 14_9 	 16_8 	 16_8 	 18_7 	 1.335453 	 2.010396 	 1.324017 	1.324017 	1.290252 	1.011590
+RCONV/HST256 	 8_6 	 8_6 	 8_6 	 8_6 	 1.114364 	 1.881546 	 1.114364 	1.114364 	1.114364 	1.013185
+CCONV/HST256 	 6_5 	 4_6 	 4_6 	 2_7 	 1.032262 	 1.818994 	 1.031856 	1.031856 	0.977737 	0.977737
+
+**************** SMT Experiment *************
+Kernels 	Blocks_co		Blocks_solo 	Blocks_inc 	Speedup_colo 	Speedup_th 	Speedup_real 	Speedup_inc
+VA/MM 	 9_19 	 9_19 	8_20 	 1.161055 	 1.601329 	 1.161055 1.159113
+VA/BS 	 9_19 	 10_18 	10_18 	 1.081020 	 1.822715 	 1.080514 1.080514
+VA/Reduction 	 17_11 	 9_19 	9_19 	 1.016869 	 1.706828 	 0.998586 0.998586
+VA/PF 	 8_20 	 8_20 	7_21 	 1.348909 	 1.608648 	 1.348909 1.336574
+VA/GCEDD 	 8_20 	 9_19 	7_21 	 1.305287 	 1.624686 	 1.294408 1.304326
+VA/SCEDD 	 7_21 	 9_19 	7_21 	 1.544919 	 1.613810 	 1.515653 1.544919
+VA/NCEDD 	 7_21 	 9_19 	7_21 	 1.345509 	 1.615427 	 1.333027 1.345509
+VA/HCEDD 	 7_21 	 9_19 	7_21 	 1.290212 	 1.622977 	 1.268551 1.290212
+VA/SPMV_CSRscalar 	 7_21 	 12_16 	7_21 	 1.060691 	 2.201741 	 0.653238 1.060691
+VA/RCONV 	 8_20 	 9_19 	8_20 	 1.457070 	 1.606100 	 1.451949 1.457070
+VA/CCONV 	 12_16 	 10_18 	15_13 	 1.016953 	 1.941050 	 1.016067 1.015750
+VA/HST256 	 11_17 	 9_19 	8_20 	 1.051208 	 1.640049 	 1.046524 1.037428
+MM/BS 	 25_3 	 14_14 	16_12 	 1.051769 	 1.295584 	 1.050506 1.050961
+MM/Reduction 	 5_23 	 10_18 	13_15 	 1.015555 	 1.147152 	 1.010284 0.999102
+MM/PF 	 27_1 	 8_20 	14_14 	 0.998919 	 1.046710 	 0.989108 0.980797
+MM/GCEDD 	 27_1 	 11_17 	14_14 	 0.999665 	 1.063764 	 0.967412 0.961897
+MM/SCEDD 	 1_27 	 10_18 	14_14 	 1.305790 	 1.054765 	 1.183876 1.127443
+MM/NCEDD 	 1_27 	 10_18 	14_14 	 1.138557 	 1.053273 	 1.075428 1.044584
+MM/HCEDD 	 1_27 	 11_17 	14_14 	 1.054752 	 1.061442 	 1.017887 1.008665
+MM/SPMV_CSRscalar 	 17_11 	 15_13 	17_11 	 1.230471 	 1.742163 	 1.205727 1.230471
+MM/RCONV 	 10_18 	 7_21 	13_15 	 1.004719 	 1.043907 	 0.992699 0.998255
+MM/CCONV 	 14_14 	 12_16 	19_9 	 1.143807 	 1.410146 	 1.143385 1.108804
+MM/HST256 	 2_26 	 11_17 	14_14 	 0.995531 	 1.078560 	 0.989710 0.988518
+BS/Reduction 	 27_1 	 12_16 	11_17 	 1.002385 	 1.399684 	 0.979347 0.984180
+BS/PF 	 12_16 	 13_15 	11_17 	 1.167713 	 1.299127 	 1.167013 1.163869
+BS/GCEDD 	 14_14 	 13_15 	12_16 	 1.094747 	 1.318599 	 1.093277 1.090581
+BS/SCEDD 	 7_21 	 13_15 	12_16 	 1.330192 	 1.307802 	 1.283839 1.295719
+BS/NCEDD 	 8_20 	 13_15 	11_17 	 1.188940 	 1.308180 	 1.160363 1.177747
+BS/HCEDD 	 12_16 	 13_15 	12_16 	 1.132993 	 1.316304 	 1.127876 1.132993
+BS/SPMV_CSRscalar 	 8_20 	 15_13 	8_20 	 1.108903 	 1.993430 	 0.543893 1.108903
+BS/RCONV 	 14_14 	 13_15 	12_16 	 1.207319 	 1.297747 	 1.202647 1.203209
+BS/CCONV 	 19_9 	 12_16 	19_9 	 1.100594 	 1.663435 	 1.078184 1.100594
+BS/HST256 	 6_22 	 13_15 	11_17 	 1.022054 	 1.332611 	 1.010571 1.017061
+Reduction/PF 	 14_14 	 15_13 	13_15 	 1.073651 	 1.147301 	 1.072476 1.073146
+Reduction/GCEDD 	 20_8 	 15_13 	14_14 	 1.004753 	 1.167173 	 1.000914 0.998417
+Reduction/SCEDD 	 1_27 	 15_13 	14_14 	 1.299893 	 1.155623 	 1.161341 1.170927
+Reduction/NCEDD 	 1_27 	 15_13 	13_15 	 1.145533 	 1.157176 	 1.080701 1.103363
+Reduction/HCEDD 	 1_27 	 15_13 	14_14 	 1.055900 	 1.165152 	 1.033620 1.035758
+Reduction/SPMV_CSRscalar 	 12_16 	 15_13 	12_16 	 1.270513 	 1.849135 	 0.450423 1.270513
+Reduction/RCONV 	 18_10 	 15_13 	14_14 	 1.038142 	 1.146783 	 1.036968 1.034787
+Reduction/CCONV 	 14_14 	 12_16 	19_9 	 1.028965 	 1.505493 	 1.026588 1.008660
+Reduction/HST256 	 1_27 	 15_13 	14_14 	 0.995901 	 1.179545 	 0.995708 0.995028
+PF/GCEDD 	 12_16 	 13_15 	6_22 	 1.002147 	 1.065343 	 1.001752 0.992806
+PF/SCEDD 	 1_27 	 13_15 	15_13 	 1.300519 	 1.054547 	 1.165624 1.138374
+PF/NCEDD 	 1_27 	 19_9 	15_13 	 1.141524 	 1.055663 	 1.041148 1.070545
+PF/HCEDD 	 1_27 	 15_13 	15_13 	 1.058153 	 1.063244 	 1.022516 1.022516
+PF/SPMV_CSRscalar 	 17_11 	 15_13 	18_10 	 1.584647 	 1.747228 	 1.560274 1.567484
+PF/RCONV 	 11_17 	 19_9 	11_17 	 1.000961 	 1.045323 	 0.988648 1.000961
+PF/CCONV 	 16_12 	 12_16 	12_16 	 1.207290 	 1.411053 	 1.198320 1.198320
+PF/HST256 	 14_14 	 13_15 	14_14 	 1.022983 	 1.079355 	 1.015423 1.022983
+GCEDD/SCEDD 	 1_27 	 13_15 	11_17 	 1.299415 	 1.073950 	 1.155766 1.195007
+GCEDD/NCEDD 	 12_16 	 13_15 	6_22 	 1.212736 	 1.074328 	 1.177746 1.101413
+GCEDD/HCEDD 	 20_8 	 14_14 	15_13 	 1.117514 	 1.082598 	 1.006214 1.004747
+GCEDD/SPMV_CSRscalar 	 14_14 	 15_13 	14_14 	 1.255226 	 1.765894 	 1.158600 1.255226
+GCEDD/RCONV 	 1_27 	 14_14 	14_14 	 0.989198 	 1.063923 	 0.986226 0.986226
+GCEDD/CCONV 	 14_14 	 12_16 	18_10 	 1.149499 	 1.430925 	 1.140457 1.120007
+GCEDD/HST256 	 1_27 	 12_16 	15_13 	 0.989724 	 1.098822 	 0.980670 0.977812
+SCEDD/NCEDD 	 17_11 	 17_11 	15_13 	 1.332477 	 1.064376 	 1.332477 1.295884
+SCEDD/HCEDD 	 27_1 	 14_14 	15_13 	 1.296162 	 1.071802 	 1.168351 1.177758
+SCEDD/SPMV_CSRscalar 	 18_10 	 15_13 	18_10 	 1.615947 	 1.755607 	 1.549616 1.615947
+SCEDD/RCONV 	 27_1 	 17_11 	15_13 	 1.296755 	 1.054125 	 1.177424 1.152946
+SCEDD/CCONV 	 18_10 	 12_16 	18_10 	 1.325224 	 1.419375 	 1.265315 1.325224
+SCEDD/HST256 	 27_1 	 13_15 	15_13 	 1.295738 	 1.087478 	 1.131154 1.155656
+NCEDD/HCEDD 	 21_7 	 14_14 	15_13 	 1.185288 	 1.072180 	 1.071808 1.075146
+NCEDD/SPMV_CSRscalar 	 16_12 	 15_13 	16_12 	 1.490492 	 1.755940 	 1.465634 1.490492
+NCEDD/RCONV 	 27_1 	 15_13 	15_13 	 1.134773 	 1.053588 	 1.062065 1.062065
+NCEDD/CCONV 	 17_11 	 12_16 	19_9 	 1.177635 	 1.420928 	 1.167018 1.169018
+NCEDD/HST256 	 27_1 	 12_16 	15_13 	 1.138860 	 1.088825 	 1.056656 1.082652
+HCEDD/SPMV_CSRscalar 	 6_22 	 15_13 	6_22 	 1.123686 	 1.763979 	 0.470399 1.123686
+HCEDD/RCONV 	 26_2 	 13_15 	14_14 	 1.051083 	 1.061747 	 1.026734 1.029589
+HCEDD/CCONV 	 16_12 	 12_16 	19_9 	 1.167800 	 1.428903 	 1.149675 1.156225
+HCEDD/HST256 	 27_1 	 12_16 	14_14 	 1.053186 	 1.096800 	 1.012734 1.019334
+SPMV_CSRscalar/RCONV 	 25_3 	 12_16 	8_20 	 1.039647 	 1.745362 	 0.574187 0.714258
+SPMV_CSRscalar/CCONV 	 1_27 	 12_16 	11_17 	 0.993681 	 2.112887 	 0.710910 0.743208
+SPMV_CSRscalar/HST256 	 18_10 	 12_16 	10_18 	 1.274111 	 1.780784 	 0.473767 0.550335
+RCONV/CCONV 	 14_14 	 12_16 	16_12 	 1.325333 	 1.410534 	 1.305268 1.308389
+RCONV/HST256 	 13_15 	 12_16 	14_14 	 1.006914 	 1.078432 	 1.006689 1.006523
+CCONV/HST256 	 12_16 	 15_13 	10_18 	 1.041949 	 1.443297 	 1.033233 1.030934
+
+

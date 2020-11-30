@@ -24,6 +24,7 @@ typedef struct {
     *d_StockPrice,
     *d_OptionStrike,
     *d_OptionYears;
+    int *zc_slc;
 } t_BS_params;
 
 /*__global__ void original_BlackScholesGPU(
@@ -92,6 +93,7 @@ int BS_end_kernel_dummy(void *arg);
 
 int launch_preemp_BS(void *kstub);
 int launch_orig_BS(void *kstub);
+int launch_slc_BS(void *arg);
 
 int BS_start_mallocs(void *arg);
 int BS_start_transfers(void *arg);

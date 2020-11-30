@@ -101,6 +101,53 @@ original_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint da
 }
 
 __global__ void
+slicing_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount, 
+							int warp_count, int histogram256_threadblock_size, int histogram256_threadblock_memory, 
+							int gridDimX, int init_block, int *zc_slc)
+{
+    //Per-warp subhistogram storage
+    //__shared__ uint s_Hist[histogram256_threadblock_memory];
+	extern __shared__ uint s_Hist[];
+	uint *s_WarpHist= s_Hist + (threadIdx.x >> LOG2_WARP_SIZE) * HISTOGRAM256_BIN_COUNT;
+	
+	if (threadIdx.x == 0) atomicAdd(zc_slc, 1);
+
+    //Clear shared memory storage for current threadblock before processing
+#pragma unroll
+
+    for (uint i = 0; i < (histogram256_threadblock_memory / histogram256_threadblock_size); i++)
+    {
+        s_Hist[threadIdx.x + i * histogram256_threadblock_size] = 0;
+    }
+
+    //Cycle through the entire data set, update subhistograms for each warp
+    const uint tag = threadIdx.x << (UINT_BITS - LOG2_WARP_SIZE);
+
+    __syncthreads();
+
+    for (uint pos = UMAD(blockIdx.x + init_block, blockDim.x, threadIdx.x); pos < dataCount; pos += UMUL(blockDim.x, gridDimX))
+    {
+        uint data = d_Data256[pos];
+        addWord(s_WarpHist, data, tag);
+    }
+
+    //Merge per-warp histograms into per-block and write to global memory
+    __syncthreads();
+
+    for (uint bin = threadIdx.x; bin < HISTOGRAM256_BIN_COUNT; bin += histogram256_threadblock_size)
+    {
+        uint sum = 0;
+
+        for (uint i = 0; i < warp_count; i++)
+        {
+            sum += s_Hist[bin + i * HISTOGRAM256_BIN_COUNT] & TAG_MASK;
+        }
+
+        d_PartialHistograms256[(blockIdx.x + init_block) * HISTOGRAM256_BIN_COUNT + bin] = sum;
+    }
+}
+
+__global__ void
 //__launch_bounds__(192, 8)
 profiling_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount, 
 							int warp_count, int histogram256_threadblock_size, int histogram256_threadblock_memory,
@@ -503,6 +550,7 @@ __global__ void
 SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCount,
 					int warp_count, int histogram256_threadblock_size, int histogram256_threadblock_memory,
 					int max_blocks_per_SM,
+					int gridDimX, 
 					int num_subtask,
 					int iter_per_subtask,
 					int *cont_SM,
@@ -558,11 +606,18 @@ SMK_histogram256CUDA(uint *d_PartialHistograms256, uint *d_Data256, uint dataCou
 
 		__syncthreads();
 
+		//for (uint pos = UMAD(s_bid, blockDim.x, threadIdx.x); pos < dataCount; pos += UMUL(blockDim.x, gridDim.x))
+		//{
+		//	uint data = d_Data256[pos];
+		//	addWord(s_WarpHist, data, tag);
+		//}
+
 		for (uint pos = UMAD(s_bid, blockDim.x, threadIdx.x); pos < dataCount; pos += UMUL(blockDim.x, num_subtask))
 		{
 			uint data = d_Data256[pos];
 			addWord(s_WarpHist, data, tag);
 		}
+		
 
 		//Merge per-warp histograms into per-block and write to global memory
 		__syncthreads();
@@ -628,6 +683,9 @@ int HST256_start_mallocs(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_HST256_params * params = (t_HST256_params *)kstub->params;
+
+	// globalmemory position for launched ctas counter
+	cudaMalloc((void **)&params->zc_slc, sizeof(int));
 	
 	//byteCount256 = params->byteCount256;
 	
@@ -803,6 +861,27 @@ int launch_orig_HST256(void *arg)
 		params->warp_count,
 		params->histogram256_threadblock_size,
 		params->histogram256_threadblock_memory
+    );
+
+	return 0;
+}
+
+int launch_slc_HST256(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_HST256_params * params = (t_HST256_params *)kstub->params;
+	
+	slicing_histogram256CUDA<<<kstub->total_tasks, kstub->kconf.blocksize.x, params->histogram256_threadblock_memory * sizeof(uint), *(kstub->execution_s)>>>(
+        params->d_PartialHistograms256,
+        (uint *)params->d_Data256,
+        params->byteCount256 / sizeof(uint),
+		
+		params->warp_count,
+		params->histogram256_threadblock_size,
+		params->histogram256_threadblock_memory,
+		params->gridDimX,
+		kstub->kconf.initial_blockID,
+		params->zc_slc
     );
 
 	return 0;

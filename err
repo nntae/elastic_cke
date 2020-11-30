@@ -1,0 +1,16 @@
+mps_test.cu(148): error: identifier "p_thread_t" is undefined
+
+mps_test.cu(150): error: class "t_args" has no member "cont"
+
+mps_test.cu(151): error: identifier "launch_app" is undefined
+
+mps_test.cu(154): error: identifier "i" is undefined
+
+mps_test.cu(170): warning: variable "n" was declared but never referenced
+
+mps_test.cu(171): warning: variable "value" was declared but never referenced
+
+mps_test.cu(219): warning: variable "index" was declared but never referenced
+
+4 errors detected in the compilation of "/tmp/tmpxft_0000180e_00000000-6_mps_test.cpp1.ii".
+make: *** [mps_test.o] Error 1

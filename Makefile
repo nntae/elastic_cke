@@ -123,7 +123,7 @@ GENCODE_FLAGS   := $(GENCODE_SM61)
 all: build
 
 #build: basic solo_exec prof_conc
-build: basic prof_conc_sincupti solo_exec occ_calc mps_test 
+build: basic prof_conc_sincupti solo_exec occ_calc mps_test cCuda prof_conc cCuda_classifier
 
 reduction_original.o: Reduction/reduction_original.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
@@ -187,12 +187,18 @@ fast_profiling.o: fast_profiling.cu elastic_kernel.h
 
 profiler_overhead.o: profiler_overhead.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+
+cCuda.o: cCuda.cu elastic_kernel.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
-#prof_conc.o: prof_conc.cu elastic_kernel.h
-#	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+cCuda_classifier.o: cCuda_classifier.cu
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+
+prof_conc.o: prof_conc.cu elastic_kernel.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 	
-#cupti_profiler.o: cupti_profiler.cu cupti_profiler.h
-#	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+cupti_profiler.o: cupti_profiler.cu cupti_profiler.h
+	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
 prof_conc_sincupti.o: prof_conc_sincupti.cu elastic_kernel.h
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
@@ -209,8 +215,8 @@ basic: profiler_overhead.o schedulers.o fast_profiling.o utils.o kstub.o basic.o
 solo_exec: solo_exec.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 
-#prof_conc: prof_conc.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o cupti_profiler.o
-#	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
+prof_conc: prof_conc.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o cupti_profiler.o
+	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
 prof_conc_sincupti: prof_conc_sincupti.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o 
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
@@ -221,6 +227,11 @@ occ_calc: occupancy_calculator.o utils.o kstub.o proxy.o profiling.o profiling_c
 mps_test: mps_test.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 
+cCuda: cCuda.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o cupti_profiler.o
+	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
+
+cCuda_classifier: cCuda_classifier.o utils.o kstub.o proxy.o profiling.o profiling_config.o BS_Original_Kernel.o vAdd_Original_Kernel.o MM_Original_Kernel.o SPMV_Original_Kernel.o SPMV_common.o reduction_original.o PF_Original_Kernel.o CONV_Original_Kernel.o CEDD_Original_Kernel.o HST256_Original_Kernel.o 
+	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
 	
 run: build
 	./basic

@@ -1,0 +1,144 @@
+BSP=1 Time=0.005678 Tpms=1262.483038
+BSP=2 Time=0.004321 Tpms=1658.929044
+BSP=3 Time=0.003777 Tpms=1897.908659
+BSP=4 Time=0.003665 Tpms=1955.941128
+BSP=5 Time=0.003767 Tpms=1902.954052
+BSP=6 Time=0.003964 Tpms=1808.407283
+BSP=7 Time=0.004130 Tpms=1735.540673
+BSP=8 Time=0.004544 Tpms=1577.623502
+BSP=9 Time=0.004970 Tpms=1442.301323
+BSP=10 Time=0.005422 Tpms=1321.935148
+BSP=11 Time=0.005871 Tpms=1220.953991
+BSP=12 Time=0.006397 Tpms=1120.440170
+BSP=13 Time=0.006873 Tpms=1042.865555
+BSP=14 Time=0.007408 Tpms=967.584033
+BSP=15 Time=0.007979 Tpms=898.367629
+BSP=16 Time=0.008590 Tpms=834.460326
+==15562== NVPROF is profiling process 15562, command: ./solo_exec 2 SPMV_CSRscalar 1$ 1
+==15562== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15562== Profiling application: ./solo_exec 2 SPMV_CSRscalar 1$ 1
+BSP=1 Time=0.738163 Tpms=9.710592
+==15562== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,70.537380,406.152431,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (2)"
+==15575== NVPROF is profiling process 15575, command: ./solo_exec 2 SPMV_CSRscalar 2$ 1
+==15575== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15575== Profiling application: ./solo_exec 2 SPMV_CSRscalar 2$ 1
+BSP=2 Time=0.796538 Tpms=8.998939
+==15575== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,98.236006,561.410797,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (3)"
+==15588== NVPROF is profiling process 15588, command: ./solo_exec 2 SPMV_CSRscalar 3$ 1
+==15588== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15588== Profiling application: ./solo_exec 2 SPMV_CSRscalar 3$ 1
+BSP=3 Time=0.729984 Tpms=9.819393
+==15588== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,109.086433,613.303255,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (3)"
+==15600== NVPROF is profiling process 15600, command: ./solo_exec 2 SPMV_CSRscalar 4$ 1
+==15600== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15600== Profiling application: ./solo_exec 2 SPMV_CSRscalar 4$ 1
+BSP=4 Time=0.736995 Tpms=9.725988
+==15600== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,112.502699,631.696881,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (3)"
+==15613== NVPROF is profiling process 15613, command: ./solo_exec 2 SPMV_CSRscalar 5$ 1
+==15613== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15613== Profiling application: ./solo_exec 2 SPMV_CSRscalar 5$ 1
+BSP=5 Time=0.728025 Tpms=9.845820
+==15613== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,109.441655,613.854390,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (3)"
+==15625== NVPROF is profiling process 15625, command: ./solo_exec 2 SPMV_CSRscalar 6$ 1
+==15625== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15625== Profiling application: ./solo_exec 2 SPMV_CSRscalar 6$ 1
+BSP=6 Time=0.725983 Tpms=9.873514
+==15625== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,104.984507,592.187017,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (3)"
+==15638== NVPROF is profiling process 15638, command: ./solo_exec 2 SPMV_CSRscalar 7$ 1
+==15638== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15638== Profiling application: ./solo_exec 2 SPMV_CSRscalar 7$ 1
+BSP=7 Time=0.734173 Tpms=9.763366
+==15638== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,100.404631,559.700555,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (3)"
+==15651== NVPROF is profiling process 15651, command: ./solo_exec 2 SPMV_CSRscalar 8$ 1
+==15651== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15651== Profiling application: ./solo_exec 2 SPMV_CSRscalar 8$ 1
+BSP=8 Time=0.737744 Tpms=9.716103
+==15651== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,94.007120,464.339211,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (3)"
+==15663== NVPROF is profiling process 15663, command: ./solo_exec 2 SPMV_CSRscalar 9$ 1
+==15663== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15663== Profiling application: ./solo_exec 2 SPMV_CSRscalar 9$ 1
+BSP=9 Time=0.741436 Tpms=9.667732
+==15663== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,87.971160,463.990425,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (2)"
+==15676== NVPROF is profiling process 15676, command: ./solo_exec 2 SPMV_CSRscalar 10$ 1
+==15676== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15676== Profiling application: ./solo_exec 2 SPMV_CSRscalar 10$ 1
+BSP=10 Time=0.742159 Tpms=9.658306
+==15676== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,85.198448,433.771262,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (2)"
+==15690== NVPROF is profiling process 15690, command: ./solo_exec 2 SPMV_CSRscalar 11$ 1
+==15690== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15690== Profiling application: ./solo_exec 2 SPMV_CSRscalar 11$ 1
+BSP=11 Time=0.758147 Tpms=9.454631
+==15690== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,82.770538,397.593737,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (2)"
+==15702== NVPROF is profiling process 15702, command: ./solo_exec 2 SPMV_CSRscalar 12$ 1
+==15702== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15702== Profiling application: ./solo_exec 2 SPMV_CSRscalar 12$ 1
+BSP=12 Time=0.800891 Tpms=8.950027
+==15702== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,81.902283,362.747492,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (2)"
+==15715== NVPROF is profiling process 15715, command: ./solo_exec 2 SPMV_CSRscalar 13$ 1
+==15715== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15715== Profiling application: ./solo_exec 2 SPMV_CSRscalar 13$ 1
+BSP=13 Time=0.743656 Tpms=9.638866
+==15715== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,79.994890,332.125988,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (2)"
+==15732== NVPROF is profiling process 15732, command: ./solo_exec 2 SPMV_CSRscalar 14$ 1
+==15732== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15732== Profiling application: ./solo_exec 2 SPMV_CSRscalar 14$ 1
+BSP=14 Time=0.755910 Tpms=9.482614
+==15732== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,79.212350,312.269291,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (2)"
+==15744== NVPROF is profiling process 15744, command: ./solo_exec 2 SPMV_CSRscalar 15$ 1
+==15744== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15744== Profiling application: ./solo_exec 2 SPMV_CSRscalar 15$ 1
+BSP=15 Time=0.756004 Tpms=9.481427
+==15744== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,78.526206,288.934569,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (2)"
+==15757== NVPROF is profiling process 15757, command: ./solo_exec 2 SPMV_CSRscalar 16$ 1
+==15757== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==15757== Profiling application: ./solo_exec 2 SPMV_CSRscalar 16$ 1
+BSP=16 Time=0.760761 Tpms=9.422150
+==15757== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,MB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","20","preemp_SMT_spmv_csr_scalar_kernel(float const *, int const *, int const *, int, float*, int, int, int, int, int*, state*)",450,77.905198,268.887678,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Idle (0)","Low (2)"

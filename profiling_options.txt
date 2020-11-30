@@ -1,0 +1,1 @@
+--metrics  dram_read_throughput,dram_write_throughput,tex_utilization,l2_utilization,shared_utilization,ldst_fu_utilization,cf_fu_utilization,special_fu_utilization,tex_fu_utilization,single_precision_fu_utilization,double_precision_fu_utilization,dram_utilization

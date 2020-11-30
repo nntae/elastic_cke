@@ -134,6 +134,92 @@ original_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gp
 	}
 }
 
+
+__global__ void
+slicing_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gpuResults, int cols,  int rows, int startStep, int border, int initial_blockID,
+	int *zc_slicing)
+{
+
+	if (threadIdx.x == 0) atomicAdd(zc_slicing, 1);
+	//*zc_slicing += gridDim.x; // update launched ctas
+
+    for(startStep = 0; startStep < rows - 1; startStep += pyramid_heightPF){
+	
+		int iteration = MIN(pyramid_heightPF, rows-startStep-1);
+		
+		__shared__ int prev[BLOCK_SIZE];
+		__shared__ int result[BLOCK_SIZE];
+
+		int bx = blockIdx.x + initial_blockID;
+		int tx = threadIdx.x;
+
+		// each block finally computes result for a small block
+		// after N iterations. 
+		// it is the non-overlapping small blocks that cover 
+		// all the input data
+
+		// calculate the small block size
+		int small_block_cols = BLOCK_SIZE-iteration*HALO*2; 
+
+		// calculate the boundary for the block according to 
+		// the boundary of its small block
+		int blkX = small_block_cols*bx-border;
+		int blkXmax = blkX+BLOCK_SIZE-1;
+
+		// calculate the global thread coordination
+		int xidx = blkX+tx;
+
+		// effective range within this block that falls within 
+		// the valid range of the input data
+		// used to rule out computation outside the boundary.
+		int validXmin = (blkX < 0) ? -blkX : 0;
+		int validXmax = (blkXmax > cols-1) ? BLOCK_SIZE-1-(blkXmax-cols+1) : BLOCK_SIZE-1;
+
+		int W = tx-1;
+		int E = tx+1;
+
+		W = (W < validXmin) ? validXmin : W;
+		E = (E > validXmax) ? validXmax : E;
+
+		bool isValid = IN_RANGE(tx, validXmin, validXmax);
+
+		if(IN_RANGE(xidx, 0, cols-1)){
+			prev[tx] = gpuSrc[xidx];
+		}
+		__syncthreads(); // [Ronny] Added sync to avoid race on prev Aug. 14 2012
+		bool computed;
+		for (int i=0; i<iteration ; i++){ 
+			computed = false;
+			if( IN_RANGE(tx, i+1, BLOCK_SIZE-i-2) &&  \
+			isValid){
+				computed = true;
+				int left = prev[W];
+				int up = prev[tx];
+				int right = prev[E];
+				int shortest = MIN(left, up);
+				shortest = MIN(shortest, right);
+				int index = cols*(startStep+i)+xidx;
+				result[tx] = shortest + gpuWall[index];
+			}
+			__syncthreads();
+			if(i==iteration-1)
+				break;
+			if(computed)   //Assign the computation range
+				prev[tx]= result[tx];
+			__syncthreads(); // [Ronny] Added sync to avoid race on prev Aug. 14 2012
+		}
+
+		// update the global memory
+		// after the last iteration, only threads coordinated within the 
+		// small block perform the calculation and switch on ``computed''
+		if (computed){
+			gpuResults[xidx]=result[tx];    
+		}
+	}
+}
+
+
+
 __global__ void profiling_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gpuResults, int cols,  
 										int rows, int startStep, int border,
 										int num_subtask,
@@ -714,6 +800,9 @@ int PF_start_mallocs(void *arg)
 	int blocksize = kstub->kconf.blocksize.x;
 	
 	t_PF_params * params = (t_PF_params *)kstub->params;
+
+	// globalmemory position for launched ctas counter
+	cudaMalloc((void **)&params->zc_slc, sizeof(int));
 	
 	params->cols = params->nCols;
 	params->rows = params->nRows;
@@ -890,6 +979,35 @@ int launch_orig_PF(void *arg)
 		params->pyramid_height, 
 		params->gpuWall, params->gpuResult[src], params->gpuResult[dst],
 		params->cols, params->rows, t, params->borderCols);
+		
+	// for the measurement fairness
+	//cudaDeviceSynchronize();
+	
+	params->final_ret = dst;
+
+	return 0;
+}
+
+int launch_slc_PF(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_PF_params * params = (t_PF_params *)kstub->params;
+	
+	// Setup execution parameters
+    //dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+	//dim3 dimBlock(BLOCK_SIZE);
+	dim3 dimGrid(params->blockCols);
+	
+	int src = 1, dst = 0, t = 0;
+	
+	int temp = src;
+	src = dst;
+	dst = temp;
+	
+	slicing_pathFinderCUDA<<<kstub->total_tasks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
+		params->pyramid_height, 
+		params->gpuWall, params->gpuResult[src], params->gpuResult[dst],
+		params->cols, params->rows, t, params->borderCols, kstub->kconf.initial_blockID, params->zc_slc);
 		
 	// for the measurement fairness
 	//cudaDeviceSynchronize();

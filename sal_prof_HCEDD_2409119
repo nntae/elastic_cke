@@ -1,0 +1,72 @@
+BSP=1,Time=0.005664,Tpms=14592.117492
+BSP=2,Time=0.003047,Tpms=27128.519335
+BSP=3,Time=0.002184,Tpms=37843.509598
+BSP=4,Time=0.001782,Tpms=46385.388202
+BSP=5,Time=0.001547,Tpms=53442.946111
+BSP=6,Time=0.001404,Tpms=58856.497893
+BSP=7,Time=0.001307,Tpms=63225.116977
+BSP=8,Time=0.001242,Tpms=66554.884128
+==12555== NVPROF is profiling process 12555, command: ./solo_exec 2 HCEDD 1 1
+==12555== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==12555== Profiling application: ./solo_exec 2 HCEDD 1 1
+BSP=1 Time=0.463069 Tpms=178.496000
+==12555== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,GB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","32","SMT_hystCannyCUDA(unsigned char*, unsigned char*, int, int, int, int, int, int, int, int*, state*)",505,13.905192,14.078839,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (2)","Idle (0)","Low (1)"
+==12577== NVPROF is profiling process 12577, command: ./solo_exec 2 HCEDD 2 1
+==12577== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==12577== Profiling application: ./solo_exec 2 HCEDD 2 1
+BSP=2 Time=0.448734 Tpms=184.198290
+==12577== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,GB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","32","SMT_hystCannyCUDA(unsigned char*, unsigned char*, int, int, int, int, int, int, int, int*, state*)",505,26.022204,26.352382,"Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (1)","Low (2)","Low (3)","Idle (0)","Low (2)"
+==12599== NVPROF is profiling process 12599, command: ./solo_exec 2 HCEDD 3 1
+==12599== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==12599== Profiling application: ./solo_exec 2 HCEDD 3 1
+BSP=3 Time=0.474061 Tpms=174.357304
+==12599== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,GB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","32","SMT_hystCannyCUDA(unsigned char*, unsigned char*, int, int, int, int, int, int, int, int*, state*)",505,36.191488,36.651459,"Low (1)","Low (2)","Low (1)","Low (1)","Low (1)","Low (1)","Low (2)","Mid (4)","Idle (0)","Low (2)"
+==12621== NVPROF is profiling process 12621, command: ./solo_exec 2 HCEDD 4 1
+==12621== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==12621== Profiling application: ./solo_exec 2 HCEDD 4 1
+BSP=4 Time=0.442606 Tpms=186.748497
+==12621== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,GB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","32","SMT_hystCannyCUDA(unsigned char*, unsigned char*, int, int, int, int, int, int, int, int*, state*)",505,44.320165,44.976929,"Low (1)","Low (2)","Low (1)","Low (1)","Low (1)","Low (1)","Low (2)","Mid (4)","Idle (0)","Low (2)"
+==12643== NVPROF is profiling process 12643, command: ./solo_exec 2 HCEDD 5 1
+==12643== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==12643== Profiling application: ./solo_exec 2 HCEDD 5 1
+BSP=5 Time=0.441249 Tpms=187.322647
+==12643== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,GB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","32","SMT_hystCannyCUDA(unsigned char*, unsigned char*, int, int, int, int, int, int, int, int*, state*)",505,51.029583,51.674421,"Low (1)","Low (2)","Low (1)","Low (1)","Low (1)","Low (2)","Low (2)","Mid (5)","Idle (0)","Low (3)"
+==12665== NVPROF is profiling process 12665, command: ./solo_exec 2 HCEDD 6 1
+==12665== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==12665== Profiling application: ./solo_exec 2 HCEDD 6 1
+BSP=6 Time=0.472596 Tpms=174.897736
+==12665== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,GB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","32","SMT_hystCannyCUDA(unsigned char*, unsigned char*, int, int, int, int, int, int, int, int*, state*)",505,56.320141,57.169893,"Low (1)","Low (2)","Low (1)","Low (1)","Low (1)","Low (2)","Low (3)","Mid (6)","Idle (0)","Low (3)"
+==12687== NVPROF is profiling process 12687, command: ./solo_exec 2 HCEDD 7 1
+==12687== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==12687== Profiling application: ./solo_exec 2 HCEDD 7 1
+BSP=7 Time=0.464948 Tpms=177.774833
+==12687== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,GB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","32","SMT_hystCannyCUDA(unsigned char*, unsigned char*, int, int, int, int, int, int, int, int*, state*)",505,60.496171,61.409136,"Low (1)","Low (2)","Low (1)","Low (1)","Low (1)","Low (2)","Low (3)","Mid (6)","Idle (0)","Low (3)"
+==12709== NVPROF is profiling process 12709, command: ./solo_exec 2 HCEDD 8 1
+==12709== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==12709== Profiling application: ./solo_exec 2 HCEDD 8 1
+BSP=8 Time=0.440073 Tpms=187.823175
+==12709== Profiling result:
+"Device","Context","Stream","Kernel","Correlation_ID","dram_read_throughput","dram_write_throughput","tex_utilization","l2_utilization","shared_utilization","ldst_fu_utilization","cf_fu_utilization","special_fu_utilization","tex_fu_utilization","single_precision_fu_utilization","double_precision_fu_utilization","dram_utilization"
+,,,,,GB/s,GB/s,,,,,,,,,,
+"TITAN X (Pascal) (2)","1","32","SMT_hystCannyCUDA(unsigned char*, unsigned char*, int, int, int, int, int, int, int, int*, state*)",505,63.833838,64.639534,"Low (1)","Low (3)","Low (1)","Low (1)","Low (1)","Low (2)","Low (3)","Mid (6)","Idle (0)","Low (3)"

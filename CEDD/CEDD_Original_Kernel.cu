@@ -109,6 +109,78 @@ original_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, in
 }
 
 __global__ void
+slicing_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int rows_CEDD, int cols_CEDD, 
+	int coarsening, int gridDimY, int gridDimX, int init_blkIdx, int *zc_slc)
+{
+	extern __shared__ int l_mem[];
+	int* l_data = l_mem;
+
+	if (threadIdx.x == 0 && threadIdx.y ==0) atomicAdd(zc_slc, 1);
+	
+	int blkIdx_y= (blockIdx.x + init_blkIdx) / gridDimX;
+	int blkIdx_x=  (blockIdx.x + init_blkIdx) % gridDimX;
+
+	const int L_SIZE = blockDim.x;
+	int sum         = 0; 
+
+	for (int coar=0; coar<coarsening; coar++)
+	{
+		const int  g_row = blkIdx_y * blockDim.y + threadIdx.y + 1;
+		const int  g_col = (blkIdx_x * coarsening +  coar) * blockDim.x + threadIdx.x + 1;
+
+		//if (threadIdx.x == 0 && threadIdx.y ==0)
+	//		printf("grid_x=%d coar=%d blk_idx=%d blk_x=%d blky=%d g_row=%d g_col=%d\n", gridDimX, coarsening, blockIdx.x + init_blkIdx, blkIdx_x, blkIdx_y, g_row, g_col);
+		
+
+		const int l_row = threadIdx.y + 1;
+		const int l_col = threadIdx.x + 1;
+
+		const int pos = g_row * cols_CEDD + g_col;
+
+		// copy to local
+		l_data[l_row * (L_SIZE + 2) + l_col] = data_CEDD[pos];
+
+		// top most row
+		if(l_row == 1) {
+			l_data[0 * (L_SIZE + 2) + l_col] = data_CEDD[pos - cols_CEDD];
+		// top left
+		if(l_col == 1)
+			l_data[0 * (L_SIZE + 2) + 0] = data_CEDD[pos - cols_CEDD - 1];
+
+			// top right
+			else if(l_col == L_SIZE)
+			l_data[0 * (L_SIZE + 2) + L_SIZE + 1] = data_CEDD[pos - cols_CEDD + 1];
+		}
+		// bottom most row
+		else if(l_row == L_SIZE) {
+			l_data[(L_SIZE + 1) * (L_SIZE + 2) + l_col] = data_CEDD[pos + cols_CEDD];
+			// bottom left
+			if(l_col == 1)
+			l_data[(L_SIZE + 1) * (L_SIZE + 2) + 0] = data_CEDD[pos + cols_CEDD - 1];
+
+		// bottom right
+			else if(l_col == L_SIZE)	
+			l_data[(L_SIZE + 1) * (L_SIZE + 2) + L_SIZE + 1] = data_CEDD[pos + cols_CEDD + 1];
+		}
+
+		if(l_col == 1)
+			l_data[l_row * (L_SIZE + 2) + 0] = data_CEDD[pos - 1];
+			else if(l_col == L_SIZE)
+				l_data[l_row * (L_SIZE + 2) + L_SIZE + 1] = data_CEDD[pos + 1];
+
+		__syncthreads();
+
+		for(int i = 0; i < 3; i++) {
+			for(int j = 0; j < 3; j++) {
+				sum += gaus[i][j] * l_data[(i + l_row - 1) * (L_SIZE + 2) + j + l_col - 1];
+			}
+		}
+
+	out_CEDD[pos] = min(255, max(0, sum));
+	}
+}
+
+__global__ void
 profiling_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int rows_CEDD, int cols_CEDD,
 					int gridDimY,
 					int num_subtask,
@@ -513,7 +585,7 @@ memaddr_SMT_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD,
 	
 __global__ void
 SMK_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int rows_CEDD, int cols_CEDD,
-					int gridDimY,
+					int gridDimX,
 					int max_blocks_per_SM,
 					int num_subtask,
 					int iter_per_subtask,
@@ -558,8 +630,8 @@ SMK_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int row
 			
 			int sum         = 0;
 		
-			int col = (s_bid * iter_per_subtask + it ) / gridDimY;
-			int row = (s_bid * iter_per_subtask + it ) - col * gridDimY;  
+			int col = (s_bid * iter_per_subtask + it ) / gridDimX;
+			int row = (s_bid * iter_per_subtask + it ) - col * gridDimX;  
 
 			const int   g_row = col * blockDim.y + threadIdx.y + 1;
 			const int   g_col = row * blockDim.x + threadIdx.x + 1;
@@ -630,6 +702,23 @@ int launch_orig_GCEDD(void *arg)
 	return 0;
 }
 
+int launch_slc_GCEDD(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	
+	t_CEDD_params * params = (t_CEDD_params *)kstub->params;
+	
+	//dim3 dimGrid(kstub->kconf.gridsize.x);
+	dim3 dimGrid(params->gridDimX, params->gridDimY);
+	dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+
+	slicing_gaussianCannyCUDA<<<kstub->total_tasks, threads, l_mem_size, *(kstub->execution_s)>>>(
+		params->out_CEDD, params->data_CEDD, rows_CEDD, cols_CEDD,
+		kstub->kconf.coarsening, params->gridDimY, params->gridDimX,  kstub->kconf.initial_blockID, params->zc_slc);
+
+	return 0;
+}
+
 int prof_GCEDD(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
@@ -691,7 +780,7 @@ int launch_preemp_GCEDD(void *arg)
 		SMK_gaussianCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
 			params->out_CEDD, params->data_CEDD, rows_CEDD, cols_CEDD,
 			
-			params->gridDimY,
+			params->gridDimX,
 			
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,
@@ -806,6 +895,125 @@ original_sobelCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, unsig
 				theta_CEDD[pos] = 135;
 			else
 				theta_CEDD[pos] = 0; // (angle <= 16*PI/8)
+	}
+}
+
+__global__ void
+slicing_sobelCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, unsigned char *theta_CEDD, int rows_CEDD, int cols_CEDD, 
+	int coarsening, int gridDimY, int gridDimX, int init_blkIdx, int *zc_slc)
+{
+    extern __shared__ int l_mem[];
+	int* l_data_CEDD = l_mem;
+
+	if (threadIdx.x == 0 && threadIdx.y ==0) atomicAdd(zc_slc, 1);
+	
+	int blkIdx_y= (blockIdx.x + init_blkIdx) / gridDimX;
+	int blkIdx_x=  (blockIdx.x + init_blkIdx) % gridDimX;
+
+	//if (threadIdx.x == 0 && threadIdx.y ==0)
+	//	printf("blk=%d\n", blockIdx.x + init_blkIdx);
+
+    // collect sums separately. we're storing them into floats because that
+    // is what hypot and atan2 will expect.
+    const int L_SIZE = blockDim.x;
+	const float PI    = 3.14159265f;
+	
+	for (int coar=0; coar<coarsening; coar++) 
+	{
+		const int  g_row = blkIdx_y * blockDim.y + threadIdx.y + 1;
+		const int  g_col = (blkIdx_x * coarsening +  coar) * blockDim.x + threadIdx.x + 1;
+	
+		const int   l_row = threadIdx.y + 1;
+		const int   l_col = threadIdx.x + 1;
+
+		//if (threadIdx.x == 0 && threadIdx.y ==0)
+		//	printf("grid_x=%d coar=%d blk_idx=%d blk_x=%d blky=%d g_row=%d g_col=%d\n", gridDimX, coarsening, blockIdx.x + init_blkIdx, blkIdx_x, blkIdx_y, g_row, g_col);
+		
+		if (g_row < rows_CEDD && g_col < cols_CEDD){
+
+			const int pos = g_row * cols_CEDD + g_col;
+
+			// copy to local
+			l_data_CEDD[l_row * (L_SIZE + 2) + l_col] = data_CEDD[pos];
+
+			// top most row
+			if(l_row == 1) {
+				l_data_CEDD[0 * (L_SIZE + 2) + l_col] = data_CEDD[pos - cols_CEDD];
+				// top left
+				if(l_col == 1)
+					l_data_CEDD[0 * (L_SIZE + 2) + 0] = data_CEDD[pos - cols_CEDD - 1];
+				// top right
+				else if(l_col == L_SIZE)
+					l_data_CEDD[0 * (L_SIZE + 2) + (L_SIZE + 1)] = data_CEDD[pos - cols_CEDD + 1];
+			}
+			
+			// bottom most row
+			else if(l_row == L_SIZE) {
+				l_data_CEDD[(L_SIZE + 1) * (L_SIZE + 2) + l_col] = data_CEDD[pos + cols_CEDD];
+				// bottom left
+				if(l_col == 1)
+					l_data_CEDD[(L_SIZE + 1) * (L_SIZE + 2) + 0] = data_CEDD[pos + cols_CEDD - 1];
+					// bottom right
+				else if(l_col == L_SIZE)
+					l_data_CEDD[(L_SIZE + 1) * (L_SIZE + 2) + (L_SIZE + 1)] = data_CEDD[pos + cols_CEDD + 1];
+			}
+
+			// left
+			if(l_col == 1)
+				l_data_CEDD[l_row * (L_SIZE + 2) + 0] = data_CEDD[pos - 1];
+				// right
+			else if(l_col == L_SIZE)
+				l_data_CEDD[l_row * (L_SIZE + 2) + (L_SIZE + 1)] = data_CEDD[pos + 1];
+	
+			__syncthreads();
+
+			float sumx = 0, sumy = 0, angle = 0;
+			// find x and y derivatives
+			for(int i = 0; i < 3; i++) {
+				for(int j = 0; j < 3; j++) {
+					sumx += sobx[i][j] * l_data_CEDD[(i + l_row - 1) * (L_SIZE + 2) + j + l_col - 1];
+					sumy += soby[i][j] * l_data_CEDD[(i + l_row - 1) * (L_SIZE + 2) + j + l_col - 1];
+				}
+			}
+
+			// The out_CEDDput is now the square root of their squares, but they are
+			// constrained to 0 <= value <= 255. Note that hypot is a built in function
+			// defined as: hypot(x,y) = sqrt(x*x, y*y).
+			out_CEDD[pos] = min(255, max(0, (int)hypot(sumx, sumy)));
+	
+			// Compute the direction angle theta_CEDD in radians
+			// atan2 has a range of (-PI, PI) degrees
+			angle = atan2(sumy, sumx);
+
+			// If the angle is negative,
+			// shift the range to (0, 2PI) by adding 2PI to the angle,
+			// then perform modulo operation of 2PI
+			if(angle < 0) {
+				angle = fmod((angle + 2 * PI), (2 * PI));
+			}
+
+			// Round the angle to one of four possibilities: 0, 45, 90, 135 degrees
+			// then store it in the theta_CEDD buffer at the proper position
+			//theta_CEDD[pos] = ((int)(degrees(angle * (PI/8) + PI/8-0.0001) / 45) * 45) % 180;
+			if(angle <= PI / 8)
+				theta_CEDD[pos] = 0;
+			else if(angle <= 3 * PI / 8)
+				theta_CEDD[pos] = 45;
+			else if(angle <= 5 * PI / 8)
+				theta_CEDD[pos] = 90;
+			else if(angle <= 7 * PI / 8)
+				theta_CEDD[pos] = 135;
+			else if(angle <= 9 * PI / 8)
+				theta_CEDD[pos] = 0;
+			else if(angle <= 11 * PI / 8)
+				theta_CEDD[pos] = 45;
+			else if(angle <= 13 * PI / 8)
+				theta_CEDD[pos] = 90;
+			else if(angle <= 15 * PI / 8)
+				theta_CEDD[pos] = 135;
+			else
+				theta_CEDD[pos] = 0; // (angle <= 16*PI/8)
+		}
 	}
 }
 
@@ -1198,7 +1406,7 @@ memaddr_SMT_sobelCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, un
 __global__ void
 __launch_bounds__(256, 8)
 SMK_sobelCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, unsigned char *theta_CEDD, int rows_CEDD, int cols_CEDD,
-					int gridDimY,
+					int gridDimX,
 					int max_blocks_per_SM,
 					int num_subtask,
 					int iter_per_subtask,
@@ -1244,8 +1452,8 @@ SMK_sobelCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, unsigned c
 		
 		for (int j = 0; j < iter_per_subtask; j++){	
 			
-			int col = (s_bid * iter_per_subtask + j ) / gridDimY;
-			int row = (s_bid * iter_per_subtask + j ) - col * gridDimY;  
+			int col = (s_bid * iter_per_subtask + j ) / gridDimX;
+			int row = (s_bid * iter_per_subtask + j ) % gridDimX;  
 
 			const int   g_row = col * blockDim.y + threadIdx.y + 1;
 			const int   g_col = row * blockDim.x + threadIdx.x + 1;
@@ -1360,6 +1568,23 @@ int launch_orig_SCEDD(void *arg)
 	return 0;
 }
 
+int launch_slc_SCEDD(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	
+	t_CEDD_params * params = (t_CEDD_params *)kstub->params;
+	
+	//dim3 dimGrid(kstub->kconf.gridsize.x);
+	dim3 dimGrid(params->gridDimX, params->gridDimY);
+    dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+	
+	slicing_sobelCannyCUDA<<<kstub->total_tasks, threads, l_mem_size, *(kstub->execution_s)>>>(
+		params->data_CEDD, params->out_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD, 
+		kstub->kconf.coarsening, params->gridDimY, params->gridDimX,  kstub->kconf.initial_blockID, params->zc_slc);
+
+	return 0;
+}
+
 int launch_preemp_SCEDD(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
@@ -1384,7 +1609,7 @@ int launch_preemp_SCEDD(void *arg)
 			&(kstub->gm_state[kstub->stream_index]));
 	else
 		memaddr_SMT_sobelCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
-			params->data_CEDD, params->out_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD,	params->gridDimY,
+			params->data_CEDD, params->out_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD,	params->gridDimX,
 			
 			kstub->d_numUniqueAddr,				
 			kstub->idSMs[0],
@@ -1398,7 +1623,7 @@ int launch_preemp_SCEDD(void *arg)
 		SMK_sobelCannyCUDA<<< kstub->kconf.numSMs * kstub->kconf.max_persistent_blocks, threads, l_mem_size, *(kstub->execution_s) >>>(
 			params->data_CEDD, params->out_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD,
 			
-			params->gridDimY,
+			params->gridDimX,
 			
 			kstub->num_blocks_per_SM,
 			kstub->total_tasks,
@@ -1530,6 +1755,134 @@ original_nonCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, unsigne
 
     default: out_CEDD[pos] = my_magnitude; break;
     }
+}
+
+__global__ void
+slicing_nonCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, unsigned char *theta_CEDD, int rows_CEDD, int cols_CEDD,
+	int coarsening, int gridDimY, int gridDimX, int init_blkIdx, int *zc_slc)
+{
+    extern __shared__ int l_mem[];
+	int* l_data = l_mem;
+	
+	if (threadIdx.x == 0 && threadIdx.y ==0) atomicAdd(zc_slc, 1);
+
+	int blkIdx_y= (blockIdx.x + init_blkIdx) / gridDimX;
+	int blkIdx_x=  (blockIdx.x + init_blkIdx) % gridDimX;	
+
+    // These variables are offset by one to avoid seg. fault errors
+    // As such, this kernel ignores the outside ring of pixels
+	const int L_SIZE = blockDim.x;
+	for (int coar=0; coar < coarsening; coar++)
+	{
+		
+		const int  g_row = blkIdx_y * blockDim.y + threadIdx.y + 1;
+		const int  g_col = (blkIdx_x * coarsening +  coar) * blockDim.x + threadIdx.x + 1;
+	
+    const int l_row = threadIdx.y + 1;
+    const int l_col = threadIdx.x + 1;
+
+    const int pos = g_row * cols_CEDD + g_col;
+
+    // copy to l_data
+    l_data[l_row * (L_SIZE + 2) + l_col] = data_CEDD[pos];
+
+    // top most row
+    if(l_row == 1) {
+        l_data[0 * (L_SIZE + 2) + l_col] = data_CEDD[pos - cols_CEDD];
+        // top left
+        if(l_col == 1)
+            l_data[0 * (L_SIZE + 2) + 0] = data_CEDD[pos - cols_CEDD - 1];
+
+        // top right
+        else if(l_col == L_SIZE)
+            l_data[0 * (L_SIZE + 2) + (L_SIZE + 1)] = data_CEDD[pos - cols_CEDD + 1];
+    }
+    // bottom most row
+    else if(l_row == L_SIZE) {
+        l_data[(L_SIZE + 1) * (L_SIZE + 2) + l_col] = data_CEDD[pos + cols_CEDD];
+        // bottom left
+        if(l_col == 1)
+            l_data[(L_SIZE + 1) * (L_SIZE + 2) + 0] = data_CEDD[pos + cols_CEDD - 1];
+
+        // bottom right
+        else if(l_col == L_SIZE)
+            l_data[(L_SIZE + 1) * (L_SIZE + 2) + (L_SIZE + 1)] = data_CEDD[pos + cols_CEDD + 1];
+    }
+
+    if(l_col == 1)
+        l_data[l_row * (L_SIZE + 2) + 0] = data_CEDD[pos - 1];
+    else if(l_col == L_SIZE)
+        l_data[l_row * (L_SIZE + 2) + (L_SIZE + 1)] = data_CEDD[pos + 1];
+
+    __syncthreads();
+
+    unsigned char my_magnitude = l_data[l_row * (L_SIZE + 2) + l_col];
+
+    // The following variables are used to address the matrices more easily
+    switch(theta_CEDD[pos]) {
+    // A gradient angle of 0 degrees = an edge that is North/South
+    // Check neighbors to the East and West
+    case 0:
+        // supress me if my neighbor has larger magnitude
+        if(my_magnitude <= l_data[l_row * (L_SIZE + 2) + l_col + 1] || // east
+            my_magnitude <= l_data[l_row * (L_SIZE + 2) + l_col - 1]) // west
+        {
+            out_CEDD[pos] = 0;
+        }
+        // otherwise, copy my value to the output buffer
+        else {
+            out_CEDD[pos] = my_magnitude;
+        }
+        break;
+
+    // A gradient angle of 45 degrees = an edge that is NW/SE
+    // Check neighbors to the NE and SW
+    case 45:
+        // supress me if my neighbor has larger magnitude
+        if(my_magnitude <= l_data[(l_row - 1) * (L_SIZE + 2) + l_col + 1] || // north east
+            my_magnitude <= l_data[(l_row + 1) * (L_SIZE + 2) + l_col - 1]) // south west
+        {
+            out_CEDD[pos] = 0;
+        }
+        // otherwise, copy my value to the output buffer
+        else {
+            out_CEDD[pos] = my_magnitude;
+        }
+        break;
+
+    // A gradient angle of 90 degrees = an edge that is E/W
+    // Check neighbors to the North and South
+    case 90:
+        // supress me if my neighbor has larger magnitude
+        if(my_magnitude <= l_data[(l_row - 1) * (L_SIZE + 2) + l_col] || // north
+            my_magnitude <= l_data[(l_row + 1) * (L_SIZE + 2) + l_col]) // south
+        {
+            out_CEDD[pos] = 0;
+        }
+        // otherwise, copy my value to the output buffer
+        else {
+            out_CEDD[pos] = my_magnitude;
+        }
+        break;
+
+    // A gradient angle of 135 degrees = an edge that is NE/SW
+    // Check neighbors to the NW and SE
+    case 135:
+        // supress me if my neighbor has larger magnitude
+        if(my_magnitude <= l_data[(l_row - 1) * (L_SIZE + 2) + l_col - 1] || // north west
+            my_magnitude <= l_data[(l_row + 1) * (L_SIZE + 2) + l_col + 1]) // south east
+        {
+            out_CEDD[pos] = 0;
+        }
+        // otherwise, copy my value to the output buffer
+        else {
+            out_CEDD[pos] = my_magnitude;
+        }
+        break;
+
+    default: out_CEDD[pos] = my_magnitude; break;
+	}
+	}
 }
 
 __global__ void
@@ -2156,6 +2509,23 @@ int launch_orig_NCEDD(void *arg)
 	return 0;
 }
 
+int launch_slc_NCEDD(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	
+	t_CEDD_params * params = (t_CEDD_params *)kstub->params;
+	
+	//dim3 dimGrid(kstub->kconf.gridsize.x);
+	dim3 dimGrid(params->gridDimX, params->gridDimY);
+    dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+	
+	slicing_nonCannyCUDA<<<kstub->total_tasks, threads, l_mem_size, *(kstub->execution_s)>>>(
+		params->out_CEDD, params->data_CEDD, params->theta_CEDD, rows_CEDD, cols_CEDD, 
+		kstub->kconf.coarsening, params->gridDimY, params->gridDimX,  kstub->kconf.initial_blockID, params->zc_slc);
+
+	return 0;
+}
+
 int launch_preemp_NCEDD(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
@@ -2238,6 +2608,49 @@ original_hystCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int ro
             out_CEDD[pos] = 0;
     }
 }
+
+__global__ void
+slicing_hystCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int rows_CEDD, int cols_CEDD, 
+	int coarsening, int gridDimY, int gridDimX, int init_blkIdx, int *zc_slc)
+{
+
+	if (threadIdx.x == 0 && threadIdx.y ==0) atomicAdd(zc_slc, 1);
+
+	int blkIdx_y= (blockIdx.x + init_blkIdx) / gridDimX;
+	int blkIdx_x=  (blockIdx.x + init_blkIdx) % gridDimX;
+	
+    // Establish our high and low thresholds as floats
+    float lowThresh  = 10;
+    float highThresh = 70;
+
+    // These variables are offset by one to avoid seg. fault errors
+	// As such, this kernel ignores the outside ring of pixels
+	for (int coar=0; coar < coarsening; coar++)
+	{
+		const int  row = blkIdx_y * blockDim.y + threadIdx.y + 1;
+		const int  col = (blkIdx_x * coarsening +  coar) * blockDim.x + threadIdx.x + 1;
+
+    const int pos = row * cols_CEDD + col;
+
+    const unsigned char EDGE = 255;
+
+    unsigned char magnitude = data_CEDD[pos];
+
+    if(magnitude >= highThresh)
+        out_CEDD[pos] = EDGE; 
+    else if(magnitude <= lowThresh)
+        out_CEDD[pos] = 0;
+    else {
+        float med = (highThresh + lowThresh) / 2;
+
+        if(magnitude >= med)
+            out_CEDD[pos] = EDGE;
+        else
+            out_CEDD[pos] = 0;
+	}
+}
+}
+
 
 __global__ void
 SMT_hystCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int rows_CEDD, int cols_CEDD,
@@ -2490,6 +2903,23 @@ int launch_orig_HCEDD(void *arg)
 	return 0;
 }
 
+int launch_slc_HCEDD(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	
+	t_CEDD_params * params = (t_CEDD_params *)kstub->params;
+	
+	//dim3 dimGrid(kstub->kconf.gridsize.x);
+	dim3 dimGrid(params->gridDimX, params->gridDimY);
+    dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+	
+	slicing_hystCannyCUDA<<<kstub->total_tasks, threads, 0, *(kstub->execution_s)>>>(
+		params->data_CEDD, params->out_CEDD, rows_CEDD, cols_CEDD, 
+		kstub->kconf.coarsening, params->gridDimY, params->gridDimX,  kstub->kconf.initial_blockID, params->zc_slc);
+
+	return 0;
+}
+
 int launch_preemp_HCEDD(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
@@ -2595,6 +3025,10 @@ int GCEDD_start_mallocs(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	
 	t_CEDD_params * params = (t_CEDD_params *)kstub->params;
+
+	// globalmemory position for launched ctas counter
+	cudaMalloc((void **)&params->zc_slc, sizeof(int));
+
 	rows_CEDD = params->nRows;
 	cols_CEDD = params->nCols;
 	

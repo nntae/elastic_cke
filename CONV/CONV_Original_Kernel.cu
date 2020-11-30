@@ -109,6 +109,75 @@ original_rowsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int ima
 }
 
 __global__ void
+slicing_rowsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int imageH, int pitch, int coarsening, int gridDimY, int gridDimX, int init_blkIdx, int *zc_slc)
+{
+	__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
+
+	if (threadIdx.x == 0 && threadIdx.y == 0) atomicAdd(zc_slc, 1);
+
+	int blkIdx_x = (blockIdx.x + init_blkIdx) % gridDimX;
+	int blkIdx_y = (blockIdx.x + init_blkIdx) / gridDimX;
+
+	for (int coar = 0; coar < coarsening; coar++) {
+
+	//Offset to the left halo edge
+	const int baseX = ((coar * gridDimX + blkIdx_x) * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+	const int baseY = blkIdx_y * ROWS_BLOCKDIM_Y + threadIdx.y;	
+	// const int baseX = ((blockIdx.x / gridDimY)* ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
+	// const int baseY = (blockIdx.x % gridDimY) * ROWS_BLOCKDIM_Y + threadIdx.y;
+	float *d_Src, *d_Dst;
+	//d_Src += baseY * pitch + baseX;
+	//d_Dst += baseY * pitch + baseX;
+
+	
+	
+	d_Src = d_Src_p + baseY * pitch + baseX; // 
+	d_Dst = d_Dst_p + baseY * pitch + baseX;
+		
+	#pragma unroll
+
+	for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
+	{
+		s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = d_Src[i * ROWS_BLOCKDIM_X];
+	}
+
+	//Load left halo
+	#pragma unroll
+
+	for (int i = 0; i < ROWS_HALO_STEPS; i++)
+	{
+		s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (baseX >= -i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
+	}
+
+	//Load right halo
+	#pragma unroll
+
+	for (int i = ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS + ROWS_HALO_STEPS; i++)
+	{
+		s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (imageW - baseX > i * ROWS_BLOCKDIM_X) ? d_Src[i * ROWS_BLOCKDIM_X] : 0;
+	}
+
+	//Compute and store results
+	__syncthreads();
+	#pragma unroll
+
+	for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
+	{
+		float sum = 0;
+
+		#pragma unroll
+
+		for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+		{
+			sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X + j];
+		}
+
+		d_Dst[i * ROWS_BLOCKDIM_X] = sum;
+	}
+	}
+}
+
+__global__ void
 profiling_rowsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH, int pitch,
 					int gridDimY,
 					
@@ -609,6 +678,21 @@ int launch_orig_RCONV(void *arg)
 	return 0;
 }
 
+int launch_slc_RCONV(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	
+	t_CONV_params * params = (t_CONV_params *)kstub->params;
+	
+	dim3 blocks(kstub->kconf.gridsize.x, kstub->kconf.gridsize.y);
+    dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+	
+	slicing_rowsConvolutionCUDA<<<kstub->total_tasks, threads,  0, *(kstub->execution_s)>>>(
+		params->d_Buffer, params->d_Input, imageW, imageH, imageW, kstub->kconf.coarsening, params->gridDimY[0], params->gridDimX[0], kstub->kconf.initial_blockID, params->zc_slc);
+
+	return 0;
+}
+
 int prof_RCONV(void *arg)
 {
 	
@@ -740,6 +824,76 @@ original_colsConvolutionCUDA(float *d_Dst, float *d_Src, int imageW, int imageH,
 
 		d_Dst[i * COLUMNS_BLOCKDIM_Y * pitch] = sum;
 	}
+}
+
+__global__ void
+slicing_colsConvolutionCUDA(float *d_Dst_start, float *d_Src_start, int imageW, int imageH, int pitch, int coarsening, int gridDimY, int gridDimX, int init_blkIdx, int *zc_slc)
+{
+	__shared__ float s_Data[COLUMNS_BLOCKDIM_X][(COLUMNS_RESULT_STEPS + 2 * COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + 1];
+
+	if (threadIdx.x == 0 && threadIdx.y == 0) atomicAdd(zc_slc, 1);
+	
+	//Offset to the upper halo edge
+	//int blkIdx_x = (blockIdx.x + init_blkIdx) % gridDimX;
+	//int blkIdx_y = (blockIdx.x + init_blkIdx) / gridDimX;
+	float *d_Dst, *d_Src;
+
+	for (int coar=0; coar < coarsening; coar++) {
+			
+		int blkIdx_x = ((blockIdx.x  + init_blkIdx) * coarsening + coar) % gridDimX;
+		int blkIdx_y = ((blockIdx.x  + init_blkIdx) * coarsening + coar) / gridDimX;
+
+		const int baseX = blkIdx_x  * COLUMNS_BLOCKDIM_X + threadIdx.x;
+		const int baseY = (blkIdx_y * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
+
+		d_Src = d_Src_start + baseY * pitch + baseX ;
+		d_Dst = d_Dst_start + baseY * pitch + baseX ;
+
+		//if (threadIdx.x==0 && threadIdx.y==0) 
+		//	printf("blkIdx=%d blkIdxy=%d c=%d pitch=%d coar=%d bx =%d by=%d off_scr=%d off_dst=%d\n", blkIdx_x, blkIdx_y, coarsening, pitch, coar, baseX, baseY, baseY * pitch + baseX, baseY * pitch + baseX);
+
+		//Main data
+		#pragma unroll
+	
+		for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
+		{
+			s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = d_Src[i * COLUMNS_BLOCKDIM_Y * pitch] ;
+		}
+	
+		//Upper halo
+		#pragma unroll
+	
+		for (int i = 0; i < COLUMNS_HALO_STEPS; i++)
+		{
+			s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = (baseY >= -i * COLUMNS_BLOCKDIM_Y) ? d_Src[i * COLUMNS_BLOCKDIM_Y * pitch] : 0;
+		}
+	
+		//Lower halo
+		#pragma unroll
+	
+		for (int i = COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS + COLUMNS_HALO_STEPS; i++)
+		{
+			s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y]= (imageH - baseY > i * COLUMNS_BLOCKDIM_Y) ? d_Src[i * COLUMNS_BLOCKDIM_Y * pitch] : 0;
+		}
+
+	
+		//Compute and store results
+		__syncthreads();
+		#pragma unroll
+	
+		for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
+		{
+			float sum = 0;
+			#pragma unroll
+	
+			for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
+			{
+				sum += c_Kernel[KERNEL_RADIUS - j] * s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y + j];
+			}
+	
+			d_Dst[i * COLUMNS_BLOCKDIM_Y * pitch] = sum;
+		}
+	}		
 }
 
 __global__ void
@@ -1111,6 +1265,22 @@ int launch_orig_CCONV(void *arg)
 	return 0;
 }
 
+
+int launch_slc_CCONV(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	
+	t_CONV_params * params = (t_CONV_params *)kstub->params;
+	
+	dim3 blocks(kstub->kconf.gridsize.x, kstub->kconf.gridsize.y);
+    dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+	
+	slicing_colsConvolutionCUDA<<<kstub->total_tasks, threads, 0, *(kstub->execution_s)>>>(
+		params->d_Output, params->d_Buffer, imageW, imageH, imageW,  kstub->kconf.coarsening, params->gridDimY[1], params->gridDimX[1], kstub->kconf.initial_blockID, params->zc_slc);
+
+	return 0;
+}
+
 int launch_preemp_CCONV(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
@@ -1210,6 +1380,9 @@ int RCONV_start_mallocs(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	
 	t_CONV_params * params = (t_CONV_params *)kstub->params;
+
+	// globalmemory position for launched ctas counter
+	cudaMalloc((void **)&params->zc_slc, sizeof(int));
 	
 	imageH = params->conv_rows;
 	imageW = params->conv_cols;

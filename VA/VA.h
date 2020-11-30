@@ -11,6 +11,8 @@ typedef struct {
 	float *d_C;
 
 	int numElements;
+	int gridDimX;
+	int *zc_slc; // Zero copy for slc ->counter of launched ctas
 } t_VA_params;
 
 int VA_start_kernel_dummy(void *arg);				
@@ -18,6 +20,7 @@ int VA_end_kernel_dummy(void *arg);
 
 int launch_preemp_VA(void *arg);
 int launch_orig_VA(void *arg);
+int launch_slc_VA(void *arg);
 
 int VA_start_mallocs(void *arg);
 int VA_start_transfers(void *arg);

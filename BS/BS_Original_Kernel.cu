@@ -129,6 +129,51 @@ __global__ void original_BlackScholesGPU(
 	
 }
 
+__global__ void slicing_BlackScholesGPU(
+    float *d_CallResult,
+    float *d_PutResult,
+    float *d_StockPrice,
+    float *d_OptionStrike,
+    float *d_OptionYears,
+    float Riskfree,
+    float Volatility,
+    int optN,
+	int iter_per_block,
+	int init_blkIdx,
+	int *zc_slc)
+{
+    ////Thread index
+    //const int      tid = blockDim.x * blockIdx.x + threadIdx.x;
+    ////Total number of threads in execution grid
+    //const int THREAD_N = blockDim.x * gridDim.x;
+
+	//const int opt = blockDim.x * blockIdx.x + threadIdx.x;
+	
+	if (threadIdx.x == 0) atomicAdd(zc_slc, 1);
+	
+	for (int k=0; k<iter_per_block; k++) {
+		
+		const int opt =  (blockIdx.x + init_blkIdx) * blockDim.x * iter_per_block + k *  blockDim.x + threadIdx.x;
+			
+    //No matter how small is execution grid or how large OptN is,
+    //exactly OptN indices will be processed with perfect memory coalescing
+    //for (int opt = tid; opt < optN; opt += THREAD_N)
+		if (opt < optN){
+		//for (int i=0;i<10;i++)
+			BlackScholesBodyGPU(
+					d_CallResult[opt],
+					d_PutResult[opt],
+					d_StockPrice[opt], 
+					d_OptionStrike[opt],
+					d_OptionYears[opt],
+					Riskfree,
+					Volatility
+			);
+		}
+	}
+	
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //SMK version: Only works with resident kernels
 ////////////////////////////////////////////////////////////////////////////////
@@ -645,6 +690,9 @@ int BS_start_mallocs(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_BS_params * params = (t_BS_params *)kstub->params;
+
+	// globalmemory position for launched ctas counter
+	cudaMalloc((void **)&params->zc_slc, sizeof(int));
 	
 	OPT_N = kstub->kconf.gridsize.x * kstub->kconf.blocksize.x * kstub->kconf.coarsening;
 	OPT_SZ = OPT_N * sizeof(float);
@@ -972,6 +1020,26 @@ int launch_orig_BS(void *arg)
             OPT_N,
 			
 		kstub->kconf.coarsening);
+		
+		return 0;
+}
+
+int launch_slc_BS(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_BS_params * params = (t_BS_params *)kstub->params;
+	
+	slicing_BlackScholesGPU <<<kstub->total_tasks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(
+			params->d_CallResult,
+            params->d_PutResult,
+            params->d_StockPrice,
+            params->d_OptionStrike,
+            params->d_OptionYears,
+            RISKFREE,
+            VOLATILITY,
+            OPT_N,
+			
+		kstub->kconf.coarsening, kstub->kconf.initial_blockID, params->zc_slc);
 		
 		return 0;
 }

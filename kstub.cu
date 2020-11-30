@@ -60,6 +60,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			
 			k_stub->launchCKEkernel = launch_preemp_BS;
 			k_stub->launchORIkernel = launch_orig_BS;
+			k_stub->launchSLCkernel = launch_slc_BS;
 			k_stub->startKernel = BS_start_kernel_dummy;
 			k_stub->startMallocs = BS_start_mallocs;
 			k_stub->startTransfers = BS_start_transfers;
@@ -112,6 +113,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		
 			k_stub->launchCKEkernel = launch_preemp_VA;
 			k_stub->launchORIkernel = launch_orig_VA;
+			k_stub->launchSLCkernel = launch_slc_VA;
 			k_stub->startKernel = VA_start_kernel_dummy;
 			k_stub->startMallocs = VA_start_mallocs;
 			k_stub->startTransfers = VA_start_transfers;
@@ -139,13 +141,15 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.numSMs = 28;
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 256;
+						k_stub->kconf.coarsening = 160; // Antes de slicing: 40
 						#ifdef DATA_SET_1
-						k_stub->kconf.gridsize.x = 50 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
+						k_stub->kconf.gridsize.x = 12 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks; // Antes de slicing 50 *
 						#else
-						k_stub->kconf.gridsize.x = 100 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
+						k_stub->kconf.gridsize.x = 15 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks; // Antes de slicing 60 *
 						#endif
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
-						k_stub->kconf.coarsening = 40;
+						VA_params->gridDimX = k_stub->kconf.gridsize.x;
+						
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -173,7 +177,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->params = (void *)MM_params;
 			
 			k_stub->launchCKEkernel = launch_preemp_MM;
-			k_stub->launchORIkernel = launch_orig_MM;
+			k_stub->launchORIkernel = launch_orig_MM; 
+			k_stub->launchSLCkernel = launch_slc_MM;
 			k_stub->startKernel = MM_start_kernel;
 			k_stub->startMallocs = MM_start_mallocs;
 			k_stub->startTransfers = MM_start_transfers;
@@ -310,6 +315,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			
 			k_stub->launchCKEkernel = launch_preemp_SPMVcsr;
 			k_stub->launchORIkernel = launch_orig_SPMVcsr;
+			k_stub->launchSLCkernel = launch_slc_SPMVcsr;
 			k_stub->startKernel = SPMVcsr_start_kernel;
 			k_stub->startMallocs = SPMVcsr_start_mallocs;
 			k_stub->startTransfers = SPMVcsr_start_transfers;
@@ -325,7 +331,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.gridsize.x = k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks * k_stub->kconf.blocksize.x ;//One row per thread when all thread in original version
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
 					k_stub->kconf.coarsening = 10;
-					k_stub->total_tasks = k_stub->kconf.gridsize.x * k_stub->kconf.coarsening;
+					k_stub->total_tasks = k_stub->kconf.gridsize.x  ; //* k_stub->kconf.coarsening;
+					SPMV_params->gridDimX = k_stub->kconf.gridsize.x;
 					
 			}
 			else{
@@ -334,7 +341,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			}
 			
 			// Esto estaba antes --> SPMV_params->numRows = k_stub->kconf.gridsize.x * k_stub->kconf.blocksize.x * k_stub->kconf.coarsening;
-			SPMV_params->numRows = k_stub->total_tasks;
+			SPMV_params->numRows = k_stub->total_tasks * k_stub->kconf.coarsening;
 			
 			#ifdef DATA_SET_1
 			SPMV_params->nItems = (long int)SPMV_params->numRows * (long int)SPMV_params->numRows * 0.05; // 5% of entries will be non-zero
@@ -355,6 +362,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			
 			k_stub->launchCKEkernel = launch_preemp_reduce;
 			k_stub->launchORIkernel = launch_orig_reduce;
+			k_stub->launchSLCkernel = launch_slc_reduce;
 			k_stub->startKernel = reduce_start_kernel;
 			k_stub->startMallocs = reduce_start_mallocs;
 			k_stub->startTransfers = reduce_start_transfers;
@@ -369,17 +377,21 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					k_stub->kconf.max_persistent_blocks = 8;
 					k_stub->kconf.blocksize.x = 256;
 					k_stub->kconf.blocksize.y = 1;
-					k_stub->kconf.gridsize.x = reduction_params->size / (2*k_stub->kconf.blocksize.x);
+					
+					reduction_params->gridDimX = k_stub->kconf.gridsize.x;
 					//#ifdef DATA_SET_1
 					//k_stub->kconf.gridsize.x =  64*28*8;
 					//#else
 					//k_stub->kconf.gridsize.x =  640*28*8; // 64 * number_of_permanent_blocks, a ver que tal
 					//k_stub->kconf.gridsize.x =  64 * 7;
 					//#endif
+
+					k_stub->kconf.coarsening = 64;					
+					k_stub->kconf.gridsize.x = reduction_params->size / (k_stub->kconf.blocksize.x * 2 * k_stub->kconf.coarsening);
 					k_stub->kconf.gridsize.y = 1; //Grid Linearization
-					k_stub->kconf.coarsening = 2;
-					// k_stub->total_tasks = k_stub->kconf.gridsize.x;
-					k_stub->total_tasks = reduction_params->size / (k_stub->kconf.blocksize.x * 2 * k_stub->kconf.coarsening);
+					reduction_params->gridDimX = k_stub->kconf.gridsize.x;
+					k_stub->total_tasks =  k_stub->kconf.gridsize.x;
+				
 			} 
 			else{
 				printf("Error: Unknown device\n");
@@ -431,6 +443,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		
 			k_stub->launchCKEkernel = launch_preemp_PF;
 			k_stub->launchORIkernel = launch_orig_PF;
+			k_stub->launchSLCkernel = launch_slc_PF;
 			k_stub->startKernel = PF_start_kernel;
 			k_stub->startMallocs = PF_start_mallocs;
 			k_stub->startTransfers = PF_start_transfers;
@@ -479,19 +492,22 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			t_CONV_params *CONV_params;
 			
 			CONV_params = (t_CONV_params *)calloc(1, sizeof(t_CONV_params));
+
+			k_stub->kconf.coarsening = 16;
 			
 			#ifdef DATA_SET_1
 			CONV_params->conv_rows=6144;
-			CONV_params->conv_cols=6144;
-			#else
+			CONV_params->conv_cols=6144  * k_stub->kconf.coarsening; // 4 is the coarsening factor
+ 			#else 
 			CONV_params->conv_rows=8192;//16384;
-			CONV_params->conv_cols=8192; //16384;
+			CONV_params->conv_cols=2048 * k_stub->kconf.coarsening; //16384;
 			#endif
 			
 			k_stub->params = (void *)CONV_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_RCONV;
 			k_stub->launchORIkernel = launch_orig_RCONV;
+			k_stub->launchSLCkernel = launch_slc_RCONV;
 			k_stub->startKernel = RCONV_start_kernel;
 			k_stub->startMallocs = RCONV_start_mallocs;
 			k_stub->startTransfers = RCONV_start_transfers;
@@ -532,11 +548,11 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						CONV_params->gridDimY[0] = CONV_params->conv_cols / k_stub->kconf.blocksize.y;
 						k_stub->kconf.gridsize.x = (CONV_params->conv_rows / (8 * 16)) * (CONV_params->conv_cols / 4);
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization*/
-						k_stub->kconf.gridsize.x = CONV_params->conv_cols / (8 * k_stub->kconf.blocksize.x );
+						k_stub->kconf.gridsize.x = CONV_params->conv_cols / (8 * k_stub->kconf.blocksize.x * k_stub->kconf.coarsening );
 						k_stub->kconf.gridsize.y = CONV_params->conv_rows / k_stub->kconf.blocksize.y;
-						k_stub->kconf.coarsening = 1;
 						k_stub->total_tasks = (k_stub->kconf.gridsize.x * k_stub->kconf.gridsize.y)/k_stub->kconf.coarsening;
-						
+						CONV_params->gridDimX[0] = k_stub->kconf.gridsize.x;
+						CONV_params->gridDimY[0] = k_stub->kconf.gridsize.y;
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -560,11 +576,11 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			CONV_params->conv_cols=18048;
 		    #endif*/
 			
-			CONV_params->gridDimY[1] = CONV_params->conv_cols / (8 * 8);
 			k_stub->params = (void *)CONV_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_CCONV;
 			k_stub->launchORIkernel = launch_orig_CCONV;
+			k_stub->launchSLCkernel = launch_slc_RCONV;
 			k_stub->startKernel = CCONV_start_kernel;
 			k_stub->startMallocs = CCONV_start_mallocs;
 			k_stub->startTransfers = CCONV_start_transfers;
@@ -597,10 +613,12 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.max_persistent_blocks = 16;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 8;
-						k_stub->kconf.gridsize.x = (CONV_params->conv_rows / 16) * (CONV_params->conv_cols / (8 * 8));
-						k_stub->kconf.gridsize.y = 1; //Grid Linearization
-						k_stub->total_tasks = k_stub->kconf.gridsize.x;
-						k_stub->kconf.coarsening = 1;
+						k_stub->kconf.coarsening = 8; 
+						k_stub->kconf.gridsize.x = CONV_params->conv_cols / (8 * k_stub->kconf.blocksize.x * k_stub->kconf.coarsening);
+						k_stub->kconf.gridsize.y = CONV_params->conv_rows / k_stub->kconf.blocksize.y;
+						k_stub->total_tasks = k_stub->kconf.gridsize.x * k_stub->kconf.gridsize.y;
+						CONV_params->gridDimX[1] = k_stub->kconf.gridsize.x;
+						CONV_params->gridDimY[1] = k_stub->kconf.gridsize.y ;
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -642,17 +660,19 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			CEDD_params = (t_CEDD_params *)calloc(1, sizeof(t_CEDD_params));
 			
 			#ifdef DATA_SET_1
-			CEDD_params->nRows=3072 * 2;
-			CEDD_params->nCols=4608 * 2;
+			CEDD_params->nRows=4608;
+			CEDD_params->nCols=1200 * k_stub->kconf.coarsening;
 			#else
-			CEDD_params->nRows=4608 * 2.6;
-			CEDD_params->nCols=4608 * 2.6;
+			CEDD_params->nRows=4096;
+			//CEDD_params->nCols=1200 * k_stub->kconf.coarsening;
+			CEDD_params->nCols=4096;
 			#endif
 			
 			k_stub->params = (void *)CEDD_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_GCEDD;
 			k_stub->launchORIkernel = launch_orig_GCEDD;
+			k_stub->launchSLCkernel = launch_slc_GCEDD;
 			k_stub->startKernel = GCEDD_start_kernel;
 			k_stub->endKernel = GCEDD_end_kernel;
 
@@ -664,12 +684,9 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
-				CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-				CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 				k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 				k_stub->kconf.gridsize.y = 1; //Grid Linearization
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
-				k_stub->kconf.coarsening = 1;
 			}
 			else {
 				if (strcmp(device_name, "GeForce GTX 980") == 0) {
@@ -690,13 +707,14 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 16;
-						CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+						k_stub->kconf.coarsening = 16;
+						//CEDD_params->gridDimX = (CEDD_params->nCols - 2)/(k_stub->kconf.blocksize.x *  k_stub->kconf.coarsening); // Add information loss during linearization
+						CEDD_params->gridDimX = (CEDD_params->nCols-2)/(k_stub->kconf.blocksize.x * k_stub->kconf.coarsening);
+						CEDD_params->gridDimY = (CEDD_params->nRows-2)/k_stub->kconf.blocksize.y;
 						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
-						k_stub->kconf.coarsening = 16;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening ;
-					
+						//k_stub->total_tasks = k_stub->kconf.gridsize.x;
+						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -729,6 +747,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		
 			k_stub->launchCKEkernel = launch_preemp_SCEDD;
 			k_stub->launchORIkernel = launch_orig_SCEDD;
+			k_stub->launchORIkernel = launch_slc_SCEDD;
 			k_stub->startKernel = SCEDD_start_kernel;
 			k_stub->endKernel = SCEDD_end_kernel;
 
@@ -804,6 +823,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		
 			k_stub->launchCKEkernel = launch_preemp_NCEDD;
 			k_stub->launchORIkernel = launch_orig_NCEDD;
+			k_stub->launchSLCkernel = launch_slc_NCEDD;
 			k_stub->startKernel = NCEDD_start_kernel;
 			k_stub->endKernel = NCEDD_end_kernel;
 
@@ -879,6 +899,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		
 			k_stub->launchCKEkernel = launch_preemp_HCEDD;
 			k_stub->launchORIkernel = launch_orig_HCEDD;
+			k_stub->launchSLCkernel = launch_slc_HCEDD;
 			k_stub->startKernel = HCEDD_start_kernel;
 			k_stub->endKernel = HCEDD_end_kernel;
 
@@ -939,6 +960,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 	
 			k_stub->launchCKEkernel = launch_preemp_HST256;
 			k_stub->launchORIkernel = launch_orig_HST256;
+			k_stub->launchSLCkernel = launch_slc_HST256;
 			k_stub->startKernel = HST256_start_kernel;
 			k_stub->endKernel = HST256_end_kernel;
 			
@@ -993,15 +1015,16 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 						#ifdef DATA_SET_1
 						HST256_params->byteCount256 = 64 * 1089536 * 8;
 						#else
-						HST256_params->byteCount256 = 64 * 1089536 * 8 *2;
+						HST256_params->byteCount256 = 64 * 1089536; //* 8 *2;
 						#endif
 						
 						k_stub->kconf.numSMs = 28;
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 256;
-						k_stub->kconf.coarsening = 8;
+						k_stub->kconf.coarsening = 128; // Ojo coarsening tienen que ser 1 para prubas con slicing (cCUDA)
 						//k_stub->kconf.gridsize.x  = HST256_params->byteCount256 / (sizeof(uint) * k_stub->kconf.coarsening * k_stub->kconf.blocksize.x);
 						k_stub->kconf.gridsize.x  = k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
+						HST256_params->gridDimX = k_stub->kconf.gridsize.x;
 						//k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->total_tasks = HST256_params->byteCount256 / (sizeof(uint) * k_stub->kconf.blocksize.x * k_stub->kconf.coarsening);
 						// k_stub->total_tasks = (k_stub->kconf.gridsize.x * ((HST256_params->byteCount256 / sizeof(uint)) / (k_stub->kconf.blocksize.x * k_stub->kconf.gridsize.x))) / k_stub->kconf.coarsening;
@@ -1103,11 +1126,12 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 		{
 			t_CONV_params *CONV_params = (t_CONV_params *)params;
 			
-			CONV_params->gridDimY[1] = CONV_params->conv_cols / (8 * 8);
+			CONV_params->gridDimY[1] = CONV_params->conv_cols /  (8 * 8);
 			k_stub->params = (void *)CONV_params;
 		
 			k_stub->launchCKEkernel = launch_preemp_CCONV;
 			k_stub->launchORIkernel = launch_orig_CCONV;
+			k_stub->launchSLCkernel = launch_slc_CCONV;
 			k_stub->startKernel = CCONV_start_kernel;
 			k_stub->startMallocs = CCONV_start_mallocs;
 			k_stub->startTransfers = CCONV_start_transfers;
@@ -1140,11 +1164,12 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 						k_stub->kconf.max_persistent_blocks = 16;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 8;
-						//k_stub->kconf.gridsize.x = (CONV_params->conv_rows / 16) * (CONV_params->conv_cols / (8 * 8));
-						k_stub->kconf.gridsize.x = CONV_params->conv_cols /16;
-						k_stub->kconf.gridsize.y = CONV_params->conv_rows / ( 8 * 8);
-						k_stub->kconf.coarsening = 1;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x * k_stub->kconf.gridsize.y / k_stub->kconf.coarsening ;
+						k_stub->kconf.coarsening = 4; 
+						k_stub->kconf.gridsize.x = CONV_params->conv_cols / (k_stub->kconf.blocksize.x);
+						k_stub->kconf.gridsize.y = CONV_params->conv_rows / ( 8 * k_stub->kconf.blocksize.y) ;
+						k_stub->total_tasks = k_stub->kconf.gridsize.x * k_stub->kconf.gridsize.y / k_stub->kconf.coarsening;
+						CONV_params->gridDimX[1] = k_stub->kconf.gridsize.x;
+						CONV_params->gridDimY[1] = k_stub->kconf.gridsize.y ;
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -1179,6 +1204,7 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 		
 			k_stub->launchCKEkernel = launch_preemp_SCEDD;
 			k_stub->launchORIkernel = launch_orig_SCEDD;
+			k_stub->launchSLCkernel = launch_slc_SCEDD;
 			k_stub->startKernel = SCEDD_start_kernel;
 			k_stub->endKernel = SCEDD_end_kernel;
 
@@ -1216,12 +1242,14 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 16;
-						CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+						k_stub->kconf.coarsening = 16;
+						//CEDD_params->gridDimX = (CEDD_params->nCols - 2)/(k_stub->kconf.blocksize.x *  k_stub->kconf.coarsening); // Add information loss during linearization
+						CEDD_params->gridDimX = (CEDD_params->nCols-2)/(k_stub->kconf.blocksize.x * k_stub->kconf.coarsening);
+						CEDD_params->gridDimY = (CEDD_params->nRows-2)/k_stub->kconf.blocksize.y;
 						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
+						//k_stub->total_tasks = k_stub->kconf.gridsize.x;
 						k_stub->total_tasks = k_stub->kconf.gridsize.x;
-						k_stub->kconf.coarsening = 1;
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -1257,6 +1285,7 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 		
 			k_stub->launchCKEkernel = launch_preemp_NCEDD;
 			k_stub->launchORIkernel = launch_orig_NCEDD;
+			k_stub->launchSLCkernel = launch_slc_NCEDD;
 			k_stub->startKernel = NCEDD_start_kernel;
 			k_stub->endKernel = NCEDD_end_kernel;
 
@@ -1294,12 +1323,13 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 16;
-						CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+						k_stub->kconf.coarsening = 16;
+						//CEDD_params->gridDimX = (CEDD_params->nCols - 2)/(k_stub->kconf.blocksize.x *  k_stub->kconf.coarsening);
+						CEDD_params->gridDimX = (CEDD_params->nCols - 2)/(k_stub->kconf.blocksize.x * k_stub->kconf.coarsening);
 						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
-						k_stub->kconf.coarsening = 2;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening;
+						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					}
 					else{
 						printf("Error: Unknown device\n");
@@ -1335,6 +1365,7 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 		
 			k_stub->launchCKEkernel = launch_preemp_HCEDD;
 			k_stub->launchORIkernel = launch_orig_HCEDD;
+			k_stub->launchSLCkernel = launch_slc_HCEDD;
 			k_stub->startKernel = HCEDD_start_kernel;
 			k_stub->endKernel = HCEDD_end_kernel;
 
@@ -1372,12 +1403,13 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 						k_stub->kconf.max_persistent_blocks = 8;
 						k_stub->kconf.blocksize.x = 16;
 						k_stub->kconf.blocksize.y = 16;
-						CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
+						k_stub->kconf.coarsening = 16;
+						//CEDD_params->gridDimX = (CEDD_params->nCols - 2)/(k_stub->kconf.blocksize.x *  k_stub->kconf.coarsening);
+						CEDD_params->gridDimX = (CEDD_params->nCols - 2)/(k_stub->kconf.blocksize.x * k_stub->kconf.coarsening);
 						CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
 						k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 						k_stub->kconf.gridsize.y = 1; //Grid Linearization
-						k_stub->kconf.coarsening = 4;
-						k_stub->total_tasks = k_stub->kconf.gridsize.x/k_stub->kconf.coarsening;
+						k_stub->total_tasks = k_stub->kconf.gridsize.x;
 					}
 					else{
 						printf("Error: Unknown device\n");

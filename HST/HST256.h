@@ -47,11 +47,14 @@ typedef struct {
 	int warp_count;
 	int histogram256_threadblock_size;
 	int histogram256_threadblock_memory;
+	int gridDimX;
+	int *zc_slc;
 } t_HST256_params;
 
 /*** histogram ***/	
 int launch_preemp_HST256(void *kstub);
 int launch_orig_HST256(void *kstub);
+int launch_slc_HST256(void *arg);
 
 int HST256_start_kernel(void *arg);
 int HST256_end_kernel(void *arg);

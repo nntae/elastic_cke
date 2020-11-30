@@ -365,7 +365,7 @@ int smk_coexec_prof(t_kernel_stub **kstub)
 		info1->pairs[i][0] = info->pairs[i][1];
 		info1->pairs[i][1] = info->pairs[i][0];
 			
-		printf(" *** bk0=%d bk1=%d time=%f exec_task0=%d exec_task1=%d tpms0=%f, tmps1=%f\n", info->pairs[i][0], info->pairs[i][1], (time2 - time1), exec_tasks[0], exec_tasks[1], info->tpms[i][0], info->tpms[i][1]);
+		//printf(" *** bk0=%d bk1=%d time=%f exec_task0=%d exec_task1=%d tpms0=%f, tmps1=%f\n", info->pairs[i][0], info->pairs[i][1], (time2 - time1), exec_tasks[0], exec_tasks[1], info->tpms[i][0], info->tpms[i][1]);
 		
 		cudaDeviceSynchronize();
 		
@@ -619,7 +619,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 	
 	/* SMK: Extract better speedup */
 	printf("**************** SMK Experiment *************\n"); 
-	printf("Kernels \tBlocks_co	\tBlocks_solo \tBlocks_ibc \tBlocks_fair \tSpeedup_colo \tSpeedup_th \tSpeedup_real \tSpeedup_inc \tSpeedup_fair\n"); 
+	printf("Kernels \tBlocks_co	\tBlocks_solo \tBlocks_ibc \tBlocks_fair \tSpeedup_colo \tSpeedup_th \tSpeedup_real \tSpeedup_inc \tSpeedup_fair \tMin_speedup\n"); 
 	double *sp_smk = (double *)calloc(100, sizeof(double));
 	int b0, b1, t_b0, t_b1, t_k, f_b0, f_b1;
 	for (int i=0; i<total_num_kernels; i++) {
@@ -627,10 +627,10 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 			t_smk_coBlocks *info_coexec= &smk_info_coBlocks[kstubs[i]->id][kstubs[j]->id];
 			t_smk_solo *smk_info_solo1 = &smk_info_solo[kstubs[i]->id];
 			t_smk_solo *smk_info_solo2 = &smk_info_solo[kstubs[j]->id];
-			double speedup = 0, t_speedup = 0, f_speedup=0, f_d=10.0;
+			double speedup = 0, min_speedup = 10000, t_speedup = 0, f_speedup=0, f_d=10.0;
 			int max_pos =-1, max_b0=0, max_b1=1;
 			double save_speedup_inc=0;
-			printf("K0=%d K1=%d\n", kstubs[i]->id, kstubs[j]->id);
+			//printf("K0=%d K1=%d\n", kstubs[i]->id, kstubs[j]->id);
 			for (int k = 0; k<info_coexec->num_configs; k++) {
 				double s1, s2;
 				s1 = info_coexec->tpms[k][0]/smk_info_solo1->tpms[smk_info_solo1->num_configs-1];
@@ -645,6 +645,10 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 					b0 = info_coexec->pairs[k][0];
 					b1 = info_coexec->pairs[k][1];
 				}
+				
+				if (s < min_speedup)
+					min_speedup = s;
+				
 				if (f_d > fabs(s1-s2)){
 					f_d = fabs(s1-s2);
 					f_b0 = info_coexec->pairs[k][0];
@@ -652,7 +656,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 					f_speedup = s;
 				}
 				
-				//printf("b0=%d b1=%d s=%f ", info_coexec->pairs[k][0], info_coexec->pairs[k][1], s);
+				//printf("Speedup SMK conf=(%d,%d) = %.2f ", info_coexec->pairs[k][0], info_coexec->pairs[k][1], s);
 				if (s_th > t_speedup) {
 					t_speedup = s_th;
 					t_k = k;
@@ -664,7 +668,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 					double val0 = info_coexec->tpms[k+1][0]/info_coexec->tpms[k][0];
 					double val1 = info_coexec->tpms[k+1][1]/info_coexec->tpms[k][1];
 					
-					printf("%d, b0=%d, b1=%d, %f, %f\n", k+1, b0, b1, (val0+val1), (1.0/val0 + 1.0/val1));		
+					//printf("%d, b0=%d, b1=%d, %f, %f\n", k+1, info_coexec->pairs[k][0], info_coexec->pairs[k][1], (val0+val1), (1.0/val0 + 1.0/val1));		
 					
 					if (val0+val1 < 2.0 && max_pos == -1){ // Chequeo de memjora global de las tpms de los dos kernels
 						max_pos = k; 
@@ -696,8 +700,8 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 			kid_from_index(kstubs[i]->id, skid0);
 			kid_from_index(kstubs[j]->id, skid1);
 			//printf("Best SMK real configuration for (%s,%s) -> (%d, %d) con s=%f\n", skid0, skid1, b0, b1, speedup);
-			//printf("Best SMK theoretical configuration for (%s,%s) -> (%d, %d) con s=%f\n\n", skid0, skid1, t_b0, t_b1, t_speedup);
-			printf("%s/%s \t %d_%d \t %d_%d \t %d_%d \t %d_%d \t %f \t %f \t %f \t%f \t%f\n", skid0, skid1, b0, b1, t_b0, t_b1, max_b0, max_b1, f_b0, f_b1, speedup, t_speedup, sp_smk[t_k], save_speedup_inc, f_speedup);  
+			//printf("Best SMK theoretical configuration for (%s,%s) -> (%d, %d) con s=%f\n\n", skid0, skid1, t_b0, t_b1, t_speedup, min_speedup);
+			printf("%s/%s \t %d_%d \t %d_%d \t %d_%d \t %d_%d \t %f \t %f \t %f \t%f \t%f \t%f\n", skid0, skid1, b0, b1, t_b0, t_b1, max_b0, max_b1, f_b0, f_b1, speedup, t_speedup, sp_smk[t_k], save_speedup_inc, f_speedup,min_speedup );  
 
 		}
 		
@@ -727,7 +731,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 				double s = tpms0/tpms0_solo+tpms1/tpms1_solo;
 				sp[k] = s;
 				double s_th = smt_info_solo[kstubs[i]->id].tpms[k]/tpms0_solo+smt_info_solo[kstubs[j]->id].tpms[num_configs - k]/tpms1_solo;
-				//printf("-->%d, %f\n", k, s);
+				//printf("Sppedup SMT cong (%d), %.2f\n", k, s);
 				if (s > speedup) {
 					speedup = s;
 					sms = k+1;
@@ -775,7 +779,7 @@ int all_profiling(t_Kernel *kid, int num_kernels, int deviceId)
 		}
 	}
 
-	save_profling_tables();
+	//save_profling_tables();
 	
 	printf("\n\n");
 	

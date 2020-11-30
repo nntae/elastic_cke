@@ -1,0 +1,1231 @@
+Device=TITAN X (Pascal)
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 0
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 0
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 0
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 0
+(ter0=2538219.682540 ter1=590864.253968) (prev_ter0=2572696.671202 prev_ter1=518343.691610) 
+(ter0-prev_ter0=34476.988662, 253821.968254 ter1-prev_ter1=72520.562358, 59086.425397) 
+--> Evicting stream 3(4) of kernel 2
+Lanzado stream 4 del kernel 0
+(ter0=2171754.245059 ter1=1409153.517787) (prev_ter0=2146691.023622 prev_ter1=1684326.803150) 
+(ter0-prev_ter0=25063.221437, 217175.424506 ter1-prev_ter1=275173.285363, 140915.351779) 
+WS Conf(4->3) 1.620262
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 0
+(ter0=1859216.548813 ter1=885341.213720) (prev_ter0=1856766.988142 prev_ter1=762600.727273) 
+(ter0-prev_ter0=2449.560670, 185921.654881 ter1-prev_ter1=122740.486448, 88534.121372) 
+WS Conf(5->4) 0.742184
+Best configuration achieved VA/MM=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-MM, 3-5, 0.764608, 0.971982
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 1
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 1
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 1
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 1
+(ter0=2110467.250794 ter1=932067.555556) (prev_ter0=2155406.222222 prev_ter1=932067.555556) 
+(ter0-prev_ter0=44938.971429, 211046.725079 ter1-prev_ter1=0.000000, 93206.755556) 
+--> Evicting stream 3(4) of kernel 2
+Lanzado stream 4 del kernel 1
+(ter0=1647762.285714 ter1=2047219.809524) (prev_ter0=1398101.333333 prev_ter1=2130440.126984) 
+(ter0-prev_ter0=249660.952381, 164776.228571 ter1-prev_ter1=83220.317460, 204721.980952) 
+WS Conf(4->3) 1.488593
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 1
+(ter0=1372278.881266 ter1=1604680.949868) (prev_ter0=1409153.517787 prev_ter1=1773875.604743) 
+(ter0-prev_ter0=36874.636520, 137227.888127 ter1-prev_ter1=169194.654875, 160468.094987) 
+WS Conf(5->4) 0.808324
+Best configuration achieved VA/BS=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-BS, 3-5, 0.676870, 0.794617
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 6
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 6
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 6
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 6
+(ter0=2796202.666667 ter1=17476266.666667) (prev_ter0=2796202.666667 prev_ter1=17942300.444444) 
+(ter0-prev_ter0=0.000000, 279620.266667 ter1-prev_ter1=466033.777778, 1747626.666667) 
+--> Evicting stream 3(4) of kernel 6
+Lanzado stream 4 del kernel 2
+(ter0=3133294.292490 ter1=11853467.826087) (prev_ter0=2873263.370079 prev_ter1=12351729.889764) 
+(ter0-prev_ter0=260030.922411, 313329.429249 ter1-prev_ter1=498262.063677, 1185346.782609) 
+WS Conf(4->3) 0.899407
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 6
+Lanzado stream 4 del kernel 6
+(ter0=2304380.458498 ter1=27105482.371542) (prev_ter0=2344847.118110 prev_ter1=27180410.960630) 
+(ter0-prev_ter0=40466.659612, 230438.045850 ter1-prev_ter1=74928.589088, 2710548.237154) 
+WS Conf(2->3) 1.187549
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 6
+(ter0=1740719.051383 ter1=37201652.869565) (prev_ter0=1849456.881890 prev_ter1=38574386.393701) 
+(ter0-prev_ter0=108737.830506, 174071.905138 ter1-prev_ter1=1372733.524136, 3720165.286957) 
+WS Conf(1->2) 1.063936
+--> Evicting stream 1(2) of kernel 2
+Lanzado stream 6 del kernel 6
+(ter0=1165084.444444 ter1=53743681.015873) (prev_ter0=1065220.063492 prev_ter1=56090493.968254) 
+(ter0-prev_ter0=99864.380952, 116508.444444 ter1-prev_ter1=2346812.952381, 5374368.101587) 
+WS Conf(0->1) 1.056985
+Configuracion extrema alcanzada VA/Reduction=(1,7)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-Reduction, 1-7, 0.771046, 0.815335
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 7
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 7
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 7
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 7
+(ter0=3050402.909091 ter1=254200.242424) (prev_ter0=3052521.244444 prev_ter1=276291.453968) 
+(ter0-prev_ter0=2118.335354, 305040.290909 ter1-prev_ter1=22091.211544, 25420.024242) 
+--> Evicting stream 3(4) of kernel 7
+Lanzado stream 4 del kernel 2
+(ter0=3119523.998413 ter1=138090.928996) (prev_ter0=3120772.329019 prev_ter1=136599.462213) 
+(ter0-prev_ter0=1248.330605, 311952.399841 ter1-prev_ter1=1491.466783, 13809.092900) 
+WS Conf(4->3) 0.782948
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 7
+Lanzado stream 4 del kernel 7
+(ter0=2980892.406869 ter1=149598.689564) (prev_ter0=2964595.220285 prev_ter1=179471.011094) 
+(ter0-prev_ter0=16297.186584, 298089.240687 ter1-prev_ter1=29872.321529, 14959.868956) 
+WS Conf(2->3) 0.782860
+Best configuration achieved VA/PF=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-PF, 4-4, 2.003908, 2.453247
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 12
+(ter0=2785106.624339 ter1=1076316.105820) (prev_ter0=2663050.158730 prev_ter1=865491.301587) 
+(ter0-prev_ter0=122056.465608, 278510.662434 ter1-prev_ter1=210824.804233, 107631.610582) 
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 4 del kernel 2
+(ter0=3031526.653465 ter1=697666.407921) (prev_ter0=3043360.422164 prev_ter1=708272.970976) 
+(ter0-prev_ter0=11833.768698, 303152.665347 ter1-prev_ter1=10606.563055, 69766.640792) 
+WS Conf(4->3) 0.868338
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 12
+Lanzado stream 4 del kernel 12
+(ter0=2735415.652174 ter1=1492044.901186) (prev_ter0=2642081.259843 prev_ter1=1618274.771654) 
+(ter0-prev_ter0=93334.392331, 273541.565217 ter1-prev_ter1=126229.870468, 149204.490119) 
+WS Conf(2->3) 1.184205
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 12
+(ter0=2456821.868074 ter1=3087627.482850) (prev_ter0=2519898.055336 prev_ter1=2751993.928854) 
+(ter0-prev_ter0=63076.187262, 245682.186807 ter1-prev_ter1=335633.553996, 308762.748285) 
+WS Conf(1->2) 1.483773
+--> Evicting stream 1(2) of kernel 2
+Lanzado stream 6 del kernel 12
+(ter0=1657827.667984 ter1=4360086.766798) (prev_ter0=1618274.771654 prev_ter1=3632861.732283) 
+(ter0-prev_ter0=39552.896331, 165782.766798 ter1-prev_ter1=727225.034515, 436008.676680) 
+WS Conf(0->1) 1.043451
+Configuracion extrema alcanzada VA/GCEDD=(1,7)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-GCEDD, 1-7, 0.971794, 1.143607
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 13
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 13
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 13
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 13
+(ter0=3062507.682540 ter1=13881148.952381) (prev_ter0=3395388.952381 prev_ter1=14047589.587302) 
+(ter0-prev_ter0=332881.269841, 306250.768254 ter1-prev_ter1=166440.634921, 1388114.895238) 
+--> Evicting stream 3(4) of kernel 13
+Lanzado stream 4 del kernel 2
+(ter0=3278880.507937 ter1=8355319.873016) (prev_ter0=2962643.301587 prev_ter1=7922574.222222) 
+(ter0-prev_ter0=316237.206349, 327888.050794 ter1-prev_ter1=432745.650794, 835531.987302) 
+WS Conf(4->3) 0.836285
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 13
+Lanzado stream 4 del kernel 13
+(ter0=3012575.492063 ter1=20555418.412698) (prev_ter0=2896067.047619 prev_ter1=19806435.555556) 
+(ter0-prev_ter0=116508.444444, 301257.549206 ter1-prev_ter1=748982.857143, 2055541.841270) 
+WS Conf(2->3) 1.232255
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 13
+(ter0=2619367.715415 ter1=31150581.881423) (prev_ter0=2476951.181102 prev_ter1=31473793.007874) 
+(ter0-prev_ter0=142416.534313, 261936.771542 ter1-prev_ter1=323211.126451, 3115058.188142) 
+WS Conf(1->2) 1.192461
+--> Evicting stream 1(2) of kernel 2
+Lanzado stream 6 del kernel 13
+(ter0=1664406.349206 ter1=41393785.904762) (prev_ter0=1564541.968254 prev_ter1=40777955.555556) 
+(ter0-prev_ter0=99864.380952, 166440.634921 ter1-prev_ter1=615830.349206, 4139378.590476) 
+WS Conf(0->1) 0.982126
+Best configuration achieved VA/SCEDD=(2,6)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-SCEDD, 2-6, 0.771999, 0.992280
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 14
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 14
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 14
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 14
+(ter0=3012575.492063 ter1=6707557.587302) (prev_ter0=3062507.682540 prev_ter1=6957218.539683) 
+(ter0-prev_ter0=49932.190476, 301257.549206 ter1-prev_ter1=249660.952381, 670755.758730) 
+--> Evicting stream 3(4) of kernel 14
+Lanzado stream 4 del kernel 2
+(ter0=3232763.952569 ter1=4244038.830040) (prev_ter0=3335627.590551 prev_ter1=4491538.141732) 
+(ter0-prev_ter0=102863.637982, 323276.395257 ter1-prev_ter1=247499.311693, 424403.883004) 
+WS Conf(4->3) 0.852907
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 14
+Lanzado stream 4 del kernel 14
+(ter0=2868041.865613 ter1=10809036.395257) (prev_ter0=2774185.322835 prev_ter1=10502273.007874) 
+(ter0-prev_ter0=93856.542778, 286804.186561 ter1-prev_ter1=306763.387383, 1080903.639526) 
+WS Conf(2->3) 1.281747
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 14
+(ter0=2519898.055336 ter1=17357455.683794) (prev_ter0=2344847.118110 prev_ter1=17239580.220472) 
+(ter0-prev_ter0=175050.937226, 251989.805534 ter1-prev_ter1=117875.463322, 1735745.568379) 
+WS Conf(1->2) 1.242220
+--> Evicting stream 1(2) of kernel 2
+Lanzado stream 6 del kernel 14
+(ter0=1664406.349206 ter1=25115891.809524) (prev_ter0=1730982.603175 prev_ter1=25565281.523810) 
+(ter0-prev_ter0=66576.253968, 166440.634921 ter1-prev_ter1=449389.714286, 2511589.180952) 
+WS Conf(0->1) 1.053743
+Configuracion extrema alcanzada VA/NCEDD=(1,7)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-NCEDD, 1-7, 0.753641, 0.901227
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 15
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 15
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 15
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 15
+(ter0=2762914.539683 ter1=17093453.206349) (prev_ter0=2529897.650794 prev_ter1=15445690.920635) 
+(ter0-prev_ter0=233016.888889, 276291.453968 ter1-prev_ter1=1647762.285714, 1709345.320635) 
+--> Evicting stream 3(4) of kernel 15
+Lanzado stream 4 del kernel 2
+(ter0=3299077.059289 ter1=11024553.992095) (prev_ter0=3599835.716535 prev_ter1=11493053.480315) 
+(ter0-prev_ter0=300758.657247, 329907.705929 ter1-prev_ter1=468499.488220, 1102455.399209) 
+WS Conf(4->3) 0.919507
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 15
+Lanzado stream 4 del kernel 15
+(ter0=2596473.904762 ter1=25049315.555556) (prev_ter0=2563185.777778 prev_ter1=22835655.111111) 
+(ter0-prev_ter0=33288.126984, 259647.390476 ter1-prev_ter1=2213660.444444, 2504931.555556) 
+WS Conf(2->3) 1.202596
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 15
+(ter0=2204910.798419 ter1=37118761.486166) (prev_ter0=2410899.149606 prev_ter1=36460721.385827) 
+(ter0-prev_ter0=205988.351187, 220491.079842 ter1-prev_ter1=658040.100339, 3711876.148617) 
+WS Conf(1->2) 1.165511
+--> Evicting stream 1(2) of kernel 2
+Lanzado stream 6 del kernel 15
+(ter0=1359418.687747 ter1=50464274.213439) (prev_ter0=1288014.614173 prev_ter1=51289402.456693) 
+(ter0-prev_ter0=71404.073574, 135941.868775 ter1-prev_ter1=825128.243254, 5046427.421344) 
+WS Conf(0->1) 0.988038
+Best configuration achieved VA/HCEDD=(2,6)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-HCEDD, 2-6, 0.750065, 0.917161
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 16
+(ter0=2413389.206349 ter1=8122302.984127) (prev_ter0=1963999.492063 prev_ter1=8122302.984127) 
+(ter0-prev_ter0=449389.714286, 241338.920635 ter1-prev_ter1=0.000000, 812230.298413) 
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 2
+(ter0=3133294.292490 ter1=5371361.644269) (prev_ter0=3533783.685039 prev_ter1=5713500.724409) 
+(ter0-prev_ter0=400489.392549, 313329.429249 ter1-prev_ter1=342139.080141, 537136.164427) 
+WS Conf(4->3) 0.979803
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+(ter0=2304380.458498 ter1=12068985.422925) (prev_ter0=2278795.086614 prev_ter1=11856339.653543) 
+(ter0-prev_ter0=25585.371884, 230438.045850 ter1-prev_ter1=212645.769382, 1206898.542292) 
+WS Conf(2->3) 1.220369
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 16
+(ter0=1840188.711462 ter1=17141938.086957) (prev_ter0=1882482.897638 prev_ter1=17767996.472441) 
+(ter0-prev_ter0=42294.186175, 184018.871146 ter1-prev_ter1=626058.385484, 1714193.808696) 
+WS Conf(1->2) 1.109445
+--> Evicting stream 1(2) of kernel 2
+Lanzado stream 6 del kernel 16
+(ter0=1210214.197628 ter1=23292478.735178) (prev_ter0=1288014.614173 prev_ter1=23085185.007874) 
+(ter0-prev_ter0=77800.416545, 121021.419763 ter1-prev_ter1=207293.727304, 2329247.873518) 
+WS Conf(0->1) 1.008229
+Configuracion extrema alcanzada VA/HST256=(1,7)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-HST256, 1-7, 0.767469, 0.871004
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 1
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 1
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 1
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 1
+(ter0=981999.746032 ter1=1264948.825397) (prev_ter0=865491.301587 prev_ter1=1464677.587302) 
+(ter0-prev_ter0=116508.444444, 98199.974603 ter1-prev_ter1=199728.761905, 126494.882540) 
+--> Evicting stream 3(4) of kernel 1
+Lanzado stream 4 del kernel 0
+(ter0=996666.297030 ter1=1395332.815842) (prev_ter0=1073476.221636 prev_ter1=1604680.949868) 
+(ter0-prev_ter0=76809.924606, 99666.629703 ter1-prev_ter1=209348.134026, 139533.281584) 
+WS Conf(4->3) 1.059005
+--> Evicting stream 2(3) of kernel 1
+Lanzado stream 5 del kernel 0
+(ter0=1291579.326984 ter1=1018616.685714) (prev_ter0=1339847.111111 prev_ter1=915423.492063) 
+(ter0-prev_ter0=48267.784127, 129157.932698 ter1-prev_ter1=103193.193651, 101861.668571) 
+WS Conf(5->4) 1.012958
+--> Evicting stream 1(2) of kernel 1
+Lanzado stream 6 del kernel 0
+(ter0=1076316.105820 ter1=554802.116402) (prev_ter0=1181728.507937 prev_ter1=499321.904762) 
+(ter0-prev_ter0=105412.402116, 107631.610582 ter1-prev_ter1=55480.211640, 55480.211640) 
+WS Conf(6->5) 0.688998
+Best configuration achieved MM/BS=(6,2)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-BS, 6-2, 0.907660, 1.066580
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 6
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 6
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 6
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 6
+(ter0=932067.555556 ter1=37049685.333333) (prev_ter0=948711.619048 prev_ter1=36284058.412698) 
+(ter0-prev_ter0=16644.063492, 93206.755556 ter1-prev_ter1=765626.920635, 3704968.533333) 
+--> Evicting stream 3(4) of kernel 6
+Lanzado stream 4 del kernel 0
+(ter0=1018142.395778 ter1=27744380.284960) (prev_ter0=928383.494071 prev_ter1=27470204.458498) 
+(ter0-prev_ter0=89758.901707, 101814.239578 ter1-prev_ter1=274175.826462, 2774438.028496) 
+WS Conf(4->3) 0.920595
+--> Evicting stream 4(5) of kernel 0
+--> Evicting stream 3(5) of kernel 0
+Lanzado stream 3 del kernel 6
+Lanzado stream 4 del kernel 6
+(ter0=918541.509235 ter1=47974427.018470) (prev_ter0=1044431.430830 prev_ter1=46982836.110672) 
+(ter0-prev_ter0=125889.921595, 91854.150923 ter1-prev_ter1=991590.907798, 4797442.701847) 
+WS Conf(2->3) 1.140178
+--> Evicting stream 2(3) of kernel 0
+Lanzado stream 5 del kernel 6
+(ter0=620557.527081 ter1=62249676.935271) (prev_ter0=684648.671949 prev_ter1=61950734.199683) 
+(ter0-prev_ter0=64091.144869, 62055.752708 ter1-prev_ter1=298942.735588, 6224967.693527) 
+WS Conf(1->2) 0.986575
+Best configuration achieved MM/Reduction=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-Reduction, 3-5, 0.961542, 1.005842
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 7
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 7
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 7
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 7
+(ter0=1074730.956916 ter1=527854.585034) (prev_ter0=948711.619048 prev_ter1=615830.349206) 
+(ter0-prev_ter0=126019.337868, 107473.095692 ter1-prev_ter1=87975.764172, 52785.458503) 
+--> Evicting stream 3(4) of kernel 7
+Lanzado stream 4 del kernel 0
+(ter0=1154471.794059 ter1=24916.657426) (prev_ter0=1283744.759894 prev_ter1=22133.530343) 
+(ter0-prev_ter0=129272.965835, 115447.179406 ter1-prev_ter1=2783.127083, 2491.665743) 
+WS Conf(4->3) 0.560700
+--> Evicting stream 4(5) of kernel 0
+--> Evicting stream 3(5) of kernel 0
+Lanzado stream 3 del kernel 7
+Lanzado stream 4 del kernel 7
+(ter0=890707.980983 ter1=199412.234548) (prev_ter0=755805.275248 prev_ter1=232555.469307) 
+(ter0-prev_ter0=134902.705735, 89070.798098 ter1-prev_ter1=33143.234759, 19941.223455) 
+WS Conf(2->3) 0.603276
+Best configuration achieved MM/PF=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-PF, 4-4, 1.030922, 1.096786
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 12
+(ter0=876587.343915 ter1=2474417.439153) (prev_ter0=798915.047619 prev_ter1=2413389.206349) 
+(ter0-prev_ter0=77672.296296, 87658.734392 ter1-prev_ter1=61028.232804, 247441.743915) 
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 4 del kernel 0
+(ter0=1889923.541502 ter1=1923080.094862) (prev_ter0=2146691.023622 prev_ter1=1948534.929134) 
+(ter0-prev_ter0=256767.482120, 188992.354150 ter1-prev_ter1=25454.834272, 192308.009486) 
+WS Conf(4->3) 1.466593
+--> Evicting stream 2(3) of kernel 12
+Lanzado stream 5 del kernel 0
+(ter0=1364813.206349 ter1=1198372.571429) (prev_ter0=1220564.656085 prev_ter1=1142892.359788) 
+(ter0-prev_ter0=144248.550265, 136481.320635 ter1-prev_ter1=55480.211640, 119837.257143) 
+WS Conf(5->4) 0.672653
+Best configuration achieved MM/GCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-GCEDD, 5-3, 0.641108, 0.709452
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 13
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 13
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 13
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 13
+(ter0=1123474.285714 ter1=25498705.269841) (prev_ter0=932067.555556 prev_ter1=25598569.650794) 
+(ter0-prev_ter0=191406.730159, 112347.428571 ter1-prev_ter1=99864.380952, 2549870.526984) 
+--> Evicting stream 3(4) of kernel 13
+Lanzado stream 4 del kernel 0
+(ter0=1856766.988142 ter1=18849500.584980) (prev_ter0=1915508.913386 prev_ter1=18890881.007874) 
+(ter0-prev_ter0=58741.925244, 185676.698814 ter1-prev_ter1=41380.422894, 1884950.058498) 
+WS Conf(4->3) 1.195967
+--> Evicting stream 2(3) of kernel 13
+Lanzado stream 5 del kernel 0
+(ter0=1823610.434783 ter1=12433707.509881) (prev_ter0=2014586.960630 prev_ter1=12153573.795276) 
+(ter0-prev_ter0=190976.525847, 182361.043478 ter1-prev_ter1=280133.714606, 1243370.750988) 
+WS Conf(5->4) 0.820887
+Best configuration achieved MM/SCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-SCEDD, 5-3, 0.529051, 0.638838
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 14
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 14
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 14
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 14
+(ter0=732338.793651 ter1=15811860.317460) (prev_ter0=832203.174603 prev_ter1=15445690.920635) 
+(ter0-prev_ter0=99864.380952, 73233.879365 ter1-prev_ter1=366169.396825, 1581186.031746) 
+--> Evicting stream 3(4) of kernel 14
+Lanzado stream 4 del kernel 0
+(ter0=1128810.047493 ter1=11531569.308707) (prev_ter0=1044431.430830 prev_ter1=11455589.185771) 
+(ter0-prev_ter0=84378.616663, 112881.004749 ter1-prev_ter1=75980.122936, 1153156.930871) 
+WS Conf(4->3) 1.135338
+--> Evicting stream 2(3) of kernel 14
+Lanzado stream 5 del kernel 0
+(ter0=1781749.192612 ter1=7104863.240106) (prev_ter0=1425731.794466 prev_ter1=7228128.632411) 
+(ter0-prev_ter0=356017.398146, 178174.919261 ter1-prev_ter1=123265.392306, 710486.324011) 
+WS Conf(5->4) 1.097277
+--> Evicting stream 1(2) of kernel 14
+Lanzado stream 6 del kernel 0
+(ter0=1823610.434783 ter1=3249342.229249) (prev_ter0=1948534.929134 prev_ter1=3170497.511811) 
+(ter0-prev_ter0=124924.494351, 182361.043478 ter1-prev_ter1=78844.717438, 324934.222925) 
+WS Conf(6->5) 0.740418
+Best configuration achieved MM/NCEDD=(6,2)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-NCEDD, 6-2, 0.659466, 0.746281
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 15
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 15
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 15
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 15
+(ter0=972013.307937 ter1=31417334.247619) (prev_ter0=1065220.063492 prev_ter1=31715262.984127) 
+(ter0-prev_ter0=93206.755556, 97201.330794 ter1-prev_ter1=297928.736508, 3141733.424762) 
+--> Evicting stream 3(4) of kernel 15
+Lanzado stream 4 del kernel 0
+(ter0=1198372.571429 ter1=23559671.873016) (prev_ter0=1253852.783069 prev_ter1=23590185.989418) 
+(ter0-prev_ter0=55480.211640, 119837.257143 ter1-prev_ter1=30514.116402, 2355967.187302) 
+WS Conf(4->3) 0.991385
+--> Evicting stream 4(5) of kernel 0
+--> Evicting stream 3(5) of kernel 0
+Lanzado stream 3 del kernel 15
+Lanzado stream 4 del kernel 15
+(ter0=705971.960396 ter1=40190568.427723) (prev_ter0=807873.857520 prev_ter1=39851421.382586) 
+(ter0-prev_ter0=101901.897124, 70597.196040 ter1-prev_ter1=339147.045137, 4019056.842772) 
+WS Conf(2->3) 1.002773
+--> Evicting stream 2(3) of kernel 0
+Lanzado stream 5 del kernel 15
+(ter0=553338.258575 ter1=48217895.852243) (prev_ter0=613396.237154 prev_ter1=48557772.395257) 
+(ter0-prev_ter0=60057.978579, 55333.825858 ter1-prev_ter1=339876.543014, 4821789.585224) 
+WS Conf(1->2) 0.991764
+Best configuration achieved MM/HCEDD=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-HCEDD, 3-5, 1.002789, 1.113498
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 16
+(ter0=925409.930159 ter1=17196646.400000) (prev_ter0=932067.555556 prev_ter1=17118419.301587) 
+(ter0-prev_ter0=6657.625397, 92540.993016 ter1-prev_ter1=78227.098413, 1719664.640000) 
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 0
+(ter0=1118481.066667 ter1=12909135.644444) (prev_ter0=990321.777778 prev_ter1=12799284.825397) 
+(ter0-prev_ter0=128159.288889, 111848.106667 ter1-prev_ter1=109850.819048, 1290913.564444) 
+WS Conf(4->3) 0.979655
+--> Evicting stream 4(5) of kernel 0
+--> Evicting stream 3(5) of kernel 0
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+(ter0=909875.470899 ter1=21160152.719577) (prev_ter0=948711.619048 prev_ter1=20988164.063492) 
+(ter0-prev_ter0=38836.148148, 90987.547090 ter1-prev_ter1=171988.656085, 2116015.271958) 
+WS Conf(2->3) 1.106847
+--> Evicting stream 2(3) of kernel 0
+Lanzado stream 5 del kernel 16
+(ter0=382813.460317 ter1=26108987.597884) (prev_ter0=379484.647619 prev_ter1=26051288.177778) 
+(ter0-prev_ter0=3328.812698, 38281.346032 ter1-prev_ter1=57699.420106, 2610898.759788) 
+WS Conf(1->2) 0.827303
+Best configuration achieved MM/HST256=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-HST256, 3-5, 1.103401, 1.129677
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 6
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 6
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 6
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 6
+(ter0=1431389.460317 ter1=30059178.666667) (prev_ter0=1398101.333333 prev_ter1=30891381.841270) 
+(ter0-prev_ter0=33288.126984, 143138.946032 ter1-prev_ter1=832203.174603, 3005917.866667) 
+--> Evicting stream 3(4) of kernel 6
+Lanzado stream 4 del kernel 1
+(ter0=2135885.678100 ter1=21580192.084433) (prev_ter0=2055706.308300 prev_ter1=22496721.454545) 
+(ter0-prev_ter0=80179.369800, 213588.567810 ter1-prev_ter1=916529.370113, 2158019.208443) 
+WS Conf(4->3) 1.105050
+--> Evicting stream 2(3) of kernel 6
+Lanzado stream 5 del kernel 1
+(ter0=2341264.931217 ter1=13426211.216931) (prev_ter0=2463321.396825 prev_ter1=14014301.460317) 
+(ter0-prev_ter0=122056.465608, 234126.493122 ter1-prev_ter1=588090.243386, 1342621.121693) 
+WS Conf(5->4) 0.859155
+Best configuration achieved BS/Reduction=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-Reduction, 5-3, 0.545979, 0.582288
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 7
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 7
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 7
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 7
+(ter0=2068619.319728 ter1=527854.585034) (prev_ter0=2030575.746032 prev_ter1=615830.349206) 
+(ter0-prev_ter0=38043.573696, 206861.931973 ter1-prev_ter1=87975.764172, 52785.458503) 
+--> Evicting stream 3(4) of kernel 7
+Lanzado stream 4 del kernel 1
+(ter0=2227358.266843 ter1=5540.692206) (prev_ter0=2273299.473851 prev_ter1=6647.074485) 
+(ter0-prev_ter0=45941.207008, 222735.826684 ter1-prev_ter1=1106.382279, 554.069221) 
+WS Conf(4->3) 0.543617
+--> Evicting stream 4(5) of kernel 1
+--> Evicting stream 3(5) of kernel 1
+Lanzado stream 3 del kernel 7
+Lanzado stream 4 del kernel 7
+(ter0=1673289.046235 ter1=232709.072655) (prev_ter0=1628533.248811 prev_ter1=279177.128368) 
+(ter0-prev_ter0=44755.797424, 167328.904624 ter1-prev_ter1=46468.055712, 23270.907266) 
+WS Conf(2->3) 0.624875
+Best configuration achieved BS/PF=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-PF, 4-4, 1.106262, 1.305503
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 12
+(ter0=1880779.174603 ter1=2030575.746032) (prev_ter0=1631118.222222 prev_ter1=2030575.746032) 
+(ter0-prev_ter0=249660.952381, 188077.917460 ter1-prev_ter1=0.000000, 203057.574603) 
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 4 del kernel 1
+(ter0=2352360.973545 ter1=1353717.164021) (prev_ter0=2197016.380952 prev_ter1=1414745.396825) 
+(ter0-prev_ter0=155344.592593, 235236.097354 ter1-prev_ter1=61028.232804, 135371.716402) 
+WS Conf(4->3) 0.958702
+--> Evicting stream 4(5) of kernel 1
+--> Evicting stream 3(5) of kernel 1
+Lanzado stream 3 del kernel 12
+Lanzado stream 4 del kernel 12
+(ter0=1394412.411609 ter1=2744557.762533) (prev_ter0=1442310.071146 prev_ter1=3066981.185771) 
+(ter0-prev_ter0=47897.659537, 139441.241161 ter1-prev_ter1=322423.423238, 274455.776253) 
+WS Conf(2->3) 1.046509
+--> Evicting stream 2(3) of kernel 1
+Lanzado stream 5 del kernel 12
+(ter0=1259949.027668 ter1=4127990.893281) (prev_ter0=1288014.614173 prev_ter1=3500757.669291) 
+(ter0-prev_ter0=28065.586505, 125994.902767 ter1-prev_ter1=627233.223989, 412799.089328) 
+WS Conf(1->2) 1.203817
+--> Evicting stream 1(2) of kernel 1
+Lanzado stream 6 del kernel 12
+(ter0=621378.370370 ter1=4904450.708995) (prev_ter0=599186.285714 prev_ter1=4810134.349206) 
+(ter0-prev_ter0=22192.084656, 62137.837037 ter1-prev_ter1=94316.359788, 490445.070899) 
+WS Conf(0->1) 0.840637
+Best configuration achieved BS/GCEDD=(2,6)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-GCEDD, 2-6, 0.903368, 0.987157
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 13
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 13
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 13
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 13
+(ter0=1797558.857143 ter1=22236468.825397) (prev_ter0=1564541.968254 prev_ter1=22203180.698413) 
+(ter0-prev_ter0=233016.888889, 179755.885714 ter1-prev_ter1=33288.126984, 2223646.882540) 
+--> Evicting stream 3(4) of kernel 13
+Lanzado stream 4 del kernel 1
+(ter0=2268686.860158 ter1=15028667.102902) (prev_ter0=2138597.691700 prev_ter1=15086231.778656) 
+(ter0-prev_ter0=130089.168459, 226868.686016 ter1-prev_ter1=57564.675754, 1502866.710290) 
+WS Conf(4->3) 0.968975
+--> Evicting stream 4(5) of kernel 1
+--> Evicting stream 3(5) of kernel 1
+Lanzado stream 3 del kernel 13
+Lanzado stream 4 del kernel 13
+(ter0=1531253.841270 ter1=28905190.264550) (prev_ter0=1348169.142857 prev_ter1=28894094.222222) 
+(ter0-prev_ter0=183084.698413, 153125.384127 ter1-prev_ter1=11096.042328, 2890519.026455) 
+WS Conf(2->3) 1.075876
+--> Evicting stream 2(3) of kernel 1
+Lanzado stream 5 del kernel 13
+(ter0=1142892.359788 ter1=36339538.624339) (prev_ter0=965355.682540 prev_ter1=36200838.095238) 
+(ter0-prev_ter0=177536.677249, 114289.235979 ter1-prev_ter1=138700.529101, 3633953.862434) 
+WS Conf(1->2) 1.001787
+--> Evicting stream 1(2) of kernel 1
+Lanzado stream 6 del kernel 13
+(ter0=532610.031746 ter1=44839107.047619) (prev_ter0=449389.714286 prev_ter1=44889039.238095) 
+(ter0-prev_ter0=83220.317460, 53261.003175 ter1-prev_ter1=49932.190476, 4483910.704762) 
+WS Conf(0->1) 0.849956
+Best configuration achieved BS/SCEDD=(2,6)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-SCEDD, 2-6, 0.952244, 1.034057
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 14
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 14
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 14
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 14
+(ter0=1864135.111111 ter1=12865861.079365) (prev_ter0=1664406.349206 prev_ter1=12649488.253968) 
+(ter0-prev_ter0=199728.761905, 186413.511111 ter1-prev_ter1=216372.825397, 1286586.107937) 
+--> Evicting stream 3(4) of kernel 14
+Lanzado stream 4 del kernel 1
+(ter0=2171754.245059 ter1=9035160.790514) (prev_ter0=2476951.181102 prev_ter1=8983076.283465) 
+(ter0-prev_ter0=305196.936043, 217175.424506 ter1-prev_ter1=52084.507049, 903516.079051) 
+WS Conf(4->3) 0.933639
+--> Evicting stream 4(5) of kernel 1
+--> Evicting stream 3(5) of kernel 1
+Lanzado stream 3 del kernel 14
+Lanzado stream 4 del kernel 14
+(ter0=1475466.624506 ter1=18799765.754941) (prev_ter0=1188936.566929 prev_ter1=19221141.165354) 
+(ter0-prev_ter0=286530.057577, 147546.662451 ter1-prev_ter1=421375.410414, 1879976.575494) 
+WS Conf(2->3) 1.126358
+--> Evicting stream 2(3) of kernel 1
+Lanzado stream 5 del kernel 14
+(ter0=1243370.750988 ter1=25447654.703557) (prev_ter0=1387092.661417 prev_ter1=25595162.204724) 
+(ter0-prev_ter0=143721.910429, 124337.075099 ter1-prev_ter1=147507.501167, 2544765.470356) 
+WS Conf(1->2) 1.098156
+--> Evicting stream 1(2) of kernel 1
+Lanzado stream 6 del kernel 14
+(ter0=828913.833992 ter1=33222866.466403) (prev_ter0=825650.393701 prev_ter1=32629703.559055) 
+(ter0-prev_ter0=3263.440291, 82891.383399 ter1-prev_ter1=593162.907348, 3322286.646640) 
+WS Conf(0->1) 0.986102
+Best configuration achieved BS/NCEDD=(2,6)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-NCEDD, 2-6, 0.802279, 0.879788
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 15
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 15
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 15
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 15
+(ter0=1564541.968254 ter1=27163111.619048) (prev_ter0=1448033.523810 prev_ter1=28261619.809524) 
+(ter0-prev_ter0=116508.444444, 156454.196825 ter1-prev_ter1=1098508.190476, 2716311.161905) 
+--> Evicting stream 3(4) of kernel 15
+Lanzado stream 4 del kernel 1
+(ter0=2080507.936508 ter1=19739859.301587) (prev_ter0=2430033.269841 prev_ter1=20205893.079365) 
+(ter0-prev_ter0=349525.333333, 208050.793651 ter1-prev_ter1=466033.777778, 1973985.930159) 
+WS Conf(4->3) 1.028251
+--> Evicting stream 2(3) of kernel 15
+Lanzado stream 5 del kernel 1
+(ter0=2354115.288538 ter1=12019250.592885) (prev_ter0=2245769.070866 prev_ter1=11889365.669291) 
+(ter0-prev_ter0=108346.217671, 235411.528854 ter1-prev_ter1=129884.923594, 1201925.059289) 
+WS Conf(5->4) 0.870196
+Best configuration achieved BS/HCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-HCEDD, 5-3, 0.513554, 0.598824
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 16
+(ter0=1431389.460317 ter1=13331894.857143) (prev_ter0=1564541.968254 prev_ter1=12549623.873016) 
+(ter0-prev_ter0=133152.507937, 143138.946032 ter1-prev_ter1=782270.984127, 1333189.485714) 
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 1
+(ter0=2047219.809524 ter1=10136234.666667) (prev_ter0=2230304.507937 prev_ter1=9786709.333333) 
+(ter0-prev_ter0=183084.698413, 204721.980952 ter1-prev_ter1=349525.333333, 1013623.466667) 
+WS Conf(4->3) 1.095266
+--> Evicting stream 2(3) of kernel 16
+Lanzado stream 5 del kernel 1
+(ter0=2263592.634921 ter1=6191591.619048) (prev_ter0=2330168.888889 prev_ter1=6091727.238095) 
+(ter0-prev_ter0=66576.253968, 226359.263492 ter1-prev_ter1=99864.380952, 619159.161905) 
+WS Conf(5->4) 0.858264
+Best configuration achieved BS/HST256=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-HST256, 5-3, 0.477791, 0.538329
+Lanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 7
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 7
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 7
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 7
+(ter0=52602637.996473 ter1=543706.074074) (prev_ter0=52536986.412698 prev_ter1=611669.333333) 
+(ter0-prev_ter0=65651.583774, 5260263.799647 ter1-prev_ter1=67963.259259, 54370.607407) 
+--> Evicting stream 3(4) of kernel 7
+Lanzado stream 4 del kernel 6
+(ter0=64420329.386183 ter1=394255.075878) (prev_ter0=64421628.280053 prev_ter1=404470.531044) 
+(ter0-prev_ter0=1298.893869, 6442032.938618 ter1-prev_ter1=10215.455166, 39425.507588) 
+WS Conf(4->3) 0.974893
+--> Evicting stream 4(5) of kernel 6
+--> Evicting stream 3(5) of kernel 6
+Lanzado stream 3 del kernel 7
+Lanzado stream 4 del kernel 7
+(ter0=40014879.112285 ter1=598394.758256) (prev_ter0=39988800.101426 prev_ter1=717884.044374) 
+(ter0-prev_ter0=26079.010859, 4001487.911229 ter1-prev_ter1=119489.286118, 59839.475826) 
+WS Conf(2->3) 0.930643
+Best configuration achieved Reduction/PF=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, Reduction-PF, 4-4, 1.099348, 1.221570
+Lanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 12
+(ter0=48767106.031746 ter1=2929355.174603) (prev_ter0=47369004.698413 prev_ter1=3162372.063492) 
+(ter0-prev_ter0=1398101.333333, 4876710.603175 ter1-prev_ter1=233016.888889, 292935.517460) 
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 4 del kernel 6
+(ter0=59084978.086957 ter1=2354115.288538) (prev_ter0=57861579.590551 prev_ter1=2344847.118110) 
+(ter0-prev_ter0=1223398.496405, 5908497.808696 ter1-prev_ter1=9268.170427, 235411.528854) 
+WS Conf(4->3) 1.007602
+--> Evicting stream 2(3) of kernel 12
+Lanzado stream 5 del kernel 6
+(ter0=69429822.735178 ter1=1293105.581028) (prev_ter0=69618841.196850 prev_ter1=1221962.582677) 
+(ter0-prev_ter0=189018.461673, 6942982.273518 ter1-prev_ter1=71142.998351, 129310.558103) 
+WS Conf(5->4) 0.862190
+Best configuration achieved Reduction/GCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, Reduction-GCEDD, 5-3, 0.523329, 0.547617
+Lanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 13
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 13
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 13
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 13
+(ter0=47968190.984127 ter1=29942670.222222) (prev_ter0=49632597.333333 prev_ter1=29792873.650794) 
+(ter0-prev_ter0=1664406.349206, 4796819.098413 ter1-prev_ter1=149796.571429, 2994267.022222) 
+--> Evicting stream 3(4) of kernel 13
+Lanzado stream 4 del kernel 6
+(ter0=59002086.703557 ter1=23375370.118577) (prev_ter0=57465267.401575 prev_ter1=23415445.165354) 
+(ter0-prev_ter0=1536819.301983, 5900208.670356 ter1-prev_ter1=40075.046777, 2337537.011858) 
+WS Conf(4->3) 1.005348
+--> Evicting stream 2(3) of kernel 13
+Lanzado stream 5 del kernel 6
+(ter0=70010062.418972 ter1=15202279.715415) (prev_ter0=68661086.740157 prev_ter1=14927759.118110) 
+(ter0-prev_ter0=1348975.678815, 7001006.241897 ter1-prev_ter1=274520.597305, 1520227.971542) 
+WS Conf(5->4) 0.918462
+Best configuration achieved Reduction/SCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, Reduction-SCEDD, 5-3, 0.492573, 0.530739
+Lanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 14
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 14
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 14
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 14
+(ter0=51596596.825397 ter1=19423622.095238) (prev_ter0=52195783.111111 prev_ter1=19406978.031746) 
+(ter0-prev_ter0=599186.285714, 5159659.682540 ter1-prev_ter1=16644.063492, 1942362.209524) 
+--> Evicting stream 3(4) of kernel 14
+Lanzado stream 4 del kernel 6
+(ter0=61067068.952381 ter1=14030945.523810) (prev_ter0=59985204.825397 prev_ter1=14180742.095238) 
+(ter0-prev_ter0=1081864.126984, 6106706.895238 ter1-prev_ter1=149796.571429, 1403094.552381) 
+WS Conf(4->3) 0.952957
+--> Evicting stream 4(5) of kernel 6
+--> Evicting stream 3(5) of kernel 6
+Lanzado stream 3 del kernel 14
+Lanzado stream 4 del kernel 14
+(ter0=39456298.498024 ter1=24602162.592885) (prev_ter0=39003724.598425 prev_ter1=24042939.464567) 
+(ter0-prev_ter0=452573.899599, 3945629.849802 ter1-prev_ter1=559223.128318, 2460216.259289) 
+WS Conf(2->3) 1.015659
+--> Evicting stream 2(3) of kernel 6
+Lanzado stream 5 del kernel 14
+(ter0=27096535.365079 ter1=30109110.857143) (prev_ter0=27562569.142857 prev_ter1=30325483.682540) 
+(ter0-prev_ter0=466033.777778, 2709653.536508 ter1-prev_ter1=216372.825397, 3010911.085714) 
+WS Conf(1->2) 0.955294
+Best configuration achieved Reduction/NCEDD=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, Reduction-NCEDD, 3-5, 0.577211, 0.603905
+Lanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 15
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 15
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 15
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 15
+(ter0=44639378.285714 ter1=36700160.000000) (prev_ter0=45138700.190476 prev_ter1=36983109.079365) 
+(ter0-prev_ter0=499321.904762, 4463937.828571 ter1-prev_ter1=282949.079365, 3670016.000000) 
+--> Evicting stream 3(4) of kernel 15
+Lanzado stream 4 del kernel 6
+(ter0=55537226.877470 ter1=28895936.252964) (prev_ter0=54889238.173228 prev_ter1=28468425.574803) 
+(ter0-prev_ter0=647988.704242, 5553722.687747 ter1-prev_ter1=427510.678161, 2889593.625296) 
+WS Conf(4->3) 1.015741
+--> Evicting stream 2(3) of kernel 15
+Lanzado stream 5 del kernel 6
+(ter0=66727563.636364 ter1=18932391.968379) (prev_ter0=65919927.433071 prev_ter1=18758776.944882) 
+(ter0-prev_ter0=807636.203293, 6672756.363636 ter1-prev_ter1=173615.023498, 1893239.196838) 
+WS Conf(5->4) 0.928342
+Best configuration achieved Reduction/HCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, Reduction-HCEDD, 5-3, 0.468731, 0.497082
+Lanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 16
+(ter0=40994328.380952 ter1=20305757.460317) (prev_ter0=41876463.746032 prev_ter1=20006164.317460) 
+(ter0-prev_ter0=882135.365079, 4099432.838095 ter1-prev_ter1=299593.142857, 2030575.746032) 
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 6
+(ter0=51972897.391304 ter1=15517266.972332) (prev_ter0=51487558.551181 prev_ter1=15456175.370079) 
+(ter0-prev_ter0=485338.840123, 5197289.739130 ter1-prev_ter1=61091.602253, 1551726.697233) 
+WS Conf(4->3) 1.015994
+--> Evicting stream 2(3) of kernel 16
+Lanzado stream 5 del kernel 6
+(ter0=64655279.051383 ter1=10676410.181818) (prev_ter0=64037444.535433 prev_ter1=10832533.165354) 
+(ter0-prev_ter0=617834.515950, 6465527.905138 ter1-prev_ter1=156122.983536, 1067641.018182) 
+WS Conf(5->4) 0.966027
+Best configuration achieved Reduction/HST256=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, Reduction-HST256, 5-3, 0.486135, 0.508775
+Lanzado stream 0 del kernel 7
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 7
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 7
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 7
+Lanzado stream 3 del kernel 12
+(ter0=547404.754850 ter1=3428677.079365) (prev_ter0=615830.349206 prev_ter1=3428677.079365) 
+(ter0-prev_ter0=68425.594356, 54740.475485 ter1-prev_ter1=0.000000, 342867.707937) 
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 4 del kernel 7
+(ter0=1154471.794059 ter1=2574721.267327) (prev_ter0=929608.274406 prev_ter1=2512155.693931) 
+(ter0-prev_ter0=224863.519653, 115447.179406 ter1-prev_ter1=62565.573395, 257472.126733) 
+WS Conf(4->3) 1.429964
+--> Evicting stream 2(3) of kernel 12
+Lanzado stream 5 del kernel 7
+(ter0=898779.428571 ter1=1697694.476190) (prev_ter0=898779.428571 prev_ter1=1697694.476190) 
+(ter0-prev_ter0=0.000000, 89877.942857 ter1-prev_ter1=0.000000, 169769.447619) 
+WS Conf(5->4) 0.718945
+Best configuration achieved PF/GCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, PF-GCEDD, 5-3, 0.766277, 0.849778
+Lanzado stream 0 del kernel 7
+Lanzado stream 0 del kernel 13
+Lanzado stream 1 del kernel 7
+Lanzado stream 1 del kernel 13
+Lanzado stream 2 del kernel 7
+Lanzado stream 2 del kernel 13
+Lanzado stream 3 del kernel 7
+Lanzado stream 3 del kernel 13
+(ter0=494566.458050 ter1=29954558.839002) (prev_ter0=471581.798942 prev_ter1=30075822.730159) 
+(ter0-prev_ter0=22984.659108, 49456.645805 ter1-prev_ter1=121263.891156, 2995455.883900) 
+--> Evicting stream 3(4) of kernel 13
+Lanzado stream 4 del kernel 7
+(ter0=310278.763540 ter1=23509157.030383) (prev_ter0=279177.128368 prev_ter1=23377760.963550) 
+(ter0-prev_ter0=31101.635173, 31027.876354 ter1-prev_ter1=131396.066833, 2350915.703038) 
+WS Conf(4->3) 0.706101
+--> Evicting stream 4(5) of kernel 7
+--> Evicting stream 3(5) of kernel 7
+Lanzado stream 3 del kernel 13
+Lanzado stream 4 del kernel 13
+(ter0=314387.865961 ter1=36528171.343915) (prev_ter0=349525.333333 prev_ter1=36567007.492063) 
+(ter0-prev_ter0=35137.467372, 31438.786596 ter1-prev_ter1=38836.148148, 3652817.134392) 
+WS Conf(2->3) 0.927568
+Best configuration achieved PF/SCEDD=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, PF-SCEDD, 4-4, 1.134872, 1.146161
+Lanzado stream 0 del kernel 7
+Lanzado stream 0 del kernel 14
+Lanzado stream 1 del kernel 7
+Lanzado stream 1 del kernel 14
+Lanzado stream 2 del kernel 7
+Lanzado stream 2 del kernel 14
+Lanzado stream 3 del kernel 7
+Lanzado stream 3 del kernel 14
+(ter0=183084.698413 ter1=20322401.523810) (prev_ter0=206386.387302 prev_ter1=20478855.720635) 
+(ter0-prev_ter0=23301.688889, 18308.469841 ter1-prev_ter1=156454.196825, 2032240.152381) 
+--> Evicting stream 3(4) of kernel 14
+Lanzado stream 4 del kernel 7
+(ter0=690044.067393 ter1=15609129.355798) (prev_ter0=660258.500566 prev_ter1=15627701.200453) 
+(ter0-prev_ter0=29785.566827, 69004.406739 ter1-prev_ter1=18571.844655, 1560912.935580) 
+WS Conf(4->3) 2.268532
+--> Evicting stream 2(3) of kernel 14
+Lanzado stream 5 del kernel 7
+(ter0=794159.600907 ter1=10438205.532880) (prev_ter0=920971.513228 prev_ter1=10535692.190476) 
+(ter0-prev_ter0=126811.912320, 79415.960091 ter1-prev_ter1=97486.657596, 1043820.553288) 
+WS Conf(5->4) 0.909803
+Best configuration achieved PF/NCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, PF-NCEDD, 5-3, 0.919104, 0.999710
+Lanzado stream 0 del kernel 7
+Lanzado stream 0 del kernel 15
+Lanzado stream 1 del kernel 7
+Lanzado stream 1 del kernel 15
+Lanzado stream 2 del kernel 7
+Lanzado stream 2 del kernel 15
+Lanzado stream 3 del kernel 7
+Lanzado stream 3 del kernel 15
+(ter0=504077.351474 ter1=37953220.208617) (prev_ter0=588090.243386 prev_ter1=38048329.142857) 
+(ter0-prev_ter0=84012.891912, 50407.735147 ter1-prev_ter1=95108.934240, 3795322.020862) 
+--> Evicting stream 3(4) of kernel 15
+Lanzado stream 4 del kernel 7
+(ter0=205005.611625 ter1=29720272.993395) (prev_ter0=245941.755943 prev_ter1=29732364.171157) 
+(ter0-prev_ter0=40936.144318, 20500.561162 ter1-prev_ter1=12091.177762, 2972027.299339) 
+WS Conf(4->3) 0.594886
+--> Evicting stream 4(5) of kernel 7
+--> Evicting stream 3(5) of kernel 7
+Lanzado stream 3 del kernel 15
+Lanzado stream 4 del kernel 15
+(ter0=304738.071334 ter1=45904634.927345) (prev_ter0=365589.096672 prev_ter1=45711931.232964) 
+(ter0-prev_ter0=60851.025338, 30473.807133 ter1-prev_ter1=192703.694381, 4590463.492734) 
+WS Conf(2->3) 0.907026
+Best configuration achieved PF/HCEDD=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, PF-HCEDD, 4-4, 1.091719, 1.065644
+Lanzado stream 0 del kernel 7
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 7
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 7
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 7
+Lanzado stream 3 del kernel 16
+(ter0=1797558.857143 ter1=21321045.333333) (prev_ter0=1664406.349206 prev_ter1=21570706.285714) 
+(ter0-prev_ter0=133152.507937, 179755.885714 ter1-prev_ter1=249660.952381, 2132104.533333) 
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 7
+(ter0=518343.691610 ter1=16762949.659864) (prev_ter0=604734.306878 prev_ter1=16799408.084656) 
+(ter0-prev_ter0=86390.615268, 51834.369161 ter1-prev_ter1=36458.424792, 1676294.965986) 
+WS Conf(4->3) 0.537288
+--> Evicting stream 4(5) of kernel 7
+--> Evicting stream 3(5) of kernel 7
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+(ter0=310415.450220 ter1=25594492.955066) (prev_ter0=349178.925669 prev_ter1=25498375.357780) 
+(ter0-prev_ter0=38763.475449, 31041.545022 ter1-prev_ter1=96117.597286, 2559449.295507) 
+WS Conf(2->3) 0.686560
+Best configuration achieved PF/HST256=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, PF-HST256, 4-4, 1.023054, 1.072894
+Lanzado stream 0 del kernel 12
+Lanzado stream 0 del kernel 13
+Lanzado stream 1 del kernel 12
+Lanzado stream 1 del kernel 13
+Lanzado stream 2 del kernel 12
+Lanzado stream 2 del kernel 13
+Lanzado stream 3 del kernel 12
+Lanzado stream 3 del kernel 13
+(ter0=2912711.111111 ter1=29526568.634921) (prev_ter0=2563185.777778 prev_ter1=29426704.253968) 
+(ter0-prev_ter0=349525.333333, 291271.111111 ter1-prev_ter1=99864.380952, 2952656.863492) 
+--> Evicting stream 3(4) of kernel 13
+Lanzado stream 4 del kernel 12
+(ter0=4161147.446640 ter1=23027226.308300) (prev_ter0=4161277.984252 prev_ter1=23382419.149606) 
+(ter0-prev_ter0=130.537612, 416114.744664 ter1-prev_ter1=355192.841306, 2302722.630830) 
+WS Conf(4->3) 1.104249
+--> Evicting stream 2(3) of kernel 13
+Lanzado stream 5 del kernel 12
+(ter0=5023217.833992 ter1=15169123.162055) (prev_ter0=5052980.409449 prev_ter1=14663550.992126) 
+(ter0-prev_ter0=29762.575457, 502321.783399 ter1-prev_ter1=505572.169929, 1516912.316206) 
+WS Conf(5->4) 0.932959
+Best configuration achieved GCEDD/SCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, GCEDD-SCEDD, 5-3, 0.467300, 0.504431
+Lanzado stream 0 del kernel 12
+Lanzado stream 0 del kernel 14
+Lanzado stream 1 del kernel 12
+Lanzado stream 1 del kernel 14
+Lanzado stream 2 del kernel 12
+Lanzado stream 2 del kernel 14
+Lanzado stream 3 del kernel 12
+Lanzado stream 3 del kernel 14
+(ter0=3478609.269841 ter1=20721859.047619) (prev_ter0=3395388.952381 prev_ter1=20705214.984127) 
+(ter0-prev_ter0=83220.317460, 347860.926984 ter1-prev_ter1=16644.063492, 2072185.904762) 
+--> Evicting stream 3(4) of kernel 14
+Lanzado stream 4 del kernel 12
+(ter0=4344100.571429 ter1=15312538.412698) (prev_ter0=4527185.269841 prev_ter1=15312538.412698) 
+(ter0-prev_ter0=183084.698413, 434410.057143 ter1-prev_ter1=0.000000, 1531253.841270) 
+WS Conf(4->3) 0.993880
+--> Evicting stream 4(5) of kernel 12
+--> Evicting stream 3(5) of kernel 12
+Lanzado stream 3 del kernel 14
+Lanzado stream 4 del kernel 14
+(ter0=2579829.841270 ter1=24932807.111111) (prev_ter0=2596473.904762 prev_ter1=24733078.349206) 
+(ter0-prev_ter0=16644.063492, 257982.984127 ter1-prev_ter1=199728.761905, 2493280.711111) 
+WS Conf(2->3) 0.972420
+Best configuration achieved GCEDD/NCEDD=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, GCEDD-NCEDD, 4-4, 0.520706, 0.559281
+Lanzado stream 0 del kernel 12
+Lanzado stream 0 del kernel 15
+Lanzado stream 1 del kernel 12
+Lanzado stream 1 del kernel 15
+Lanzado stream 2 del kernel 12
+Lanzado stream 2 del kernel 15
+Lanzado stream 3 del kernel 12
+Lanzado stream 3 del kernel 15
+(ter0=2751818.497354 ter1=38325730.201058) (prev_ter0=2596473.904762 prev_ter1=38747379.809524) 
+(ter0-prev_ter0=155344.592593, 275181.849735 ter1-prev_ter1=421649.608466, 3832573.020106) 
+--> Evicting stream 3(4) of kernel 15
+Lanzado stream 4 del kernel 12
+(ter0=4027863.365079 ter1=30175687.111111) (prev_ter0=3961287.111111 prev_ter1=29959314.285714) 
+(ter0-prev_ter0=66576.253968, 402786.336508 ter1-prev_ter1=216372.825397, 3017568.711111) 
+WS Conf(4->3) 1.125529
+--> Evicting stream 2(3) of kernel 15
+Lanzado stream 5 del kernel 12
+(ter0=4459556.426877 ter1=21999373.154150) (prev_ter0=4722720.251969 prev_ter1=22094404.535433) 
+(ter0-prev_ter0=263163.825091, 445955.642688 ter1-prev_ter1=95031.381283, 2199937.315415) 
+WS Conf(5->4) 0.918110
+Best configuration achieved GCEDD/HCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, GCEDD-HCEDD, 5-3, 0.496387, 0.530542
+Lanzado stream 0 del kernel 12
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 12
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 12
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 12
+Lanzado stream 3 del kernel 16
+(ter0=2707434.328042 ter1=20993712.084656) (prev_ter0=2396745.142857 prev_ter1=20954875.936508) 
+(ter0-prev_ter0=310689.185185, 270743.432804 ter1-prev_ter1=38836.148148, 2099371.208466) 
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 12
+(ter0=3647220.869565 ter1=16346180.806324) (prev_ter0=3599835.716535 prev_ter1=16050643.653543) 
+(ter0-prev_ter0=47385.153030, 364722.086957 ter1-prev_ter1=295537.152781, 1634618.080632) 
+WS Conf(4->3) 1.062868
+--> Evicting stream 2(3) of kernel 16
+Lanzado stream 5 del kernel 12
+(ter0=4326930.213439 ter1=11273228.142292) (prev_ter0=4557590.173228 prev_ter1=11228845.354331) 
+(ter0-prev_ter0=230659.959790, 432693.021344 ter1-prev_ter1=44382.787962, 1127322.814229) 
+WS Conf(5->4) 0.938009
+Best configuration achieved GCEDD/HST256=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, GCEDD-HST256, 5-3, 0.498056, 0.528554
+Lanzado stream 0 del kernel 13
+Lanzado stream 0 del kernel 14
+Lanzado stream 1 del kernel 13
+Lanzado stream 1 del kernel 14
+Lanzado stream 2 del kernel 13
+Lanzado stream 2 del kernel 14
+Lanzado stream 3 del kernel 13
+Lanzado stream 3 del kernel 14
+(ter0=30059178.666667 ter1=19706571.174603) (prev_ter0=31423991.873016 prev_ter1=19240537.396825) 
+(ter0-prev_ter0=1364813.206349, 3005917.866667 ter1-prev_ter1=466033.777778, 1970657.117460) 
+--> Evicting stream 3(4) of kernel 14
+Lanzado stream 4 del kernel 13
+(ter0=35195681.391304 ter1=14356787.604743) (prev_ter0=35436914.897638 prev_ter1=14003030.677165) 
+(ter0-prev_ter0=241233.506333, 3519568.139130 ter1-prev_ter1=353756.927578, 1435678.760474) 
+WS Conf(4->3) 0.949704
+--> Evicting stream 4(5) of kernel 13
+--> Evicting stream 3(5) of kernel 13
+Lanzado stream 3 del kernel 14
+Lanzado stream 4 del kernel 14
+(ter0=23541152.885375 ter1=23756670.482213) (prev_ter0=24142017.511811 prev_ter1=24340173.606299) 
+(ter0-prev_ter0=600864.626436, 2354115.288538 ter1-prev_ter1=583503.124086, 2375667.048221) 
+WS Conf(2->3) 0.994340
+Best configuration achieved SCEDD/NCEDD=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, SCEDD-NCEDD, 4-4, 0.486851, 0.471950
+Lanzado stream 0 del kernel 13
+Lanzado stream 0 del kernel 15
+Lanzado stream 1 del kernel 13
+Lanzado stream 1 del kernel 15
+Lanzado stream 2 del kernel 13
+Lanzado stream 2 del kernel 15
+Lanzado stream 3 del kernel 13
+Lanzado stream 3 del kernel 15
+(ter0=24050671.746032 ter1=35585007.746032) (prev_ter0=24999383.365079 prev_ter1=34819380.825397) 
+(ter0-prev_ter0=948711.619048, 2405067.174603 ter1-prev_ter1=765626.920635, 3558500.774603) 
+--> Evicting stream 3(4) of kernel 15
+Lanzado stream 4 del kernel 13
+(ter0=29824319.747036 ter1=27785191.715415) (prev_ter0=30053674.330709 prev_ter1=28105139.401575) 
+(ter0-prev_ter0=229354.583673, 2982431.974704 ter1-prev_ter1=319947.686160, 2778519.171542) 
+WS Conf(4->3) 1.010437
+--> Evicting stream 2(3) of kernel 15
+Lanzado stream 5 del kernel 13
+(ter0=37216125.968254 ter1=19806435.555556) (prev_ter0=37016397.206349 prev_ter1=19639994.920635) 
+(ter0-prev_ter0=199728.761905, 3721612.596825 ter1-prev_ter1=166440.634921, 1980643.555556) 
+WS Conf(5->4) 0.980343
+Best configuration achieved SCEDD/HCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, SCEDD-HCEDD, 5-3, 0.488997, 0.483209
+Lanzado stream 0 del kernel 13
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 13
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 13
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 13
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+(ter0=24133892.063492 ter1=20472198.095238) (prev_ter0=23967451.428571 prev_ter1=20405621.841270) 
+(ter0-prev_ter0=166440.634921, 2413389.206349 ter1-prev_ter1=66576.253968, 2047219.809524) 
+--> Evicting stream 3(4) of kernel 13
+Lanzado stream 5 del kernel 16
+(ter0=18600826.434783 ter1=23955609.802372) (prev_ter0=18923907.023622 prev_ter1=23481497.196850) 
+(ter0-prev_ter0=323080.588839, 1860082.643478 ter1-prev_ter1=474112.605521, 2395560.980237) 
+WS Conf(4->3) 0.970444
+--> Evicting stream 5(6) of kernel 16
+--> Evicting stream 4(6) of kernel 16
+Lanzado stream 3 del kernel 13
+Lanzado stream 4 del kernel 13
+(ter0=23972188.079051 ter1=20888628.616601) (prev_ter0=24175043.527559 prev_ter1=21367832.188976) 
+(ter0-prev_ter0=202855.448508, 2397218.807905 ter1-prev_ter1=479203.572376, 2088862.861660) 
+WS Conf(2->3) 1.006820
+--> Evicting stream 3(4) of kernel 16
+--> Evicting stream 2(4) of kernel 16
+Lanzado stream 5 del kernel 13
+(ter0=37765380.063492 ter1=10435827.809524) (prev_ter0=38314634.158730 prev_ter1=10419183.746032) 
+(ter0-prev_ter0=549254.095238, 3776538.006349 ter1-prev_ter1=16644.063492, 1043582.780952) 
+WS Conf(1->2) 1.037488
+--> Evicting stream 1(2) of kernel 16
+Lanzado stream 6 del kernel 13
+(ter0=43707310.730159 ter1=5459252.825397) (prev_ter0=44539513.904762 prev_ter1=5492540.952381) 
+(ter0-prev_ter0=832203.174603, 4370731.073016 ter1-prev_ter1=33288.126984, 545925.282540) 
+WS Conf(0->1) 0.840232
+Best configuration achieved SCEDD/HST256=(6,2)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, SCEDD-HST256, 6-2, 0.683069, 0.689439
+Lanzado stream 0 del kernel 14
+Lanzado stream 0 del kernel 15
+Lanzado stream 1 del kernel 14
+Lanzado stream 1 del kernel 15
+Lanzado stream 2 del kernel 14
+Lanzado stream 2 del kernel 15
+Lanzado stream 3 del kernel 14
+Lanzado stream 3 del kernel 15
+(ter0=17659351.365079 ter1=37898532.571429) (prev_ter0=18175317.333333 prev_ter1=37049685.333333) 
+(ter0-prev_ter0=515965.968254, 1765935.136508 ter1-prev_ter1=848847.238095, 3789853.257143) 
+--> Evicting stream 3(4) of kernel 15
+Lanzado stream 4 del kernel 14
+(ter0=22131999.367589 ter1=30901907.731225) (prev_ter0=22622820.787402 prev_ter1=30615116.598425) 
+(ter0-prev_ter0=490821.419813, 2213199.936759 ter1-prev_ter1=286791.132800, 3090190.773123) 
+WS Conf(4->3) 1.034329
+--> Evicting stream 2(3) of kernel 15
+Lanzado stream 5 del kernel 14
+(ter0=28378128.253968 ter1=21770435.047619) (prev_ter0=27828874.158730 prev_ter1=21137960.634921) 
+(ter0-prev_ter0=549254.095238, 2837812.825397 ter1-prev_ter1=632474.412698, 2177043.504762) 
+WS Conf(5->4) 0.993361
+Best configuration achieved NCEDD/HCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, NCEDD-HCEDD, 5-3, 0.468016, 0.483202
+Lanzado stream 0 del kernel 14
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 14
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 14
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 14
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+(ter0=17126741.333333 ter1=21720502.857143) (prev_ter0=16877080.380952 prev_ter1=21537418.158730) 
+(ter0-prev_ter0=249660.952381, 1712674.133333 ter1-prev_ter1=183084.698413, 2172050.285714) 
+--> Evicting stream 3(4) of kernel 14
+Lanzado stream 5 del kernel 16
+(ter0=12266674.793651 ter1=25415484.952381) (prev_ter0=12649488.253968 prev_ter1=25964739.047619) 
+(ter0-prev_ter0=382813.460317, 1226667.479365 ter1-prev_ter1=549254.095238, 2541548.495238) 
+WS Conf(4->3) 0.943172
+--> Evicting stream 5(6) of kernel 16
+--> Evicting stream 4(6) of kernel 16
+Lanzado stream 3 del kernel 14
+Lanzado stream 4 del kernel 14
+(ter0=16346180.806324 ter1=21916481.770751) (prev_ter0=16050643.653543 prev_ter1=21367832.188976) 
+(ter0-prev_ter0=295537.152781, 1634618.080632 ter1-prev_ter1=548649.581775, 2191648.177075) 
+WS Conf(2->3) 0.981724
+Best configuration achieved NCEDD/HST256=(4,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, NCEDD-HST256, 4-5, 0.499725, 0.530522
+Lanzado stream 0 del kernel 15
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 15
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 15
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 15
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+(ter0=34087042.031746 ter1=19423622.095238) (prev_ter0=34253482.666667 prev_ter1=18974232.380952) 
+(ter0-prev_ter0=166440.634921, 3408704.203175 ter1-prev_ter1=449389.714286, 1942362.209524) 
+--> Evicting stream 3(4) of kernel 15
+Lanzado stream 5 del kernel 16
+(ter0=25646594.023715 ter1=23441683.225296) (prev_ter0=25529110.173228 prev_ter1=23184263.055118) 
+(ter0-prev_ter0=117483.850487, 2564659.402372 ter1-prev_ter1=257420.170178, 2344168.322530) 
+WS Conf(4->3) 0.979625
+--> Evicting stream 5(6) of kernel 16
+--> Evicting stream 4(6) of kernel 16
+Lanzado stream 3 del kernel 15
+Lanzado stream 4 del kernel 15
+(ter0=33987177.650794 ter1=19906299.936508) (prev_ter0=32688940.698413 prev_ter1=19373689.904762) 
+(ter0-prev_ter0=1298236.952381, 3398717.765079 ter1-prev_ter1=532610.031746, 1990629.993651) 
+WS Conf(2->3) 1.010960
+--> Evicting stream 3(4) of kernel 16
+--> Evicting stream 2(4) of kernel 16
+Lanzado stream 5 del kernel 15
+(ter0=54309579.174603 ter1=9819997.460317) (prev_ter0=54259646.984127 prev_ter1=9986438.095238) 
+(ter0-prev_ter0=49932.190476, 5430957.917460 ter1-prev_ter1=166440.634921, 981999.746032) 
+WS Conf(1->2) 1.045627
+--> Evicting stream 1(2) of kernel 16
+Lanzado stream 6 del kernel 15
+(ter0=62448526.222222 ter1=5226235.936508) (prev_ter0=61749475.555556 prev_ter1=5226235.936508) 
+(ter0-prev_ter0=699050.666667, 6244852.622222 ter1-prev_ter1=0.000000, 522623.593651) 
+WS Conf(0->1) 0.841033
+Best configuration achieved HCEDD/HST256=(6,2)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, HCEDD-HST256, 6-2, 0.682592, 0.732043

@@ -11,11 +11,13 @@ typedef struct {
 	dim3 Asize;
 	dim3 Bsize;
 	int gridDimX;
+	int *zc_slc;
 } t_MM_params;
 			
 			
 int launch_preemp_MM(void *kstub);
 int launch_orig_MM(void *kstub);
+int launch_slc_MM(void *kstub);
 
 int MM_start_kernel(void *arg);
 int MM_end_kernel(void *arg);

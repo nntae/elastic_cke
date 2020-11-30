@@ -43,14 +43,95 @@ extern t_tqueue *tqueues;
  * Matrix multiplication (CUDA Kernel) on the device: C = A * B
  * wA is A's width and wB is B's width
  */
-template <int BLOCK_SIZE> __global__ void
-original_matrixMulCUDA(float *C, float *A, float *B, int wA, int wB, int gridDimX)
+
+ template <int BLOCK_SIZE> __global__ void
+ original_matrixMulCUDA(float *C, float *A, float *B, int wA, int wB, int gridDimX)
+ {
+	 // Block index
+	 //int bx = blockIdx.x;
+	 //int by = blockIdx.y;
+	 int bx = blockIdx.x % gridDimX; // This is necessary because of the grid linearization
+	 int by = blockIdx.x / gridDimX;
+ 
+	 // Thread index
+	 int tx = threadIdx.x;
+	 int ty = threadIdx.y;
+ 
+	 // Index of the first sub-matrix of A processed by the block
+	 int aBegin = wA * BLOCK_SIZE * by;
+ 
+	 // Index of the last sub-matrix of A processed by the block
+	 int aEnd   = aBegin + wA - 1;
+ 
+	 // Step size used to iterate through the sub-matrices of A
+	 int aStep  = BLOCK_SIZE;
+ 
+	 // Index of the first sub-matrix of B processed by the block
+	 int bBegin = BLOCK_SIZE * bx;
+ 
+	 // Step size used to iterate through the sub-matrices of B
+	 int bStep  = BLOCK_SIZE * wB;
+ 
+	 // Csub is used to store the element of the block sub-matrix
+	 // that is computed by the thread
+	 float Csub = 0;
+ 
+	 // Loop over all the sub-matrices of A and B
+	 // required to compute the block sub-matrix
+	 for (int a = aBegin, b = bBegin;
+		  a <= aEnd;
+		  a += aStep, b += bStep)
+	 {
+ 
+		 // Declaration of the shared memory array As used to
+		 // store the sub-matrix of A
+		 __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+ 
+		 // Declaration of the shared memory array Bs used to
+		 // store the sub-matrix of B
+		 __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
+ 
+		 // Load the matrices from device memory
+		 // to shared memory; each thread loads
+		 // one element of each matrix
+		 As[ty][tx] = A[a + wA * ty + tx];
+		 Bs[ty][tx] = B[b + wB * ty + tx];
+ 
+		 // Synchronize to make sure the matrices are loaded
+		 __syncthreads();
+ 
+		 // Multiply the two matrices together;
+		 // each thread computes one element
+		 // of the block sub-matrix
+ #pragma unroll
+ 
+		 for (int k = 0; k < BLOCK_SIZE; ++k)
+		 {
+			 Csub += As[ty][k] * Bs[k][tx];
+		 }
+ 
+		 // Synchronize to make sure that the preceding
+		 // computation is done before loading two new
+		 // sub-matrices of A and B in the next iteration
+		 __syncthreads();
+	 }
+ 
+	 // Write the block sub-matrix to device memory;
+	 // each thread writes one element
+	 int c = wB * BLOCK_SIZE * by + BLOCK_SIZE * bx;
+	 C[c + wB * ty + tx] = Csub;
+ }
+
+ template <int BLOCK_SIZE> __global__ void
+slicing_matrixMulCUDA(float *C, float *A, float *B, int wA, int wB, int gridDimX, int init_BlkIdx, int *zc_slc)
 {
     // Block index
     //int bx = blockIdx.x;
-    //int by = blockIdx.y;
-	int bx = blockIdx.x % gridDimX; // This is necessary because of the grid linearization
-	int by = blockIdx.x / gridDimX;
+	//int by = blockIdx.y;
+	if (threadIdx.x == 0 && threadIdx.y == 0) atomicAdd(zc_slc, 1);
+	int blk_index = blockIdx.x + init_BlkIdx;
+	int bx = blk_index % gridDimX; // This is necessary because of the grid linearization
+	int by = blk_index / gridDimX;
 
     // Thread index
     int tx = threadIdx.x;
@@ -262,7 +343,7 @@ SMT_matrixMulCUDA(float *C, float *A, float *B, int wA, int wB, int gridDimX,
 					int SIMD_min, int SIMD_max,
 					int num_subtask, int iter_per_subtask, int *cont_subtask, State *status)
 {
-	__shared__ int s_bid;
+	__shared__ int s_bid; 
 	
 	unsigned int SM_id = get_smid_MM();
 	
@@ -730,6 +811,9 @@ int MM_start_mallocs(void *arg)
 	t_MM_params * params = (t_MM_params *)kstub->params;
 	dimsA = params->Asize;
 	dimsB = params->Bsize;
+
+	// commom cta counter
+	cudaMalloc((void **)&params->zc_slc, sizeof(int));
 	
     // Allocate host memory for matrices A and B
 	
@@ -1087,6 +1171,39 @@ int launch_orig_MM(void *arg)
     else
     {
         original_matrixMulCUDA<32><<< kstub->kconf.gridsize.x, threads, 0, *(kstub->execution_s) >>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, params->gridDimX);
+    }
+		
+		return 0;
+}
+
+int launch_slc_MM(void *arg)
+{
+	
+	t_kernel_stub *kstub = (t_kernel_stub *) arg;
+		
+	dim3 dimsA, dimsB;
+	
+	t_MM_params * params = (t_MM_params *)kstub->params;
+	dimsA = params->Asize;
+	dimsB = params->Bsize;
+	
+	
+	// Setup execution parameters
+    dim3 threads(kstub->kconf.blocksize.x, kstub->kconf.blocksize.y);
+    dim3 grid(kstub->kconf.gridsize.x, kstub->kconf.gridsize.y);
+
+    // Create and start timer
+
+    // Performs warmup operation using matrixMul CUDA kernel
+    if (kstub->kconf.blocksize.x == 16)
+    {
+		slicing_matrixMulCUDA<16><<< kstub->total_tasks, threads, 0, *(kstub->execution_s) >>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, 
+			params->gridDimX, kstub->kconf.initial_blockID, params->zc_slc);
+    }
+    else
+    {
+		slicing_matrixMulCUDA<32><<< kstub->total_tasks, threads, 0, *(kstub->execution_s) >>>(params->d_MMC, params->d_MMA, params->d_MMB, dimsA.x, dimsB.x, 
+			params->gridDimX, kstub->kconf.initial_blockID, params->zc_slc);
     }
 		
 		return 0;

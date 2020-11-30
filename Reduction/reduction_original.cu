@@ -137,6 +137,120 @@ reduce(float *g_idata, float *g_odata, unsigned int n)
 	if (tid == 0) g_odata[blockIdx.x] += mySum;
 }
 
+
+__global__ void
+slicing_reduce(float *g_idata, float *g_odata, unsigned int n, int gridDimX, int init_blkIdx, int *zc_slc)
+{
+	extern __shared__ float sdata[];
+
+	if (threadIdx.x == 0) atomicAdd(zc_slc,1);
+	// perform first level of reduction,
+	// reading from global memory, writing to shared memory
+	unsigned int tid = threadIdx.x;
+	//unsigned int i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+	unsigned int i = (blockIdx.x + init_blkIdx)*(blockDim.x*2) + threadIdx.x;
+	unsigned int gridSize = blockDim.x*2*gridDimX;
+
+	//float mySum = (i < n) ? g_idata[i] : 0;
+	float mySum = 0;
+
+	// if (i + blockDim.x < n)
+		// mySum += g_idata[i+blockDim.x];
+	
+	while(i < n){
+		mySum += g_idata[i];
+		
+		if(i + blockDim.x < n)
+			mySum += g_idata[i+blockDim.x];
+
+		i += gridSize;
+	}
+
+	sdata[tid] = mySum;
+	__syncthreads();
+
+	// do reduction in shared mem
+	if ((blockDim.x >= 512) && (tid < 256))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid + 256];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >= 256) &&(tid < 128))
+	{
+			sdata[tid] = mySum = mySum + sdata[tid + 128];
+	}
+
+	 __syncthreads();
+
+	if ((blockDim.x >= 128) && (tid <  64))
+	{
+	   sdata[tid] = mySum = mySum + sdata[tid +  64];
+	}
+
+	__syncthreads();
+
+#if (__CUDA_ARCH__ >= 300 )
+	if ( tid < 32 )
+	{
+		// Fetch final intermediate sum from 2nd warp
+		if (blockDim.x >=  64) mySum += sdata[tid + 32];
+		// Reduce final warp using shuffle
+		for (int offset = warpSize/2; offset > 0; offset /= 2) 
+		{
+			mySum += __shfl_down(mySum, offset);
+		}
+	}
+#else
+	// fully unroll reduction within a single warp
+	if ((blockDim.x >=  64) && (tid < 32))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid + 32];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >=  32) && (tid < 16))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid + 16];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >=  16) && (tid <  8))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid +  8];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >=   8) && (tid <  4))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid +  4];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >=   4) && (tid <  2))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid +  2];
+	}
+
+	__syncthreads();
+
+	if ((blockDim.x >=   2) && ( tid <  1))
+	{
+		sdata[tid] = mySum = mySum + sdata[tid +  1];
+	}
+
+	__syncthreads();
+#endif
+
+	// write result for this block to global mem
+	if (tid == 0) g_odata[blockIdx.x+init_blkIdx] += mySum;
+}
+
 __global__ void
 profiling_reduce_kernel(float *g_idata, float *g_odata, unsigned int n,
 		int num_subtask,
@@ -353,7 +467,7 @@ preemp_SMT_reduce_kernel(float *g_idata, float *g_odata, unsigned int n,
 		unsigned int tid = threadIdx.x;
 		//unsigned int i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 		unsigned int i = s_bid * (blockDim.x * 2) + threadIdx.x;
-		unsigned int gridSize = blockDim.x * 2 * num_subtask;
+		unsigned int gridSize = blockDim.x * 2 * gridDim.x;
 
 		//float mySum = (i < n) ? g_idata[i] : 0;
 		float mySum = 0;
@@ -749,7 +863,7 @@ preemp_SMK_reduce_kernel(float *g_idata, float *g_odata, unsigned int n,
 		unsigned int tid = threadIdx.x;
 		//unsigned int i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 		unsigned int i = s_bid*(blockDim.x*2) + threadIdx.x;
-		unsigned int gridSize = blockDim.x*2*num_subtask;
+		unsigned int gridSize = blockDim.x*2*gridDim.x;
 
 		//float mySum = (i < n) ? g_idata[i] : 0;
 		float mySum = 0;
@@ -888,6 +1002,9 @@ int reduce_start_mallocs(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_reduction_params * params = (t_reduction_params *)kstub->params;
+
+	// globalmemory position for launched ctas counter
+	cudaMalloc((void **)&params->zc_slc, sizeof(int));
 	
 	params->smem_size = (kstub->kconf.blocksize.x <= 32) ? 2 * kstub->kconf.blocksize.x * sizeof(float) : kstub->kconf.blocksize.x * sizeof(float);
 	// params->size = 1<<24;
@@ -927,6 +1044,7 @@ int reduce_start_transfers(void *arg){
 #if defined(MEMCPY_ASYNC)	
 	checkCudaErrors(cudaMemcpyAsync(params->d_idata, params->h_idata, bytes, cudaMemcpyHostToDevice, kstub->transfer_s[0]));
 	checkCudaErrors(cudaMemcpyAsync(params->d_odata, params->h_odata, kstub->kconf.gridsize.x*sizeof(float), cudaMemcpyHostToDevice, kstub->transfer_s[0]));
+	cudaStreamSynchronize(kstub->transfer_s[0]);
 #else
 	checkCudaErrors(cudaMemcpy(params->d_idata, params->h_idata, bytes, cudaMemcpyHostToDevice));
 	checkCudaErrors(cudaMemcpy(params->d_odata, params->h_odata, kstub->kconf.gridsize.x*sizeof(float), cudaMemcpyHostToDevice));
@@ -971,6 +1089,17 @@ int launch_orig_reduce(void *arg)
 	
 	reduce<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x, params->smem_size>>>
 		(params->d_idata, params->d_odata, params->size);			
+	
+	return 0;
+}
+
+int launch_slc_reduce(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_reduction_params * params = (t_reduction_params *)kstub->params;
+	
+	slicing_reduce<<<kstub->total_tasks, kstub->kconf.blocksize.x, params->smem_size, *(kstub->execution_s)>>>
+		(params->d_idata, params->d_odata, params->size,  params->gridDimX, kstub->kconf.initial_blockID, params->zc_slc);			
 	
 	return 0;
 }

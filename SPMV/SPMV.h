@@ -7,10 +7,13 @@ typedef struct {
 	
 	int numNonZeroes, numRows;
 	int nItems;
+	int gridDimX;
+	int *zc_slc;
 } t_SPMV_params;
 
 int launch_preemp_SPMVcsr(void *arg);
 int launch_orig_SPMVcsr(void *arg);
+int launch_slc_SPMVcsr(void *arg);
 int SPMVcsr_start_kernel(void *arg);
 int SPMVcsr_end_kernel(void *arg);
 int SPMVcsr_start_transfers(void *arg);

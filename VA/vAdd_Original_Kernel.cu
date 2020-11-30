@@ -58,6 +58,26 @@ original_vectorAdd(const float *A, const float *B, float *C, int iter_per_block,
 		//blockIdx.x * blockDim.x + threadIdx.x;
 			
 		const int i = blockIdx.x * blockDim.x * iter_per_block + k * blockDim.x + threadIdx.x;
+
+			 
+		if (i < numelements)
+				C[i] = A[i] + B[i];
+	}
+	
+
+}
+
+__global__ void
+slicing_vectorAdd(const float *A, const float *B, float *C, int iter_per_block, int numelements, int initial_blockID, int gridDimX, int *zc_slc)
+{
+	//*zc_slc += gridDim.x; // update launched ctas
+	if (threadIdx.x == 0) atomicAdd(zc_slc, 1);
+
+	for (int k=0; k<iter_per_block; k++) {
+			
+		const int i = k * gridDimX * blockDim.x + (blockIdx.x+ initial_blockID) * blockDim.x + threadIdx.x;
+			
+		//const int i = (blockIdx.x + initial_blockID) * iter_per_block + k * blockDim.x + threadIdx.x;
 			
 		if (i < numelements)
 				C[i] = A[i] + B[i];
@@ -443,6 +463,9 @@ int VA_start_mallocs(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_VA_params * params = (t_VA_params *)kstub->params;
+
+	// commom cta counter
+	cudaMalloc((void **)&params->zc_slc, sizeof(int));
 	
 	// Error code to check return values for CUDA calls
     cudaError_t err = cudaSuccess;
@@ -592,7 +615,7 @@ int VA_start_transfers(void *arg)
     }
 	
 	//cudaEventRecord(kstub->end_HtD, kstub->transfer_s[0]);
-	cudaStreamSynchronize(kstub->transfer_s[0]);
+	//cudaStreamSynchronize(kstub->transfer_s[0]);
 	
 	/*
 	enqueue_tcomamnd(tqueues, d_A, h_A, size, cudaMemcpyHostToDevice, kstub->transfer_s[0], NONBLOCKING, DATA, MEDIUM, kstub);
@@ -680,7 +703,7 @@ int VA_end_kernel_dummy(void *arg)
         fprintf(stderr, "Failed to copy vector C from device to host (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
      }
-	 			printf("-->Comienzo de DtH para tarea %d\n", kstub->id);
+	 			//printf("-->Comienzo de DtH para tarea %d\n", kstub->id);
 
 	//enqueue_tcomamnd(tqueues, h_C, d_C, numElements*sizeof(float), cudaMemcpyDeviceToHost, kstub->transfer_s[1] , NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
 	//enqueue_tcomamnd(tqueues, NULL, NULL, 0, cudaMemcpyDeviceToHost, kstub->transfer_s[1], STREAM_SYNCHRO, DATA, MEDIUM, kstub);
@@ -692,6 +715,9 @@ int VA_end_kernel_dummy(void *arg)
 	 //cudaEventRecord(kstub->end_DtH, kstub->transfer_s[1]);
 	
 	/*cudaEventSynchronize(kstub->end_DtH);*/
+	cudaFree(params->d_A);
+	cudaFree(params->d_B);
+	cudaFree(params->d_C);
 	
 	#else
 		#ifdef MANAGED_MEM
@@ -775,6 +801,19 @@ int launch_orig_VA(void *arg)
 		params->d_A, params->d_B, params->d_C, 
 		kstub->kconf.coarsening,
 		params->numElements);
+	
+	return 0;
+}
+
+int launch_slc_VA(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_VA_params * params = (t_VA_params *)kstub->params;
+	
+	slicing_vectorAdd<<<kstub->total_tasks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>( // Grid size is change for total_tasks
+		params->d_A, params->d_B, params->d_C, 
+		kstub->kconf.coarsening,
+		params->numElements, kstub->kconf.initial_blockID, params->gridDimX, params->zc_slc); // A new parameter initial_blockID is added
 	
 	return 0;
 }

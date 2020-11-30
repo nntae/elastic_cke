@@ -27,11 +27,13 @@ typedef struct {
 	int conv_cols;
 	int gridDimY[2];
 	int gridDimX[2];
+	int *zc_slc;
 } t_CONV_params;
 
 //Rows
 int launch_preemp_RCONV(void *kstub);
 int launch_orig_RCONV(void *kstub);
+int launch_slc_RCONV(void *arg);
 int RCONV_start_kernel(void *arg);
 int RCONV_end_kernel(void *arg);
 
@@ -41,6 +43,7 @@ int RCONV_start_transfers(void *arg);
 //Cols
 int launch_preemp_CCONV(void *kstub);
 int launch_orig_CCONV(void *kstub);
+int launch_slc_CCONV(void *arg);
 
 int CCONV_start_kernel(void *arg);
 int CCONV_end_kernel(void *arg);

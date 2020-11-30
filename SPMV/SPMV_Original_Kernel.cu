@@ -87,6 +87,33 @@ original_spmv_csr_scalar_kernel(const float * __restrict__ val,
 }
 
 __global__ void
+slicing_spmv_csr_scalar_kernel(const float * __restrict__ val,
+                       const int    * __restrict__ cols,
+                       const int    * __restrict__ rowDelimiters,
+                       const int dim, float * __restrict__ out, int gridDimX, int init_blkIdx, int *zc_slc)
+{
+    int myRow = (blockIdx.x + init_blkIdx) * blockDim.x + threadIdx.x;
+    texReaderSP vecTexReader;
+	
+	if (threadIdx.x == 0 && threadIdx.y == 0) atomicAdd(zc_slc, 1);
+
+	while (myRow < dim)
+    //if (myRow < dim)
+    {
+        float t = 0.0f;
+        int start = rowDelimiters[myRow];
+        int end = rowDelimiters[myRow+1];
+        for (int j = start; j < end; j++)
+        {
+            int col = cols[j];
+            t += val[j] * vecTexReader(col);
+        }
+        out[myRow] = t;
+		myRow +=  gridDimX * blockDim.x;
+    }
+}
+
+__global__ void
 preemp_SMK_spmv_csr_scalar_kernel(const float * __restrict__ val,
                        const int    * __restrict__ cols,
                        const int    * __restrict__ rowDelimiters,
@@ -131,7 +158,7 @@ preemp_SMK_spmv_csr_scalar_kernel(const float * __restrict__ val,
 		myRow = s_bid * blockDim.x + threadIdx.x;
 		texReaderSP vecTexReader;
 
-		if (myRow < dim)
+		while (myRow < dim)
 		{
 			float t = 0.0f;
 			int start = rowDelimiters[myRow];
@@ -141,6 +168,7 @@ preemp_SMK_spmv_csr_scalar_kernel(const float * __restrict__ val,
 				t += val[j] * vecTexReader(col);
 			}
 			out[myRow] = t;
+			myRow += num_subtask * blockDim.x;
 		}
 	}
 }
@@ -1120,6 +1148,9 @@ int SPMVcsr_start_mallocs(void *arg)
 {
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_SPMV_params * params = (t_SPMV_params *)kstub->params;	
+
+	// globalmemory position for launched ctas counter
+	cudaMalloc((void **)&params->zc_slc, sizeof(int));
 	
 	// numRows = params->numRows;
     // int nItems = params->nItems;
@@ -1192,6 +1223,8 @@ int SPMVcsr_start_transfers(void *arg){
 	//enqueue_tcomamnd(tqueues, d_rowDelimiters, h_rowDelimiters, (numRows+1) * sizeof(int), cudaMemcpyHostToDevice, 
 	//					kstub->transfer_s[0], NONBLOCKING, LAST_TRANSFER, MEDIUM, kstub);
 	cudaMemcpyAsync(params->d_rowDelimiters, params->h_rowDelimiters, (params->numRows+1) * sizeof(int), cudaMemcpyHostToDevice, kstub->transfer_s[0]);
+
+
 							
 #else
 
@@ -1274,6 +1307,17 @@ int launch_orig_SPMVcsr(void *arg)
 	
 	original_spmv_csr_scalar_kernel<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>
 			(params->d_val, params->d_cols, params->d_rowDelimiters, params->numRows, params->d_out);
+	
+	return 0;
+}
+
+int launch_slc_SPMVcsr(void *arg)
+{
+	t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_SPMV_params * params = (t_SPMV_params *)kstub->params;
+	
+	slicing_spmv_csr_scalar_kernel<<<kstub->total_tasks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>
+			(params->d_val, params->d_cols, params->d_rowDelimiters, params->numRows, params->d_out, params->gridDimX, kstub->kconf.initial_blockID, params->zc_slc);
 	
 	return 0;
 }

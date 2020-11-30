@@ -64,6 +64,7 @@ typedef struct {
 	dim3 blocksize;
 	dim3 gridsize;
 	int coarsening;
+	int initial_blockID;
 }t_Kconfig;
 
 typedef struct {
@@ -77,6 +78,7 @@ typedef struct {
 	
 	int (*launchCKEkernel)(void *); //Pointer to the function that executes the kernel
 	int (*launchORIkernel)(void *);
+	int (*launchSLCkernel)(void *);
 	int (*startKernel)(void *);
 	int (*startMallocs)(void *);
 	int (*startTransfers)(void *);

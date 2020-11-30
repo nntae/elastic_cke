@@ -1,0 +1,116 @@
+basic.cu(244): error: cannot determine which instance of overloaded function "index" is intended
+
+basic.cu(244): error: cannot determine which instance of overloaded function "index" is intended
+
+basic.cu(251): error: class "t_kstreams" has no member "status"
+
+basic.cu(252): error: class "t_kstreams" has no member "index"
+
+basic.cu(370): error: identifier "t_strPool" is undefined
+
+basic.cu(372): error: identifier "create_stream_pool" is undefined
+
+basic.cu(405): error: no suitable conversion function from "t_kstreams" to "t_kstreams *" exists
+
+basic.cu(407): error: identifier "cont_kernels_finished" is undefined
+
+basic.cu(411): error: identifier "ksrt" is undefined
+
+basic.cu(418): error: too few arguments in function call
+
+basic.cu(435): error: identifier "k_select" is undefined
+
+basic.cu(455): error: identifier "k_select" is undefined
+
+basic.cu(466): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(466): error: too many arguments in function call
+
+basic.cu(468): error: expression must have pointer type
+
+basic.cu(468): error: expected a member name
+
+basic.cu(470): error: class "t_kstreams" has no member "saved_cont_tasks"
+
+basic.cu(470): error: expression must have pointer type
+
+basic.cu(473): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(473): error: too many arguments in function call
+
+basic.cu(476): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(482): error: identifier "k_select" is undefined
+
+basic.cu(493): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(493): error: too many arguments in function call
+
+basic.cu(496): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(496): error: too many arguments in function call
+
+basic.cu(499): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(502): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(502): error: too many arguments in function call
+
+basic.cu(505): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(509): error: argument of type "t_kcoexec *" is incompatible with parameter of type "int *"
+
+basic.cu(415): warning: variable "spk0" was declared but never referenced
+
+basic.cu(416): warning: variable "spk1" was declared but never referenced
+
+basic.cu(546): error: expected a ";"
+
+basic.cu(568): warning: parsing restarts here after previous syntax error
+
+basic.cu(570): error: "transfers_s" has already been declared in the current scope
+
+basic.cu(578): error: "preemp_s" has already been declared in the current scope
+
+basic.cu(582): error: identifier "t_strPool" is undefined
+
+basic.cu(582): error: "pool" has already been declared in the current scope
+
+basic.cu(583): error: "max_cke_kernels" has already been declared in the current scope
+
+basic.cu(596): error: "kstr" has already been declared in the current scope
+
+basic.cu(601): error: "coexec" has already been declared in the current scope
+
+basic.cu(662): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(662): error: too many arguments in function call
+
+basic.cu(665): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(665): error: too many arguments in function call
+
+basic.cu(666): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(683): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(683): error: too many arguments in function call
+
+basic.cu(686): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(686): error: too many arguments in function call
+
+basic.cu(687): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(690): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(690): error: too many arguments in function call
+
+basic.cu(691): error: argument of type "t_kstreams *" is incompatible with parameter of type "int"
+
+basic.cu(695): error: argument of type "t_kcoexec *" is incompatible with parameter of type "int *"
+
+basic.cu(695): error: too many arguments in function call
+
+54 errors detected in the compilation of "/tmp/tmpxft_000093f9_00000000-6_basic.cpp1.ii".
+make: *** [basic.o] Error 1

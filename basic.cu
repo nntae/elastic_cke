@@ -803,20 +803,30 @@ int main(int argc, char **argv)
 	fast_cke_profiling(deviceId, kid);
 
 	return 0;
-*/  
+ */
 	kid[0]=VA;
 	kid[1]=MM;
 	kid[2]=BS;
 	kid[3]=Reduction;
 	kid[4]=PF;
 	kid[5]=GCEDD; // Ojo: en profiling.cu se procesan tambien los tres kernels restantes de la aplicacion
-	kid[6]=HST256;
-	kid[7]=SPMV_CSRscalar;
-	kid[8]=RCONV; // Ojo: en profiling se procesa tambien CCONV
+	kid[6]=SPMV_CSRscalar;
+	kid[7]=RCONV; // Ojo: en profiling se procesa tambien CCONV
+	kid[8]=HST256;
+	
 
-	online_profiler_overhead(kid, 7/*num_kernels*/, 2); // SPMV y RCONV dan problemas por 
- 	
-	//all_profiling(kid, num_kernels, 2);
+	kid[0] = kid_from_name(argv[1]);
+	kid[1] = GCEDD;
+
+	//online_profiler_overhead(kid, 7/*num_kernels*/, 2); // SPMV y RCONV dan problemas por 
+	all_profiling(kid, 2/*num_kernels*/, 2);
+
+	kid[1] = MM;
+	all_profiling(kid, 2/*num_kernels*/, 2);
+
+	kid[1] = PF;
+	all_profiling(kid, 2/*num_kernels*/, 2);
+
 	
 	//smk_check_CTA_allocation(kid, 2, 2);
 	
@@ -828,4 +838,3 @@ int main(int argc, char **argv)
 	//rt_scheduler(2, atof(argv[2]), (t_Kernel)atoi(argv[1]));
 	return 0;
 }
-

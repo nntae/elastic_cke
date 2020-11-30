@@ -124,7 +124,7 @@ getMetricValueCallback(void *userdata, CUpti_CallbackDomain domain,
 												&eventNameSize, eventName));
 					
 					eventName[127] = '\0';
-					fprintf(m_fp, "%s, %s, %llu,", m_metricName, eventName, (unsigned long long)eventIds[j], (unsigned long long)sum);
+					fprintf(m_fp, "%s, %s, %llu, %llu", m_metricName, eventName, (unsigned long long)eventIds[j], (unsigned long long)sum);
 					fprintf(m_fp, "%u, %u, %llu", numTotalInstances, numInstances, (unsigned long long)normalized);
 					for (k = 0; k < numInstances; k++) 
 						fprintf(m_fp, "%llu, ", (unsigned long long)values[k]);

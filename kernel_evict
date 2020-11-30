@@ -1,0 +1,62 @@
+Coincidencia en el archivo binario basic
+basic.cu:			prev_executed_tasks[i] = *(sched->cont_tasks_zc+i);
+basic.cu:					curr_executed_tasks[i] = *(sched->cont_tasks_zc+i); // Read zero-copy variables
+basic.cu:		sched->kernel_evict_zc[index * MAX_STREAMS_PER_KERNEL + total_streams-1-i] = TOEVICT; 
+basic.cu:	sched->num_conc_kernels = 2; // Two concurrent kernels
+basic.cu:	sched->proxy_s = (cudaStream_t *)malloc(sizeof(cudaStream_t));
+basic.cu:	err = cudaStreamCreate(sched->proxy_s); // Stream to lauch proxy
+basic.cu:	checkCudaErrors(cudaMalloc((void **)&(sched->kernel_evict),  sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State*))); 
+basic.cu:	checkCudaErrors(cudaMalloc((void **)&(sched->gm_cont_tasks), sched->num_conc_kernels * sizeof(State*)));
+basic.cu:	cudaMemset(sched->kernel_evict, 0,  sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State *));
+basic.cu:	cudaMemset(sched->gm_cont_tasks, 0,  sched->num_conc_kernels * sizeof(int *));
+basic.cu:	checkCudaErrors(cudaHostAlloc((void **)&(sched->kernel_evict_zc), sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State), cudaHostAllocMapped));
+basic.cu:	checkCudaErrors(cudaHostAlloc((void **)&(sched->cont_tasks_zc), sched->num_conc_kernels * sizeof(int), cudaHostAllocMapped));
+basic.cu:	memset(sched->kernel_evict_zc, 0, sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State));
+basic.cu:	memset(sched->cont_tasks_zc, 0, sched->num_conc_kernels * sizeof(int));
+basic.cu:	//coexec->kstr[i]->kstub->gm_state = sched->kernel_evict + i * MAX_NUM_COEXEC_KERNELS; /*Remaping to zero-copy eviction array*/
+basic.cu:	//	sched->kernel_evict_zc[MAX_NUM_COEXEC_KERNELS *i + j] = PREP; // Se actualizará gm_state (via proxy) antes de lanzar el kernel?
+basic.cu:	coexec->kstr[i]->kstub->d_executed_tasks = sched->gm_cont_tasks+i; // Remaping kernel task counter to scheduler memory
+basic.cu:	cudaMemcpyAsync(sched->gm_cont_tasks+i, &(kstr->save_cont_tasks),  sizeof(int),  cudaMemcpyHostToDevice, *(coexec->kstr[i]->kstub->preemp_s)); // Set counter task for this kernelid
+basic.cu:	//	sched->kernel_evict_zc[MAX_NUM_COEXEC_KERNELS * i + coexec->num_streams[i] + j] = PREP; // Se actualizará gm_state (via proxy) antes de lanzar el kernel?
+basic.cu:	kstr->save_cont_tasks = *(sched->cont_tasks_zc+i);
+basic.cu.bak:			prev_executed_tasks[i] = *(sched->cont_tasks_zc+i);
+basic.cu.bak:					curr_executed_tasks[i] = *(sched->cont_tasks_zc+i); // Read zero-copy variables
+basic.cu.bak:		sched->kernel_evict_zc[index * MAX_STREAMS_PER_KERNEL + total_streams-1-i] = TOEVICT; 
+basic.cu.bak:	sched->num_conc_kernels = 2; // Two concurrent kernels
+basic.cu.bak:	sched->proxy_s = (cudaStream_t *)malloc(sizeof(cudaStream_t));
+basic.cu.bak:	err = cudaStreamCreate(sched->proxy_s); // Stream to lauch proxy
+basic.cu.bak:	checkCudaErrors(cudaMalloc((void **)&(sched->kernel_evict),  sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State*))); 
+basic.cu.bak:	checkCudaErrors(cudaMalloc((void **)&(sched->gm_cont_tasks), sched->num_conc_kernels * sizeof(State*)));
+basic.cu.bak:	cudaMemset(sched->kernel_evict, 0,  sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State *));
+basic.cu.bak:	cudaMemset(sched->gm_cont_tasks, 0,  sched->num_conc_kernels * sizeof(int *));
+basic.cu.bak:	checkCudaErrors(cudaHostAlloc((void **)&(sched->kernel_evict_zc), sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State), cudaHostAllocMapped));
+basic.cu.bak:	checkCudaErrors(cudaHostAlloc((void **)&(sched->cont_tasks_zc), sched->num_conc_kernels * sizeof(int), cudaHostAllocMapped));
+basic.cu.bak:	memset(sched->kernel_evict_zc, 0, sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State));
+basic.cu.bak:	memset(sched->cont_tasks_zc, 0, sched->num_conc_kernels * sizeof(int));
+basic.cu.bak:	//coexec->kstr[i]->kstub->gm_state = sched->kernel_evict + i * MAX_NUM_COEXEC_KERNELS; /*Remaping to zero-copy eviction array*/
+basic.cu.bak:	//	sched->kernel_evict_zc[MAX_NUM_COEXEC_KERNELS *i + j] = PREP; // Se actualizará gm_state (via proxy) antes de lanzar el kernel?
+basic.cu.bak:	coexec->kstr[i]->kstub->d_executed_tasks = sched->gm_cont_tasks+i; // Remaping kernel task counter to scheduler memory
+basic.cu.bak:	cudaMemcpyAsync(sched->gm_cont_tasks+i, &(kstr->save_cont_tasks),  sizeof(int),  cudaMemcpyHostToDevice, *(coexec->kstr[i]->kstub->preemp_s)); // Set counter task for this kernelid
+basic.cu.bak:	//	sched->kernel_evict_zc[MAX_NUM_COEXEC_KERNELS * i + coexec->num_streams[i] + j] = PREP; // Se actualizará gm_state (via proxy) antes de lanzar el kernel?
+basic.cu.bak:	kstr->save_cont_tasks = *(sched->cont_tasks_zc+i);
+basic.cu.por.si.acaso:			prev_executed_tasks[i] = *(sched->cont_tasks_zc+i);
+basic.cu.por.si.acaso:					curr_executed_tasks[i] = *(sched->cont_tasks_zc+i); // Read zero-copy variables
+basic.cu.por.si.acaso:		sched->kernel_evict_zc[index * MAX_STREAMS_PER_KERNEL + total_streams-1-i] = TOEVICT; 
+basic.cu.por.si.acaso:	sched->num_conc_kernels = 2; // Two concurrent kernels
+basic.cu.por.si.acaso:	sched->proxy_s = (cudaStream_t *)malloc(sizeof(cudaStream_t));
+basic.cu.por.si.acaso:	err = cudaStreamCreate(sched->proxy_s); // Stream to lauch proxy
+basic.cu.por.si.acaso:	checkCudaErrors(cudaMalloc((void **)&(sched->kernel_evict),  sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State*))); 
+basic.cu.por.si.acaso:	checkCudaErrors(cudaMalloc((void **)&(sched->gm_cont_tasks), sched->num_conc_kernels * sizeof(State*)));
+basic.cu.por.si.acaso:	cudaMemset(sched->kernel_evict, 0,  sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State *));
+basic.cu.por.si.acaso:	cudaMemset(sched->gm_cont_tasks, 0,  sched->num_conc_kernels * sizeof(int *));
+basic.cu.por.si.acaso:	checkCudaErrors(cudaHostAlloc((void **)&(sched->kernel_evict_zc), sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State), cudaHostAllocMapped));
+basic.cu.por.si.acaso:	checkCudaErrors(cudaHostAlloc((void **)&(sched->cont_tasks_zc), sched->num_conc_kernels * sizeof(int), cudaHostAllocMapped));
+basic.cu.por.si.acaso:	memset(sched->kernel_evict_zc, 0, sched->num_conc_kernels * MAX_STREAMS_PER_KERNEL * sizeof(State));
+basic.cu.por.si.acaso:	memset(sched->cont_tasks_zc, 0, sched->num_conc_kernels * sizeof(int));
+basic.cu.por.si.acaso:	//coexec->kstr[i]->kstub->gm_state = sched->kernel_evict + i * MAX_NUM_COEXEC_KERNELS; /*Remaping to zero-copy eviction array*/
+basic.cu.por.si.acaso:	//	sched->kernel_evict_zc[MAX_NUM_COEXEC_KERNELS *i + j] = PREP; // Se actualizará gm_state (via proxy) antes de lanzar el kernel?
+basic.cu.por.si.acaso:	coexec->kstr[i]->kstub->d_executed_tasks = sched->gm_cont_tasks+i; // Remaping kernel task counter to scheduler memory
+basic.cu.por.si.acaso:	cudaMemcpyAsync(sched->gm_cont_tasks+i, &(kstr->save_cont_tasks),  sizeof(int),  cudaMemcpyHostToDevice, *(coexec->kstr[i]->kstub->preemp_s)); // Set counter task for this kernelid
+basic.cu.por.si.acaso:	//	sched->kernel_evict_zc[MAX_NUM_COEXEC_KERNELS * i + coexec->num_streams[i] + j] = PREP; // Se actualizará gm_state (via proxy) antes de lanzar el kernel?
+basic.cu.por.si.acaso:	kstr->save_cont_tasks = *(sched->cont_tasks_zc+i);
+Coincidencia en el archivo binario basic.o

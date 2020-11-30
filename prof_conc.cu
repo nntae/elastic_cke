@@ -20,6 +20,7 @@ int main(int argc, char **argv)
 	printf("Device=%s\n", deviceProp.name);
 	*/
 	std::vector<std::string> curr_metric = init_cupti_profiler( deviceId );
+	std::string mis_metricas[2] = {"ipc", "inst_executed"};
 	
 	/** Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands*/
 	cudaStream_t *transfers_s;
@@ -27,7 +28,7 @@ int main(int argc, char **argv)
 	
 	for (int i=0;i<2;i++){
 		err = cudaStreamCreate(&transfers_s[i]);
-		checkCudaErrors(err);
+		checkCudaErrors (err);
 	} 
 	
 	cudaStream_t preemp_s;
@@ -55,9 +56,9 @@ int main(int argc, char **argv)
 	FILE *fp = open_metric_file( "metric_values.log" );
 	fprintf(fp, "MetricName, EventName, Sum, TotalInstances, NumInstances, Normalized, Values, ...\n");
 
-	for ( int i = 0; i < curr_metric.size(); i++ )
+	for ( int i = 0; i < 2/*curr_metric.size()*/; i++ )
 	{
-		CUpti_EventGroupSets *passData = start_cupti_profiler(	curr_metric[i].c_str() );
+		CUpti_EventGroupSets *passData = start_cupti_profiler(	/*curr_metric[i].c_str()*/ mis_metricas[i].c_str() );
 		int num_passes = passData->numSets ;
 		advance_cupti_profiler( passData, 0 );
 		if ( num_passes > 1 )

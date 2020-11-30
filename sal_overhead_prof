@@ -1,0 +1,814 @@
+Device=TITAN X (Pascal)
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 0
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 0
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 0
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 0
+--> Evicting stream 3(4) of kernel 2
+Lanzado stream 4 del kernel 0
+WS Conf(4->3) 1.141603
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 0
+WS Conf(5->4) 1.441736
+--> Evicting stream 1(2) of kernel 2
+Lanzado stream 6 del kernel 0
+WS Conf(6->5) 0.757753
+Best configuration achieved VA/MM=(2,6)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-MM, 2-6, 0.882149, 1.114014
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 1
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 1
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 1
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 1
+--> Evicting stream 3(4) of kernel 2
+Lanzado stream 4 del kernel 1
+WS Conf(4->3) 0.797484
+--> Evicting stream 4(5) of kernel 1
+--> Evicting stream 3(5) of kernel 1
+Lanzado stream 3 del kernel 2
+Lanzado stream 4 del kernel 2
+WS Conf(2->3) 0.774992
+Best configuration achieved VA/BS=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-BS, 4-4, 0.729084, 0.864803
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 6
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 6
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 6
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 6
+--> Evicting stream 3(4) of kernel 6
+Lanzado stream 4 del kernel 2
+WS Conf(4->3) 0.948600
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 6
+Lanzado stream 4 del kernel 6
+WS Conf(2->3) 1.101567
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 6
+WS Conf(1->2) 1.165199
+--> Evicting stream 1(2) of kernel 2
+Lanzado stream 6 del kernel 6
+WS Conf(0->1) 1.013775
+Configuracion extrema alcanzada VA/Reduction=(1,7)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-Reduction, 1-7, 0.793219, 0.842555
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 7
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 7
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 7
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 7
+--> Evicting stream 3(4) of kernel 7
+Lanzado stream 4 del kernel 2
+WS Conf(4->3) 0.722340
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 7
+Lanzado stream 4 del kernel 7
+WS Conf(2->3) 0.997790
+Best configuration achieved VA/PF=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-PF, 4-4, 2.232313, 2.718209
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 12
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 4 del kernel 2
+WS Conf(4->3) 0.868418
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 12
+Lanzado stream 4 del kernel 12
+WS Conf(2->3) 1.303632
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 12
+WS Conf(1->2) 1.341029
+--> Evicting stream 1(2) of kernel 2
+Lanzado stream 6 del kernel 12
+WS Conf(0->1) 1.081364
+Configuracion extrema alcanzada VA/GCEDD=(1,7)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-GCEDD, 1-7, 1.099825, 1.295371
+Lanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 5
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 5
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 5
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 5
+Lanzado stream 4 del kernel 5
+Lanzado stream 5 del kernel 5
+Lanzado stream 6 del kernel 5
+Lanzado stream 7 del kernel 5
+--> Evicting stream 7(8) of kernel 5
+--> Evicting stream 6(8) of kernel 5
+Lanzado stream 4 del kernel 2
+PROF:, VA-SPMV_CSRscalar, Not-foundLanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 8
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 8
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 8
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 8
+Lanzado stream 4 del kernel 8
+Lanzado stream 5 del kernel 8
+Lanzado stream 6 del kernel 8
+Lanzado stream 7 del kernel 8
+Lanzado stream 8 del kernel 8
+Lanzado stream 9 del kernel 8
+Lanzado stream 10 del kernel 8
+Lanzado stream 11 del kernel 8
+Lanzado stream 12 del kernel 8
+Lanzado stream 13 del kernel 8
+Lanzado stream 14 del kernel 8
+Lanzado stream 15 del kernel 8
+--> Evicting stream 15(16) of kernel 8
+--> Evicting stream 14(16) of kernel 8
+--> Evicting stream 13(16) of kernel 8
+--> Evicting stream 12(16) of kernel 8
+Lanzado stream 4 del kernel 2
+PROF:, VA-RCONV, Not-foundLanzado stream 0 del kernel 2
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 2
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 2
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 2
+Lanzado stream 3 del kernel 16
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 2
+WS Conf(4->3) 0.906070
+--> Evicting stream 4(5) of kernel 2
+--> Evicting stream 3(5) of kernel 2
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+WS Conf(2->3) 1.133424
+--> Evicting stream 2(3) of kernel 2
+Lanzado stream 5 del kernel 16
+WS Conf(1->2) 1.168399
+--> Evicting stream 1(2) of kernel 2
+Lanzado stream 6 del kernel 16
+WS Conf(0->1) 1.062034
+Configuracion extrema alcanzada VA/HST256=(1,7)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, VA-HST256, 1-7, 0.813723, 0.941640
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 1
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 1
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 1
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 1
+--> Evicting stream 3(4) of kernel 1
+Lanzado stream 4 del kernel 0
+WS Conf(4->3) 0.774909
+--> Evicting stream 4(5) of kernel 0
+--> Evicting stream 3(5) of kernel 0
+Lanzado stream 3 del kernel 1
+Lanzado stream 4 del kernel 1
+WS Conf(2->3) 0.810684
+Best configuration achieved MM/BS=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-BS, 4-4, 1.041651, 1.249410
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 6
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 6
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 6
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 6
+--> Evicting stream 3(4) of kernel 6
+Lanzado stream 4 del kernel 0
+WS Conf(4->3) 0.922276
+--> Evicting stream 4(5) of kernel 0
+--> Evicting stream 3(5) of kernel 0
+Lanzado stream 3 del kernel 6
+Lanzado stream 4 del kernel 6
+WS Conf(2->3) 1.103466
+--> Evicting stream 2(3) of kernel 0
+Lanzado stream 5 del kernel 6
+WS Conf(1->2) 0.922910
+Best configuration achieved MM/Reduction=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-Reduction, 3-5, 1.136303, 1.212290
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 7
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 7
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 7
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 7
+--> Evicting stream 3(4) of kernel 7
+Lanzado stream 4 del kernel 0
+WS Conf(4->3) 0.855341
+--> Evicting stream 4(5) of kernel 0
+--> Evicting stream 3(5) of kernel 0
+Lanzado stream 3 del kernel 7
+Lanzado stream 4 del kernel 7
+WS Conf(2->3) 0.919614
+Best configuration achieved MM/PF=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-PF, 4-4, 1.662493, 1.740006
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 12
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 4 del kernel 0
+WS Conf(4->3) 0.844873
+--> Evicting stream 4(5) of kernel 0
+--> Evicting stream 3(5) of kernel 0
+Lanzado stream 3 del kernel 12
+Lanzado stream 4 del kernel 12
+WS Conf(2->3) 1.027210
+--> Evicting stream 2(3) of kernel 0
+Lanzado stream 5 del kernel 12
+WS Conf(1->2) 0.997704
+Best configuration achieved MM/GCEDD=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-GCEDD, 3-5, 1.165152, 1.241343
+Lanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 5
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 5
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 5
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 5
+Lanzado stream 4 del kernel 5
+Lanzado stream 5 del kernel 5
+Lanzado stream 6 del kernel 5
+Lanzado stream 7 del kernel 5
+--> Evicting stream 7(8) of kernel 5
+--> Evicting stream 6(8) of kernel 5
+Lanzado stream 4 del kernel 0
+PROF:, MM-SPMV_CSRscalar, Not-foundLanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 8
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 8
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 8
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 8
+Lanzado stream 4 del kernel 8
+Lanzado stream 5 del kernel 8
+Lanzado stream 6 del kernel 8
+Lanzado stream 7 del kernel 8
+Lanzado stream 8 del kernel 8
+Lanzado stream 9 del kernel 8
+Lanzado stream 10 del kernel 8
+Lanzado stream 11 del kernel 8
+Lanzado stream 12 del kernel 8
+Lanzado stream 13 del kernel 8
+Lanzado stream 14 del kernel 8
+Lanzado stream 15 del kernel 8
+--> Evicting stream 15(16) of kernel 8
+--> Evicting stream 14(16) of kernel 8
+--> Evicting stream 13(16) of kernel 8
+--> Evicting stream 12(16) of kernel 8
+Lanzado stream 4 del kernel 0
+PROF:, MM-RCONV, Not-foundLanzado stream 0 del kernel 0
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 0
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 0
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 0
+Lanzado stream 3 del kernel 16
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 0
+WS Conf(4->3) 0.810566
+--> Evicting stream 4(5) of kernel 0
+--> Evicting stream 3(5) of kernel 0
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+WS Conf(2->3) 1.139380
+--> Evicting stream 2(3) of kernel 0
+Lanzado stream 5 del kernel 16
+WS Conf(1->2) 0.835905
+Best configuration achieved MM/HST256=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, MM-HST256, 3-5, 1.049757, 1.100344
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 6
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 6
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 6
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 6
+--> Evicting stream 3(4) of kernel 6
+Lanzado stream 4 del kernel 1
+WS Conf(4->3) 1.039693
+--> Evicting stream 2(3) of kernel 6
+Lanzado stream 5 del kernel 1
+WS Conf(5->4) 0.909531
+Best configuration achieved BS/Reduction=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-Reduction, 5-3, 0.546217, 0.601333
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 7
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 7
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 7
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 7
+--> Evicting stream 3(4) of kernel 7
+Lanzado stream 4 del kernel 1
+WS Conf(4->3) 0.886588
+--> Evicting stream 4(5) of kernel 1
+--> Evicting stream 3(5) of kernel 1
+Lanzado stream 3 del kernel 7
+Lanzado stream 4 del kernel 7
+WS Conf(2->3) 1.150577
+--> Evicting stream 2(3) of kernel 1
+Lanzado stream 5 del kernel 7
+WS Conf(1->2) 1.087255
+--> Evicting stream 1(2) of kernel 1
+Lanzado stream 6 del kernel 7
+WS Conf(0->1) 0.841723
+Best configuration achieved BS/PF=(2,6)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-PF, 2-6, 1.873732, 2.166429
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 12
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 4 del kernel 1
+WS Conf(4->3) 0.892064
+--> Evicting stream 4(5) of kernel 1
+--> Evicting stream 3(5) of kernel 1
+Lanzado stream 3 del kernel 12
+Lanzado stream 4 del kernel 12
+WS Conf(2->3) 1.090515
+--> Evicting stream 2(3) of kernel 1
+Lanzado stream 5 del kernel 12
+WS Conf(1->2) 1.036397
+--> Evicting stream 1(2) of kernel 1
+Lanzado stream 6 del kernel 12
+WS Conf(0->1) 0.874993
+Best configuration achieved BS/GCEDD=(2,6)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-GCEDD, 2-6, 1.039267, 1.141376
+Lanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 5
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 5
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 5
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 5
+Lanzado stream 4 del kernel 5
+Lanzado stream 5 del kernel 5
+Lanzado stream 6 del kernel 5
+Lanzado stream 7 del kernel 5
+--> Evicting stream 7(8) of kernel 5
+--> Evicting stream 6(8) of kernel 5
+Lanzado stream 4 del kernel 1
+PROF:, BS-SPMV_CSRscalar, Not-foundLanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 8
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 8
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 8
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 8
+Lanzado stream 4 del kernel 8
+Lanzado stream 5 del kernel 8
+Lanzado stream 6 del kernel 8
+Lanzado stream 7 del kernel 8
+Lanzado stream 8 del kernel 8
+Lanzado stream 9 del kernel 8
+Lanzado stream 10 del kernel 8
+Lanzado stream 11 del kernel 8
+Lanzado stream 12 del kernel 8
+Lanzado stream 13 del kernel 8
+Lanzado stream 14 del kernel 8
+Lanzado stream 15 del kernel 8
+--> Evicting stream 15(16) of kernel 8
+--> Evicting stream 14(16) of kernel 8
+--> Evicting stream 13(16) of kernel 8
+--> Evicting stream 12(16) of kernel 8
+Lanzado stream 4 del kernel 1
+PROF:, BS-RCONV, Not-foundLanzado stream 0 del kernel 1
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 1
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 1
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 1
+Lanzado stream 3 del kernel 16
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 1
+WS Conf(4->3) 1.058476
+--> Evicting stream 2(3) of kernel 16
+Lanzado stream 5 del kernel 1
+WS Conf(5->4) 0.918302
+Best configuration achieved BS/HST256=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, BS-HST256, 5-3, 0.497341, 0.585261
+Lanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 7
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 7
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 7
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 7
+--> Evicting stream 3(4) of kernel 7
+Lanzado stream 4 del kernel 6
+WS Conf(4->3) 0.832667
+--> Evicting stream 4(5) of kernel 6
+--> Evicting stream 3(5) of kernel 6
+Lanzado stream 3 del kernel 7
+Lanzado stream 4 del kernel 7
+WS Conf(2->3) 1.089546
+--> Evicting stream 2(3) of kernel 6
+Lanzado stream 5 del kernel 7
+WS Conf(1->2) 0.850954
+Best configuration achieved Reduction/PF=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, Reduction-PF, 3-5, 1.514912, 1.704042
+Lanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 12
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 4 del kernel 6
+WS Conf(4->3) 0.989874
+--> Evicting stream 4(5) of kernel 6
+--> Evicting stream 3(5) of kernel 6
+Lanzado stream 3 del kernel 12
+Lanzado stream 4 del kernel 12
+WS Conf(2->3) 1.024170
+--> Evicting stream 2(3) of kernel 6
+Lanzado stream 5 del kernel 12
+WS Conf(1->2) 0.922513
+Best configuration achieved Reduction/GCEDD=(3,5)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, Reduction-GCEDD, 3-5, 0.668526, 0.704434
+Lanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 5
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 5
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 5
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 5
+Lanzado stream 4 del kernel 5
+Lanzado stream 5 del kernel 5
+Lanzado stream 6 del kernel 5
+Lanzado stream 7 del kernel 5
+--> Evicting stream 3(4) of kernel 6
+Lanzado stream 8 del kernel 5
+Lanzado stream 9 del kernel 5
+WS Conf(4->3) 1.544993
+--> Evicting stream 2(3) of kernel 6
+Lanzado stream 10 del kernel 5
+Lanzado stream 11 del kernel 5
+WS Conf(5->4) 0.841048
+Best configuration achieved Reduction/SPMV_CSRscalar=(3,10)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, Reduction-SPMV_CSRscalar, 3-10, 1.391649, 0.043371
+Lanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 8
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 8
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 8
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 8
+Lanzado stream 4 del kernel 8
+Lanzado stream 5 del kernel 8
+Lanzado stream 6 del kernel 8
+Lanzado stream 7 del kernel 8
+Lanzado stream 8 del kernel 8
+Lanzado stream 9 del kernel 8
+Lanzado stream 10 del kernel 8
+Lanzado stream 11 del kernel 8
+Lanzado stream 12 del kernel 8
+Lanzado stream 13 del kernel 8
+Lanzado stream 14 del kernel 8
+Lanzado stream 15 del kernel 8
+--> Evicting stream 15(16) of kernel 8
+--> Evicting stream 14(16) of kernel 8
+--> Evicting stream 13(16) of kernel 8
+--> Evicting stream 12(16) of kernel 8
+Lanzado stream 4 del kernel 6
+PROF:, Reduction-RCONV, Not-foundLanzado stream 0 del kernel 6
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 6
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 6
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 6
+Lanzado stream 3 del kernel 16
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 6
+WS Conf(4->3) 1.038779
+--> Evicting stream 2(3) of kernel 16
+Lanzado stream 5 del kernel 6
+WS Conf(5->4) 0.960582
+Best configuration achieved Reduction/HST256=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, Reduction-HST256, 5-3, 0.457048, 0.499580
+Lanzado stream 0 del kernel 7
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 7
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 7
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 7
+Lanzado stream 3 del kernel 12
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 4 del kernel 7
+WS Conf(4->3) 2.503041
+--> Evicting stream 2(3) of kernel 12
+Lanzado stream 5 del kernel 7
+WS Conf(5->4) 0.568646
+Best configuration achieved PF/GCEDD=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, PF-GCEDD, 5-3, 0.941515, 1.032747
+Lanzado stream 0 del kernel 7
+Lanzado stream 0 del kernel 5
+Lanzado stream 1 del kernel 7
+Lanzado stream 1 del kernel 5
+Lanzado stream 2 del kernel 7
+Lanzado stream 2 del kernel 5
+Lanzado stream 3 del kernel 7
+Lanzado stream 3 del kernel 5
+Lanzado stream 4 del kernel 5
+Lanzado stream 5 del kernel 5
+Lanzado stream 6 del kernel 5
+Lanzado stream 7 del kernel 5
+--> Evicting stream 3(4) of kernel 7
+Lanzado stream 8 del kernel 5
+Lanzado stream 9 del kernel 5
+WS Conf(4->3) 2.247258
+--> Evicting stream 2(3) of kernel 7
+Lanzado stream 10 del kernel 5
+Lanzado stream 11 del kernel 5
+WS Conf(5->4) 545.855043
+--> Evicting stream 1(2) of kernel 7
+Lanzado stream 12 del kernel 5
+Lanzado stream 13 del kernel 5
+WS Conf(6->5) 0.681896
+Best configuration achieved PF/SPMV_CSRscalar=(2,12)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, PF-SPMV_CSRscalar, 2-12, 8.208752, 11.671354
+Lanzado stream 0 del kernel 7
+Lanzado stream 0 del kernel 8
+Lanzado stream 1 del kernel 7
+Lanzado stream 1 del kernel 8
+Lanzado stream 2 del kernel 7
+Lanzado stream 2 del kernel 8
+Lanzado stream 3 del kernel 7
+Lanzado stream 3 del kernel 8
+Lanzado stream 4 del kernel 8
+Lanzado stream 5 del kernel 8
+Lanzado stream 6 del kernel 8
+Lanzado stream 7 del kernel 8
+Lanzado stream 8 del kernel 8
+Lanzado stream 9 del kernel 8
+Lanzado stream 10 del kernel 8
+Lanzado stream 11 del kernel 8
+Lanzado stream 12 del kernel 8
+Lanzado stream 13 del kernel 8
+Lanzado stream 14 del kernel 8
+Lanzado stream 15 del kernel 8
+--> Evicting stream 15(16) of kernel 8
+--> Evicting stream 14(16) of kernel 8
+--> Evicting stream 13(16) of kernel 8
+--> Evicting stream 12(16) of kernel 8
+Lanzado stream 4 del kernel 7
+PROF:, PF-RCONV, Not-foundLanzado stream 0 del kernel 7
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 7
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 7
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 7
+Lanzado stream 3 del kernel 16
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 7
+WS Conf(4->3) 0.619368
+--> Evicting stream 4(5) of kernel 7
+--> Evicting stream 3(5) of kernel 7
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+WS Conf(2->3) 0.695747
+Best configuration achieved PF/HST256=(4,4)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, PF-HST256, 4-4, 0.939846, 0.981988
+Lanzado stream 0 del kernel 12
+Lanzado stream 0 del kernel 5
+Lanzado stream 1 del kernel 12
+Lanzado stream 1 del kernel 5
+Lanzado stream 2 del kernel 12
+Lanzado stream 2 del kernel 5
+Lanzado stream 3 del kernel 12
+Lanzado stream 3 del kernel 5
+Lanzado stream 4 del kernel 5
+Lanzado stream 5 del kernel 5
+Lanzado stream 6 del kernel 5
+Lanzado stream 7 del kernel 5
+--> Evicting stream 3(4) of kernel 12
+Lanzado stream 8 del kernel 5
+Lanzado stream 9 del kernel 5
+WS Conf(4->3) 9.780099
+--> Evicting stream 2(3) of kernel 12
+Lanzado stream 10 del kernel 5
+Lanzado stream 11 del kernel 5
+WS Conf(5->4) 0.997689
+Best configuration achieved GCEDD/SPMV_CSRscalar=(3,10)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, GCEDD-SPMV_CSRscalar, 3-10, 2.605200, 0.081246
+Lanzado stream 0 del kernel 12
+Lanzado stream 0 del kernel 8
+Lanzado stream 1 del kernel 12
+Lanzado stream 1 del kernel 8
+Lanzado stream 2 del kernel 12
+Lanzado stream 2 del kernel 8
+Lanzado stream 3 del kernel 12
+Lanzado stream 3 del kernel 8
+Lanzado stream 4 del kernel 8
+Lanzado stream 5 del kernel 8
+Lanzado stream 6 del kernel 8
+Lanzado stream 7 del kernel 8
+Lanzado stream 8 del kernel 8
+Lanzado stream 9 del kernel 8
+Lanzado stream 10 del kernel 8
+Lanzado stream 11 del kernel 8
+Lanzado stream 12 del kernel 8
+Lanzado stream 13 del kernel 8
+Lanzado stream 14 del kernel 8
+Lanzado stream 15 del kernel 8
+--> Evicting stream 3(4) of kernel 12
+Error: not enough available streams
+WS Conf(4->3) 0.964754
+--> Evicting stream 15(16) of kernel 8
+--> Evicting stream 14(16) of kernel 8
+--> Evicting stream 13(16) of kernel 8
+--> Evicting stream 12(16) of kernel 8
+--> Evicting stream 11(16) of kernel 8
+--> Evicting stream 10(16) of kernel 8
+--> Evicting stream 9(16) of kernel 8
+--> Evicting stream 8(16) of kernel 8
+Lanzado stream 3 del kernel 12
+Lanzado stream 4 del kernel 12
+Lanzado stream 8 del kernel 8
+Lanzado stream 9 del kernel 8
+Lanzado stream 10 del kernel 8
+Lanzado stream 11 del kernel 8
+WS Conf(2->3) 1.755721
+--> Evicting stream 11(12) of kernel 8
+--> Evicting stream 10(12) of kernel 8
+--> Evicting stream 9(12) of kernel 8
+--> Evicting stream 8(12) of kernel 8
+Lanzado stream 5 del kernel 12
+PROF:, GCEDD-RCONV, Not-foundLanzado stream 0 del kernel 12
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 12
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 12
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 12
+Lanzado stream 3 del kernel 16
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 4 del kernel 12
+WS Conf(4->3) 1.269757
+--> Evicting stream 2(3) of kernel 16
+Lanzado stream 5 del kernel 12
+WS Conf(5->4) 0.863980
+Best configuration achieved GCEDD/HST256=(5,3)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, GCEDD-HST256, 5-3, 0.458241, 0.503132
+Lanzado stream 0 del kernel 5
+Lanzado stream 0 del kernel 8
+Lanzado stream 1 del kernel 5
+Lanzado stream 1 del kernel 8
+Lanzado stream 2 del kernel 5
+Lanzado stream 2 del kernel 8
+Lanzado stream 3 del kernel 5
+Lanzado stream 3 del kernel 8
+Lanzado stream 4 del kernel 5
+Lanzado stream 4 del kernel 8
+Lanzado stream 5 del kernel 5
+Lanzado stream 5 del kernel 8
+Lanzado stream 6 del kernel 5
+Lanzado stream 6 del kernel 8
+Lanzado stream 7 del kernel 5
+Lanzado stream 7 del kernel 8
+Lanzado stream 8 del kernel 8
+Lanzado stream 9 del kernel 8
+Lanzado stream 10 del kernel 8
+Lanzado stream 11 del kernel 8
+Lanzado stream 12 del kernel 8
+Lanzado stream 13 del kernel 8
+Lanzado stream 14 del kernel 8
+Lanzado stream 15 del kernel 8
+--> Evicting stream 15(16) of kernel 8
+--> Evicting stream 14(16) of kernel 8
+Lanzado stream 8 del kernel 5
+PROF:, SPMV_CSRscalar-RCONV, Not-foundLanzado stream 0 del kernel 5
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 5
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 5
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 5
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 5
+Lanzado stream 5 del kernel 5
+Lanzado stream 6 del kernel 5
+Lanzado stream 7 del kernel 5
+--> Evicting stream 3(4) of kernel 16
+Lanzado stream 8 del kernel 5
+Lanzado stream 9 del kernel 5
+WS Conf(4->3) 2.091315
+--> Evicting stream 2(3) of kernel 16
+Lanzado stream 10 del kernel 5
+Lanzado stream 11 del kernel 5
+WS Conf(5->4) 1.500869
+--> Evicting stream 1(2) of kernel 16
+Lanzado stream 12 del kernel 5
+Lanzado stream 13 del kernel 5
+WS Conf(6->5) 0.494819
+Best configuration achieved SPMV_CSRscalar/HST256=(12,2)
+Label, K0/K1, Config, Ptime(ms), Stime(ms)
+PROF:, SPMV_CSRscalar-HST256, 12-2, 1.631975, 0.054631
+Lanzado stream 0 del kernel 8
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 8
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 8
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 8
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 8
+Lanzado stream 5 del kernel 8
+Lanzado stream 6 del kernel 8
+Lanzado stream 7 del kernel 8
+Lanzado stream 8 del kernel 8
+Lanzado stream 9 del kernel 8
+Lanzado stream 10 del kernel 8
+Lanzado stream 11 del kernel 8
+Lanzado stream 12 del kernel 8
+Lanzado stream 13 del kernel 8
+Lanzado stream 14 del kernel 8
+Lanzado stream 15 del kernel 8
+--> Evicting stream 3(4) of kernel 16
+Error: not enough available streams
+WS Conf(4->3) 0.890954
+--> Evicting stream 15(16) of kernel 8
+--> Evicting stream 14(16) of kernel 8
+--> Evicting stream 13(16) of kernel 8
+--> Evicting stream 12(16) of kernel 8
+--> Evicting stream 11(16) of kernel 8
+--> Evicting stream 10(16) of kernel 8
+--> Evicting stream 9(16) of kernel 8
+--> Evicting stream 8(16) of kernel 8
+Lanzado stream 8 del kernel 8
+Lanzado stream 9 del kernel 8
+Lanzado stream 10 del kernel 8
+Lanzado stream 11 del kernel 8
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+PROF:, RCONV-HST256, Not-found

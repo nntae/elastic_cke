@@ -1,0 +1,777 @@
+Device=TITAN X (Pascal)
+Items per row =7
+Sequential execution time =0.101392 sec
+---> Selecting MM(6) SPMV_CSRscalar(4)
+Lanzado stream 0 del kernel 0
+Lanzado stream 1 del kernel 0
+Lanzado stream 2 del kernel 0
+Lanzado stream 3 del kernel 0
+Lanzado stream 4 del kernel 0
+Lanzado stream 5 del kernel 0
+Lanzado stream 0 del kernel 5
+Lanzado stream 1 del kernel 5
+Lanzado stream 2 del kernel 5
+Lanzado stream 3 del kernel 5
+Kid=0 tpms=448.739196
+Kid=5 tpms=19522.638831
+Speedup = 1.179553 
+Kid=0 tpms=416.332687
+Kid=5 tpms=19488.334804
+Speedup = 1.134463 
+Kid=0 tpms=497.746460
+Kid=5 tpms=19504.945609
+Speedup = 1.245714 
+Kid=0 tpms=461.652732
+Kid=5 tpms=19531.524913
+Speedup = 1.197382 
+Kid=0 tpms=472.597634
+Kid=5 tpms=19536.848612
+Speedup = 1.212428 
+Kid=0 tpms=515.758619
+Kid=5 tpms=19485.102431
+Speedup = 1.269642 
+Kid=0 tpms=468.588387
+Kid=5 tpms=19481.452721
+Speedup = 1.205359 
+Kid=0 tpms=496.169280
+Kid=5 tpms=19503.193650
+Speedup = 1.243517 
+Kid=0 tpms=517.467448
+Kid=5 tpms=19472.340323
+Speedup = 1.271595 
+Kid=0 tpms=482.744515
+Kid=5 tpms=19507.304251
+Speedup = 1.225372 
+Kid=0 tpms=507.884796
+Kid=5 tpms=19510.263968
+Speedup = 1.259663 
+Kid=0 tpms=514.985267
+Kid=5 tpms=19486.242110
+Speedup = 1.268623 
+stream 0 de kernel 5 finalizado
+stream 1 de kernel 5 finalizado
+stream 2 de kernel 5 finalizado
+stream 3 de kernel 5 finalizado
+Kernel 5 terminado con pending 0. El otro 6
+Removing kernel 5
+---> Selecting MM(6) RCONV(8)
+Lanzado stream 0 del kernel 8
+Lanzado stream 1 del kernel 8
+Lanzado stream 2 del kernel 8
+Lanzado stream 3 del kernel 8
+Lanzado stream 4 del kernel 8
+Lanzado stream 5 del kernel 8
+Lanzado stream 6 del kernel 8
+Lanzado stream 7 del kernel 8
+Kid=0 tpms=354.800140
+Kid=8 tpms=46768.655047
+Speedup = 1.187313 
+Kid=0 tpms=415.933065
+Kid=8 tpms=46696.917613
+Speedup = 1.269406 
+Kid=0 tpms=342.412418
+Kid=8 tpms=46662.376375
+Speedup = 1.168857 
+Kid=0 tpms=397.771222
+Kid=8 tpms=46661.940829
+Speedup = 1.244169 
+Kid=0 tpms=354.626609
+Kid=8 tpms=46596.810618
+Speedup = 1.184488 
+stream 6 de kernel 8 finalizado
+stream 7 de kernel 8 finalizado
+stream 0 de kernel 8 finalizado
+stream 1 de kernel 8 finalizado
+stream 2 de kernel 8 finalizado
+stream 3 de kernel 8 finalizado
+stream 4 de kernel 8 finalizado
+stream 5 de kernel 8 finalizado
+Kernel 8 terminado con pending 0. El otro 6
+Removing kernel 8
+---> Selecting MM(6) VA(2)
+Lanzado stream 0 del kernel 2
+Lanzado stream 1 del kernel 2
+Kid=0 tpms=374.669053
+Kid=2 tpms=1692.642049
+Speedup = 1.090619 
+Kid=0 tpms=462.442528
+Kid=2 tpms=1686.920726
+Speedup = 1.208076 
+Kid=0 tpms=403.623471
+Kid=2 tpms=1684.084137
+Speedup = 1.127076 
+Kid=0 tpms=454.086550
+Kid=2 tpms=1684.834796
+Speedup = 1.195991 
+Kid=0 tpms=418.296038
+Kid=2 tpms=1684.527773
+Speedup = 1.147191 
+Kid=0 tpms=445.489685
+Kid=2 tpms=1682.064814
+Speedup = 1.183344 
+Kid=0 tpms=429.746523
+Kid=2 tpms=1675.956274
+Speedup = 1.159829 
+Kid=0 tpms=440.434195
+Kid=2 tpms=1677.820909
+Speedup = 1.175010 
+Kid=0 tpms=438.345623
+Kid=2 tpms=1678.895337
+Speedup = 1.172537 
+Kid=0 tpms=437.105006
+Kid=2 tpms=1681.364142
+Speedup = 1.171696 
+Kid=0 tpms=444.039837
+Kid=2 tpms=1682.154356
+Speedup = 1.181402 
+Kid=0 tpms=434.688866
+Kid=2 tpms=1681.270081
+Speedup = 1.168376 
+Kid=0 tpms=447.118636
+Kid=2 tpms=1680.172473
+Speedup = 1.184911 
+Kid=0 tpms=433.775739
+Kid=2 tpms=1678.901520
+Speedup = 1.166321 
+Kid=0 tpms=447.719741
+Kid=2 tpms=1682.163728
+Speedup = 1.186412 
+Kid=0 tpms=435.825613
+Kid=2 tpms=1682.027414
+Speedup = 1.170183 
+Kid=0 tpms=447.465653
+Kid=2 tpms=1681.330616
+Speedup = 1.185781 
+Kid=0 tpms=436.823841
+Kid=2 tpms=1679.957900
+Speedup = 1.170831 
+Kid=0 tpms=446.388880
+Kid=2 tpms=1681.413894
+Speedup = 1.184344 
+Kid=0 tpms=440.149986
+Kid=2 tpms=1680.613756
+Speedup = 1.175581 
+Kid=0 tpms=445.066581
+Kid=2 tpms=1681.266569
+Speedup = 1.182495 
+Kid=0 tpms=443.522737
+Kid=2 tpms=1681.284697
+Speedup = 1.180400 
+Kid=0 tpms=443.515478
+Kid=2 tpms=1681.182214
+Speedup = 1.180355 
+Kid=0 tpms=446.255438
+Kid=2 tpms=1682.157387
+Speedup = 1.184418 
+Kid=0 tpms=441.486305
+Kid=2 tpms=1682.361072
+Speedup = 1.177999 
+Kid=0 tpms=446.644469
+Kid=2 tpms=1681.130016
+Speedup = 1.184594 
+Kid=0 tpms=440.811379
+Kid=2 tpms=1681.696269
+Speedup = 1.176853 
+Kid=0 tpms=446.385741
+Kid=2 tpms=1681.397328
+Speedup = 1.184334 
+Kid=0 tpms=441.235846
+Kid=2 tpms=1681.470663
+Speedup = 1.177353 
+Kid=0 tpms=446.496433
+Kid=2 tpms=1681.694596
+Speedup = 1.184587 
+Kid=0 tpms=442.091740
+Kid=2 tpms=1681.543632
+Speedup = 1.178542 
+stream 0 de kernel 2 finalizado
+stream 1 de kernel 2 finalizado
+Kernel 2 terminado con pending 0. El otro 6
+Removing kernel 2
+---> Selecting MM(5) BS(3)
+--> Evicting stream 5(6) of kernel 0
+Lanzado stream 0 del kernel 1
+Lanzado stream 1 del kernel 1
+Lanzado stream 2 del kernel 1
+Kid=0 tpms=491.688707
+Kid=1 tpms=1151.149573
+Speedup = 1.142493 
+Kid=0 tpms=470.319464
+Kid=1 tpms=1169.577502
+Speedup = 1.121000 
+Kid=0 tpms=451.663666
+Kid=1 tpms=1181.886421
+Speedup = 1.100681 
+Kid=0 tpms=484.914593
+Kid=1 tpms=1183.688955
+Speedup = 1.146662 
+Kid=0 tpms=483.165631
+Kid=1 tpms=1180.913645
+Speedup = 1.143141 
+Kid=0 tpms=465.688363
+Kid=1 tpms=1176.966717
+Speedup = 1.117739 
+Kid=0 tpms=478.006978
+Kid=1 tpms=1175.399817
+Speedup = 1.133854 
+Kid=0 tpms=487.478406
+Kid=1 tpms=1179.399287
+Speedup = 1.148386 
+Kid=0 tpms=474.818344
+Kid=1 tpms=1179.139750
+Speedup = 1.131054 
+Kid=0 tpms=475.147327
+Kid=1 tpms=1181.033156
+Speedup = 1.132281 
+Kid=0 tpms=488.430258
+Kid=1 tpms=1181.871180
+Speedup = 1.150698 
+Kid=0 tpms=481.703754
+Kid=1 tpms=1179.037433
+Speedup = 1.140380 
+Kid=0 tpms=474.288686
+Kid=1 tpms=1179.419977
+Speedup = 1.130449 
+Kid=0 tpms=485.728266
+Kid=1 tpms=1179.492517
+Speedup = 1.146043 
+Kid=0 tpms=484.183334
+Kid=1 tpms=1180.599388
+Speedup = 1.144396 
+Kid=0 tpms=476.663157
+Kid=1 tpms=1180.874910
+Speedup = 1.134278 
+Kid=0 tpms=482.537503
+Kid=1 tpms=1181.195224
+Speedup = 1.142402 
+Kid=0 tpms=483.785865
+Kid=1 tpms=1180.347922
+Speedup = 1.143752 
+Kid=0 tpms=478.333172
+Kid=1 tpms=1179.477632
+Speedup = 1.135976 
+Kid=0 tpms=480.415829
+Kid=1 tpms=1179.202490
+Speedup = 1.138696 
+Kid=0 tpms=484.024760
+Kid=1 tpms=1179.106827
+Speedup = 1.143567 
+stream 0 de kernel 1 finalizado
+stream 2 de kernel 1 finalizado
+stream 1 de kernel 1 finalizado
+Kernel 1 terminado con pending 0. El otro 5
+Removing kernel 1
+---> Selecting MM(3) Reduction(5)
+--> Evicting stream 4(5) of kernel 0
+--> Evicting stream 3(5) of kernel 0
+Lanzado stream 0 del kernel 6
+Lanzado stream 1 del kernel 6
+Lanzado stream 2 del kernel 6
+Lanzado stream 3 del kernel 6
+Lanzado stream 4 del kernel 6
+Kid=0 tpms=416.938734
+Kid=6 tpms=8479.969077
+Speedup = 1.059398 
+Kid=0 tpms=412.595238
+Kid=6 tpms=8494.242323
+Speedup = 1.054317 
+Kid=0 tpms=411.984890
+Kid=6 tpms=8504.757957
+Speedup = 1.054097 
+Kid=0 tpms=413.138116
+Kid=6 tpms=8492.927444
+Speedup = 1.054979 
+Kid=0 tpms=412.484780
+Kid=6 tpms=8482.869986
+Speedup = 1.053507 
+Kid=0 tpms=412.737362
+Kid=6 tpms=8498.919187
+Speedup = 1.054782 
+stream 0 de kernel 6 finalizado
+stream 1 de kernel 6 finalizado
+stream 2 de kernel 6 finalizado
+stream 3 de kernel 6 finalizado
+stream 4 de kernel 6 finalizado
+Kernel 6 terminado con pending 0. El otro 3
+Removing kernel 6
+---> Selecting MM(5) PF(3)
+Lanzado stream 3 del kernel 0
+Lanzado stream 4 del kernel 0
+Lanzado stream 0 del kernel 7
+Lanzado stream 1 del kernel 7
+Lanzado stream 2 del kernel 7
+Kid=0 tpms=541.307642
+Kid=7 tpms=225.821593
+Speedup = 0.921421 
+--> Evicting stream 2(3) of kernel 7
+--> Evicting stream 1(3) of kernel 7
+--> Evicting stream 0(3) of kernel 7
+Bad partner --> 0,7
+Removing kernel 7
+Lanzado stream 5 del kernel 0
+Lanzado stream 6 del kernel 0
+Lanzado stream 7 del kernel 0
+Kid=0 tpms=792.036029
+Kid=0 tpms=741.417374
+Kid=0 tpms=725.039526
+Kid=0 tpms=765.377915
+Kid=0 tpms=743.330156
+Kid=0 tpms=736.092613
+Kid=0 tpms=756.755321
+Kid=0 tpms=747.641606
+Kid=0 tpms=752.236865
+Kid=0 tpms=754.365298
+Kid=0 tpms=762.393217
+Kid=0 tpms=758.300227
+Kid=0 tpms=752.781577
+Kid=0 tpms=765.181251
+Kid=0 tpms=756.954178
+Kid=0 tpms=752.212497
+Kid=0 tpms=760.902074
+Kid=0 tpms=754.220500
+Kid=0 tpms=753.575993
+Kid=0 tpms=758.630121
+Kid=0 tpms=759.952538
+Kid=0 tpms=759.149117
+Kid=0 tpms=756.637313
+Kid=0 tpms=762.462993
+Kid=0 tpms=758.523003
+Kid=0 tpms=755.952184
+Kid=0 tpms=761.705837
+Kid=0 tpms=757.202365
+Kid=0 tpms=754.952497
+Kid=0 tpms=759.859974
+Kid=0 tpms=755.831279
+Kid=0 tpms=756.570702
+Kid=0 tpms=758.930443
+Kid=0 tpms=757.242207
+Kid=0 tpms=756.951923
+Kid=0 tpms=757.218522
+Kid=0 tpms=758.332183
+Kid=0 tpms=757.667226
+Kid=0 tpms=756.751357
+Kid=0 tpms=759.042946
+Kid=0 tpms=757.357340
+Kid=0 tpms=755.748585
+Kid=0 tpms=758.714167
+Kid=0 tpms=756.328860
+Kid=0 tpms=756.729151
+Kid=0 tpms=758.156168
+Kid=0 tpms=757.416444
+Kid=0 tpms=757.261163
+Kid=0 tpms=757.339719
+Kid=0 tpms=757.767391
+Kid=0 tpms=757.435131
+Kid=0 tpms=757.297293
+Kid=0 tpms=757.963620
+Kid=0 tpms=756.832528
+Kid=0 tpms=756.777311
+Kid=0 tpms=758.196866
+Kid=0 tpms=756.649306
+Kid=0 tpms=757.188722
+Kid=0 tpms=758.274934
+Kid=0 tpms=757.594722
+Kid=0 tpms=757.454542
+Kid=0 tpms=757.500233
+Kid=0 tpms=757.166158
+Kid=0 tpms=756.977827
+Kid=0 tpms=757.175410
+Kid=0 tpms=757.077875
+Kid=0 tpms=756.639669
+Kid=0 tpms=756.622851
+Kid=0 tpms=756.668982
+Kid=0 tpms=756.571600
+Kid=0 tpms=757.095314
+Kid=0 tpms=757.272586
+Kid=0 tpms=757.194706
+Kid=0 tpms=757.183576
+Kid=0 tpms=757.428172
+Kid=0 tpms=757.139416
+Kid=0 tpms=757.129411
+Kid=0 tpms=757.181116
+Kid=0 tpms=756.906136
+Kid=0 tpms=756.468831
+Kid=0 tpms=757.011187
+Kid=0 tpms=756.817161
+Kid=0 tpms=756.869496
+Kid=0 tpms=757.424775
+Kid=0 tpms=757.345699
+Kid=0 tpms=757.100837
+Kid=0 tpms=757.082422
+Kid=0 tpms=757.401989
+Kid=0 tpms=757.090294
+Kid=0 tpms=756.912287
+Kid=0 tpms=757.348206
+Kid=0 tpms=756.562529
+Kid=0 tpms=756.475458
+Kid=0 tpms=757.167613
+Kid=0 tpms=756.712168
+Kid=0 tpms=756.425564
+Kid=0 tpms=757.205564
+Kid=0 tpms=756.624751
+Kid=0 tpms=756.785631
+Kid=0 tpms=757.144877
+Kid=0 tpms=757.249859
+Kid=0 tpms=756.935850
+Kid=0 tpms=756.900337
+Kid=0 tpms=757.059417
+Kid=0 tpms=756.810219
+Kid=0 tpms=756.830599
+Kid=0 tpms=757.014780
+Kid=0 tpms=756.801343
+Kid=0 tpms=756.503143
+Kid=0 tpms=757.116459
+Kid=0 tpms=756.421242
+Kid=0 tpms=756.651855
+Kid=0 tpms=757.205114
+Kid=0 tpms=756.704330
+Kid=0 tpms=756.926615
+Kid=0 tpms=756.796700
+Kid=0 tpms=756.725205
+Kid=0 tpms=756.852406
+Kid=0 tpms=756.848248
+Kid=0 tpms=756.778089
+Kid=0 tpms=756.621897
+Kid=0 tpms=756.587197
+Kid=0 tpms=757.032236
+Kid=0 tpms=756.565518
+Kid=0 tpms=756.493360
+Kid=0 tpms=757.082380
+Kid=0 tpms=756.747364
+Kid=0 tpms=756.661234
+Kid=0 tpms=756.833015
+Kid=0 tpms=756.717581
+Kid=0 tpms=757.047597
+Kid=0 tpms=756.902208
+Kid=0 tpms=756.874830
+Kid=0 tpms=756.841330
+Kid=0 tpms=756.671209
+Kid=0 tpms=757.138584
+Kid=0 tpms=756.714725
+Kid=0 tpms=756.443768
+Kid=0 tpms=757.083504
+Kid=0 tpms=756.923916
+Kid=0 tpms=756.650970
+Kid=0 tpms=756.900270
+Kid=0 tpms=756.739122
+Kid=0 tpms=756.910957
+Kid=0 tpms=756.745891
+Kid=0 tpms=756.815668
+Kid=0 tpms=756.890464
+Kid=0 tpms=756.782078
+Kid=0 tpms=757.033910
+Kid=0 tpms=756.846937
+Kid=0 tpms=756.668206
+Kid=0 tpms=757.130559
+Kid=0 tpms=757.036046
+Kid=0 tpms=756.790791
+Kid=0 tpms=757.018582
+Kid=0 tpms=756.802053
+Kid=0 tpms=756.830139
+Kid=0 tpms=756.905256
+Kid=0 tpms=756.851727
+Kid=0 tpms=756.920306
+Kid=0 tpms=756.867341
+Kid=0 tpms=756.569677
+Kid=0 tpms=756.877197
+Kid=0 tpms=756.766188
+Kid=0 tpms=757.004630
+Kid=0 tpms=756.806350
+Kid=0 tpms=756.732085
+Kid=0 tpms=756.939986
+Kid=0 tpms=756.787512
+Kid=0 tpms=756.956551
+Kid=0 tpms=756.968433
+Kid=0 tpms=756.800358
+Kid=0 tpms=757.060896
+Kid=0 tpms=756.861214
+Kid=0 tpms=756.613224
+Kid=0 tpms=756.953322
+Kid=0 tpms=756.877425
+Kid=0 tpms=756.742785
+Kid=0 tpms=756.881395
+Kid=0 tpms=756.770364
+Kid=0 tpms=756.697125
+Kid=0 tpms=756.887188
+Kid=0 tpms=756.804515
+Kid=0 tpms=756.775622
+Kid=0 tpms=756.856999
+Kid=0 tpms=756.916067
+Kid=0 tpms=756.711708
+Kid=0 tpms=756.653353
+Kid=0 tpms=756.904645
+Kid=0 tpms=756.769036
+Kid=0 tpms=756.664919
+Kid=0 tpms=756.928460
+Kid=0 tpms=756.744375
+Kid=0 tpms=756.591794
+Kid=0 tpms=756.840231
+Kid=0 tpms=756.634547
+Kid=0 tpms=756.518454
+Kid=0 tpms=756.772402
+Kid=0 tpms=756.647949
+Kid=0 tpms=756.553470
+Kid=0 tpms=756.658121
+Kid=0 tpms=756.757396
+Kid=0 tpms=756.443510
+Kid=0 tpms=756.542863
+Kid=0 tpms=756.716822
+Kid=0 tpms=756.553800
+Kid=0 tpms=756.460625
+Kid=0 tpms=756.639017
+Kid=0 tpms=756.614335
+Kid=0 tpms=756.393640
+Kid=0 tpms=756.752298
+Kid=0 tpms=756.578986
+Kid=0 tpms=756.388530
+Kid=0 tpms=756.655265
+Kid=0 tpms=756.738214
+Kid=0 tpms=756.370986
+Kid=0 tpms=756.538423
+Kid=0 tpms=756.642782
+Kid=0 tpms=756.437112
+Kid=0 tpms=756.481035
+Kid=0 tpms=756.648956
+Kid=0 tpms=756.336222
+Kid=0 tpms=756.310479
+Kid=0 tpms=756.658893
+Kid=0 tpms=756.484178
+Kid=0 tpms=756.242387
+Kid=0 tpms=756.619629
+Kid=0 tpms=756.571825
+Kid=0 tpms=756.315344
+Kid=0 tpms=756.485104
+Kid=0 tpms=756.614992
+Kid=0 tpms=756.323368
+Kid=0 tpms=756.494700
+Kid=0 tpms=756.584972
+Kid=0 tpms=756.297166
+Kid=0 tpms=756.383782
+Kid=0 tpms=756.589442
+Kid=0 tpms=756.407689
+Kid=0 tpms=756.145808
+Kid=0 tpms=756.597467
+Kid=0 tpms=756.498891
+Kid=0 tpms=756.179382
+Kid=0 tpms=756.464763
+Kid=0 tpms=756.524278
+Kid=0 tpms=756.128896
+Kid=0 tpms=756.514085
+Kid=0 tpms=756.566869
+Kid=0 tpms=756.185088
+Kid=0 tpms=756.381705
+Kid=0 tpms=756.534202
+Kid=0 tpms=756.199476
+Kid=0 tpms=756.231815
+Kid=0 tpms=756.598745
+Kid=0 tpms=756.386436
+Kid=0 tpms=756.198370
+Kid=0 tpms=756.405216
+Kid=0 tpms=756.386013
+Kid=0 tpms=756.124456
+Kid=0 tpms=756.373688
+Kid=0 tpms=756.542544
+Kid=0 tpms=756.174546
+Kid=0 tpms=756.380137
+Kid=0 tpms=756.568962
+Kid=0 tpms=756.149547
+Kid=0 tpms=756.227301
+Kid=0 tpms=756.617962
+Kid=0 tpms=756.357695
+Kid=0 tpms=756.342735
+Kid=0 tpms=756.545669
+Kid=0 tpms=756.544949
+Kid=0 tpms=756.208434
+Kid=0 tpms=756.445536
+Kid=0 tpms=756.487409
+Kid=0 tpms=756.187186
+Kid=0 tpms=756.371732
+Kid=0 tpms=756.530879
+Kid=0 tpms=756.212922
+Kid=0 tpms=756.321970
+Kid=0 tpms=756.552760
+Kid=0 tpms=756.241255
+Kid=0 tpms=756.296910
+Kid=0 tpms=756.452956
+Kid=0 tpms=756.272104
+Kid=0 tpms=756.134803
+Kid=0 tpms=756.361420
+Kid=0 tpms=756.234000
+Kid=0 tpms=756.044135
+Kid=0 tpms=756.313481
+Kid=0 tpms=756.502564
+Kid=0 tpms=756.145302
+Kid=0 tpms=756.249740
+Kid=0 tpms=756.417363
+Kid=0 tpms=756.114043
+Kid=0 tpms=756.231145
+Kid=0 tpms=756.413694
+Kid=0 tpms=756.146452
+Kid=0 tpms=756.124755
+Kid=0 tpms=756.384837
+Kid=0 tpms=756.329814
+Kid=0 tpms=756.004199
+Kid=0 tpms=756.284182
+Kid=0 tpms=756.378543
+Kid=0 tpms=756.039851
+Kid=0 tpms=756.230819
+Kid=0 tpms=756.480152
+Kid=0 tpms=756.144430
+Kid=0 tpms=756.188403
+Kid=0 tpms=756.400874
+Kid=0 tpms=756.093007
+Kid=0 tpms=756.184009
+Kid=0 tpms=756.457310
+Kid=0 tpms=756.264658
+Kid=0 tpms=756.051984
+Kid=0 tpms=756.325919
+Kid=0 tpms=756.287845
+Kid=0 tpms=756.108031
+Kid=0 tpms=756.286717
+Kid=0 tpms=756.402811
+Kid=0 tpms=756.055785
+Kid=0 tpms=756.260763
+Kid=0 tpms=756.327436
+Kid=0 tpms=756.092845
+Kid=0 tpms=756.147220
+Kid=0 tpms=756.364494
+Kid=0 tpms=756.133421
+Kid=0 tpms=756.113681
+Kid=0 tpms=756.368526
+Kid=0 tpms=756.246557
+Kid=0 tpms=756.125326
+Kid=0 tpms=756.288949
+Kid=0 tpms=756.407282
+Kid=0 tpms=756.124692
+Kid=0 tpms=756.269521
+Kid=0 tpms=756.311031
+Kid=0 tpms=756.121438
+Kid=0 tpms=756.218716
+Kid=0 tpms=756.358939
+Kid=0 tpms=756.252449
+Kid=0 tpms=756.163608
+Kid=0 tpms=756.348487
+Kid=0 tpms=756.288558
+Kid=0 tpms=756.157503
+Kid=0 tpms=756.298028
+Kid=0 tpms=756.309827
+Kid=0 tpms=756.106435
+Kid=0 tpms=756.272528
+Kid=0 tpms=756.339044
+Kid=0 tpms=756.025790
+Kid=0 tpms=756.189802
+Kid=0 tpms=756.280502
+Kid=0 tpms=756.231367
+Kid=0 tpms=756.155627
+Kid=0 tpms=756.331279
+Kid=0 tpms=756.257275
+Kid=0 tpms=756.139877
+Kid=0 tpms=756.301256
+Kid=0 tpms=756.256246
+Kid=0 tpms=756.098833
+Kid=0 tpms=756.255650
+Kid=0 tpms=756.330079
+Kid=0 tpms=756.000950
+Kid=0 tpms=756.237819
+Kid=0 tpms=756.284737
+Kid=0 tpms=756.171015
+stream 2 de kernel 0 finalizado
+stream 0 de kernel 0 finalizado
+stream 3 de kernel 0 finalizado
+stream 7 de kernel 0 finalizado
+stream 4 de kernel 0 finalizado
+stream 5 de kernel 0 finalizado
+stream 6 de kernel 0 finalizado
+stream 1 de kernel 0 finalizado
+Kernel 0 terminado con pending 0. El otro 0
+Removing kernel 0
+---> Selecting PF(5) HST256(4)
+Lanzado stream 0 del kernel 7
+Lanzado stream 1 del kernel 7
+Lanzado stream 2 del kernel 7
+Lanzado stream 3 del kernel 7
+Lanzado stream 4 del kernel 7
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 16
+Kid=7 tpms=461.240709
+Kid=16 tpms=2777.399089
+Speedup = 0.977368 
+--> Evicting stream 3(4) of kernel 16
+--> Evicting stream 2(4) of kernel 16
+--> Evicting stream 1(4) of kernel 16
+--> Evicting stream 0(4) of kernel 16
+Bad partner --> 7,16
+Removing kernel 16
+Lanzado stream 5 del kernel 7
+Lanzado stream 6 del kernel 7
+Lanzado stream 7 del kernel 7
+Kid=7 tpms=1028.291664
+stream 6 de kernel 7 finalizado
+Kid=7 tpms=1098.360941
+stream 5 de kernel 7 finalizado
+stream 7 de kernel 7 finalizado
+stream 2 de kernel 7 finalizado
+stream 3 de kernel 7 finalizado
+stream 4 de kernel 7 finalizado
+stream 1 de kernel 7 finalizado
+stream 0 de kernel 7 finalizado
+Kernel 7 terminado con pending 0. El otro 0
+Removing kernel 7
+Aqui
+---> Selecting HST256(10) EMPTY(4)
+Lanzado stream 0 del kernel 16
+Lanzado stream 1 del kernel 16
+Lanzado stream 2 del kernel 16
+Lanzado stream 3 del kernel 16
+Lanzado stream 4 del kernel 16
+Lanzado stream 5 del kernel 16
+Lanzado stream 6 del kernel 16
+Lanzado stream 7 del kernel 16
+Lanzado stream 8 del kernel 16
+Lanzado stream 9 del kernel 16
+Kid=16 tpms=4426.951607
+Kid=16 tpms=4431.670537
+stream 0 de kernel 16 finalizado
+stream 7 de kernel 16 finalizado
+stream 8 de kernel 16 finalizado
+stream 9 de kernel 16 finalizado
+stream 1 de kernel 16 finalizado
+stream 2 de kernel 16 finalizado
+stream 3 de kernel 16 finalizado
+stream 4 de kernel 16 finalizado
+stream 5 de kernel 16 finalizado
+stream 6 de kernel 16 finalizado
+Kernel 16 terminado con pending 0. El otro 0
+Removing kernel 16
+---> Selecting GCEDD(8) EMPTY(4)
+Lanzado stream 0 del kernel 12
+Lanzado stream 1 del kernel 12
+Lanzado stream 2 del kernel 12
+Lanzado stream 3 del kernel 12
+Lanzado stream 4 del kernel 12
+Lanzado stream 5 del kernel 12
+Lanzado stream 6 del kernel 12
+Lanzado stream 7 del kernel 12
+Kid=12 tpms=85569.462828
+Kid=12 tpms=85691.270673
+Kid=12 tpms=85896.490899
+Kid=12 tpms=85802.578457
+Kid=12 tpms=85865.127549
+Kid=12 tpms=85854.644777
+Kid=12 tpms=85772.938009
+Kid=12 tpms=85794.473457
+Kid=12 tpms=85857.695873
+Kid=12 tpms=85827.627532
+stream 0 de kernel 12 finalizado
+stream 1 de kernel 12 finalizado
+stream 2 de kernel 12 finalizado
+stream 3 de kernel 12 finalizado
+stream 4 de kernel 12 finalizado
+stream 5 de kernel 12 finalizado
+stream 6 de kernel 12 finalizado
+stream 7 de kernel 12 finalizado
+Kernel 12 terminado con pending 0. El otro 0
+Removing kernel 12
+Concurrent excution time=0.099247 sec.
