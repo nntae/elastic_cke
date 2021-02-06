@@ -14,6 +14,8 @@
 //#include "Dummy/Dummy.h"
 #include "CONV/CONV.h"
 #include "CEDD/CEDD.h"
+#include "TP/TP.h"
+#include "DXTC/DXTC.h"
 #include "HST/HST256.h"
 
 //#define DATA_SET_1
@@ -1036,9 +1038,44 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 					}
 				}
 			}
-		
 			break;
 		
+		case TP:
+			t_TP_params *TP_params;
+			TP_params = (t_TP_params *)calloc(1, sizeof(t_TP_params));
+			TP_params->sSDKsample = "Transpose";
+			TP_params->matrix_size_x = 6144; // Multiplo de 512
+			TP_params->matrix_size_y = 6144; // Multiplo de 512
+			TP_params->tile_dim = 16;
+			TP_params->block_rows = 16;
+			TP_params->mul_factor = TP_params->tile_dim;
+			TP_params->max_tiles = (FLOOR(TP_params->matrix_size_x,512) * FLOOR(TP_params->matrix_size_y,512)) / (TP_params->tile_dim * TP_params->tile_dim);
+			k_stub->params = (void *)TP_params;
+			// TP_params->num_reps = 100;
+	
+			k_stub->launchORIkernel = launch_orig_TP;
+			k_stub->launchSLCkernel = launch_slc_TP;
+			//k_stub->startKernel = TP_start_kernel;
+			k_stub->endKernel = TP_end_kernel;
+			k_stub->startMallocs = TP_start_mallocs;
+			k_stub->startTransfers = TP_start_transfers;
+			
+			if (strcmp(device_name, "Tesla K20c") == 0) {
+				k_stub->kconf.numSMs = 15;
+				k_stub->kconf.max_persistent_blocks = 16;
+				// k_stub->kconf.blocksize.x = TP_params->tile_dim; // Calculados en launch
+				// k_stub->kconf.blocksize.y = TP_params->block_rows; // Calculados en launch
+				//k_stub->kconf.gridsize.x // Calculados en launch
+				//k_stub->kconf.gridsize.y // Calculados en launch
+				// k_stub->total_tasks = k_stub->kconf.gridsize.x;
+				// k_stub->kconf.coarsening = _;
+			}
+			else{
+				printf("Error: Unknown device\n");
+				return -1;
+			}
+			break;
+
 		default:
 			printf("Unknown kernel\n");
 			return -1;
