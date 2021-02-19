@@ -1043,7 +1043,6 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		case TP:
 			t_TP_params *TP_params;
 			TP_params = (t_TP_params *)calloc(1, sizeof(t_TP_params));
-			TP_params->sSDKsample = "Transpose";
 			TP_params->matrix_size_x = 6144; // Multiplo de 512
 			TP_params->matrix_size_y = 6144; // Multiplo de 512
 			TP_params->tile_dim = 16;
@@ -1067,7 +1066,33 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				// k_stub->kconf.blocksize.y = TP_params->block_rows; // Calculados en launch
 				//k_stub->kconf.gridsize.x // Calculados en launch
 				//k_stub->kconf.gridsize.y // Calculados en launch
-				// k_stub->total_tasks = k_stub->kconf.gridsize.x;
+				// k_stub->total_tasks = k_stub->kconf.gridsize.x*k_stub->kconf.gridsize.y;
+				// k_stub->kconf.coarsening = _;
+			}
+			else{
+				printf("Error: Unknown device\n");
+				return -1;
+			}
+			break;
+		
+		case DXTC:
+			t_DXTC_params *DXTC_params;
+			DXTC_params = (t_DXTC_params *)calloc(1, sizeof(t_DXTC_params));
+			k_stub->params = (void *)DXTC_params;
+	
+			k_stub->launchORIkernel = launch_orig_DXTC;
+			k_stub->launchSLCkernel = launch_slc_DXTC;
+			//k_stub->startKernel = DXTC_start_kernel;
+			k_stub->endKernel = DXTC_end_kernel;
+			k_stub->startMallocs = DXTC_start_mallocs;
+			k_stub->startTransfers = DXTC_start_transfers;
+			
+			if (strcmp(device_name, "Tesla K20c") == 0) {
+				k_stub->kconf.numSMs = 15;
+				k_stub->kconf.max_persistent_blocks = 4;
+				k_stub->kconf.blocksize.x = 256; // NUM_THREADS
+				//k_stub->kconf.gridsize.x // (w/3)/4 * (h/3)/4 Calculados en launch
+				// k_stub->total_tasks = k_stub->kconf.gridsize.x; Calculado en launch
 				// k_stub->kconf.coarsening = _;
 			}
 			else{

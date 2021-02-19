@@ -18,7 +18,7 @@
  
 #define C_S 1000000000 // Chunksize: 18Mbytes/s // Changed to 2MBytes to reduce preemption delay
 
-typedef enum {MM=0, BS, VA, RSC_MODEL, RSC_EVALUATE, SPMV_CSRscalar, Reduction, PF, RCONV, CCONV, FDTD3d, Dummy, GCEDD, SCEDD, NCEDD, HCEDD, HST256, TP, EMPTY, Number_of_Kernels} t_Kernel;
+typedef enum {MM=0, BS, VA, RSC_MODEL, RSC_EVALUATE, SPMV_CSRscalar, Reduction, PF, RCONV, CCONV, FDTD3d, Dummy, GCEDD, SCEDD, NCEDD, HCEDD, HST256, TP, DXTC, EMPTY, Number_of_Kernels} t_Kernel;
 typedef enum {NONBLOCKING=0, BLOCKING, STREAM_SYNCHRO, NOACTION} t_tsynchro;
 typedef enum {DATA=0, LAUNCH, NOLAUNCH, EVICT, PENDING, SYNCHRO, LAST_TRANSFER} t_type;  
 

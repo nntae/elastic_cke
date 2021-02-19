@@ -10,29 +10,9 @@
  */
 
 // Utilities and system includes
-#include <cooperative_groups.h>
+#include "DXTC.h"
+#include "../elastic_kernel.h"
 
-namespace cg = cooperative_groups;
-
-#include <helper_functions.h>
-#include <helper_cuda.h>
-
-#include <helper_math.h>
-#include <float.h> // for FLT_MAX
-
-#include "CudaMath.h"
-#include "dds.h"
-#include "permutations.h"
-
-// Definitions
-#define INPUT_IMAGE "lena_std.ppm"
-#define REFERENCE_IMAGE "lena_ref.dds"
-
-#define ERROR_THRESHOLD 0.02f
-
-#define NUM_THREADS 64        // Number of threads per block.
-
-#define __debugsync()
 
 template <class T>
 __device__ inline void swap(T &a, T &b)
@@ -420,6 +400,7 @@ __device__ void saveBlockDXT1(ushort start, ushort end, uint permutation, int xr
 ////////////////////////////////////////////////////////////////////////////////
 // Compress color block
 ////////////////////////////////////////////////////////////////////////////////
+__launch_bounds__( 256 , 8 )
 __global__ void compress(const uint *permutations, const uint *image, uint2 *result, int blockOffset)
 {
     // Handle to thread block group
@@ -572,137 +553,147 @@ static int compareBlock(const BlockDXT1 *b0, const BlockDXT1 *b1)
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Program main
-////////////////////////////////////////////////////////////////////////////////
-int launch_generic(void *arg)
-{
-    printf("%s Starting...\n\n", argv[0]);
+int DXTC_start_mallocs(void *arg) {
+    t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_DXTC_params *params = (t_DXTC_params *)kstub->params;
 
-    // use command-line specified CUDA device, otherwise use device with highest Gflops/s
-    findCudaDevice(argc, (const char **)argv);
+    printf("%s Starting...\n\n", params->sSDKsample);
 
     // Load input image.
     unsigned char *data = NULL;
     uint W, H;
 
-    char *image_path = sdkFindFilePath(INPUT_IMAGE, argv[0]);
+    char zero = '\0';
+    params->image_path = sdkFindFilePath(INPUT_IMAGE, &zero);
 
-    if (image_path == 0)
+    if (params->image_path == 0)
     {
-        printf("Error, unable to find source image  <%s>\n", image_path);
+        printf("Error, unable to find source image  <%s>\n", params->image_path);
         exit(EXIT_FAILURE);
     }
 
-    if (!sdkLoadPPM4ub(image_path, &data, &W, &H))
+    if (!sdkLoadPPM4ub(params->image_path, &data, &W, &H))
     {
-        printf("Error, unable to open source image file <%s>\n", image_path);
+        printf("Error, unable to open source image file <%s>\n", params->image_path);
 
         exit(EXIT_FAILURE);
     }
 
-    uint w = W, h = H;
+    params->w = W;
+    params->h = H;
 
-    printf("Image Loaded '%s', %d x %d pixels\n\n", image_path, w, h);
+    printf("Image Loaded '%s', %d x %d pixels\n\n", params->image_path, params->w, params->h);
 
     // Allocate input image.
-    const uint memSize = w * h * 4;
-    assert(0 != memSize);
-    uint *block_image = (uint *)malloc(memSize);
+    params->memSize = params->w * params->h * 4;
+    assert(0 != params->memSize);
+    params->block_image = (uint *)malloc(params->memSize);
 
     // Convert linear image to block linear.
-    for (uint by = 0; by < h/4; by++)
+    for (uint by = 0; by < H/4; by++)
     {
-        for (uint bx = 0; bx < w/4; bx++)
+        for (uint bx = 0; bx < W/4; bx++)
         {
             for (int i = 0; i < 16; i++)
             {
                 const int x = i & 3;
                 const int y = i / 4;
-                block_image[(by * w/4 + bx) * 16 + i] =
+                params->block_image[(by * W/4 + bx) * 16 + i] =
                     ((uint *)data)[(by * 4 + y) * 4 * (W/4) + bx * 4 + x];
             }
         }
     }
 
     // copy into global mem
-    uint *d_data = NULL;
-    checkCudaErrors(cudaMalloc((void **) &d_data, memSize));
+    params->d_data = NULL;
+    checkCudaErrors(cudaMalloc((void **) &params->d_data, params->memSize));
 
     // Result
-    uint *d_result = NULL;
-    const uint compressedSize = (w / 4) * (h / 4) * 8;
-    checkCudaErrors(cudaMalloc((void **)&d_result, compressedSize));
-    uint *h_result = (uint *)malloc(compressedSize);
+    params->d_result = NULL;
+    params->compressedSize = (params->w / 4) * (params->h / 4) * 8;
+    checkCudaErrors(cudaMalloc((void **)&params->d_result, params->compressedSize));
+    params->h_result = (uint *)malloc(params->compressedSize);
 
     // Compute permutations.
-    uint permutations[1024];
-    computePermutations(permutations);
+    computePermutations(params->permutations);
+    return 0;
+}
+
+int DXTC_start_transfers(void *arg) {
+    t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_DXTC_params *params = (t_DXTC_params *)kstub->params;
 
     // Copy permutations host to devie.
-    uint *d_permutations = NULL;
-    checkCudaErrors(cudaMalloc((void **) &d_permutations, 1024 * sizeof(uint)));
-    checkCudaErrors(cudaMemcpy(d_permutations, permutations, 1024 * sizeof(uint),
+    params->d_permutations = NULL;
+    checkCudaErrors(cudaMalloc((void **) &params->d_permutations, 1024 * sizeof(uint)));
+    checkCudaErrors(cudaMemcpy(params->d_permutations, params->permutations, 1024 * sizeof(uint),
                                cudaMemcpyHostToDevice));
 
-    // create a timer
-    StopWatchInterface *timer = NULL;
-    sdkCreateTimer(&timer);
-
     // Copy image from host to device
-    checkCudaErrors(cudaMemcpy(d_data, block_image, memSize, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(params->d_data, params->block_image, params->memSize, cudaMemcpyHostToDevice));
 
     // Determine launch configuration and run timed computation numIterations times
-    uint blocks = ((w + 3) / 4) * ((h + 3) / 4); // rounds up by 1 block in each dim if %4 != 0
+    kstub->kconf.gridsize.x = ((params->w + 3) / 4) * ((params->h + 3) / 4); // rounds up by 1 block in each dim if %4 != 0
+    kstub->total_tasks = kstub->kconf.gridsize.x; // rounds up by 1 block in each dim if %4 != 0
 
-    int devID;
     cudaDeviceProp deviceProp;
 
     // get number of SMs on this GPU
-    checkCudaErrors(cudaGetDevice(&devID));
-    checkCudaErrors(cudaGetDeviceProperties(&deviceProp, devID));
+    checkCudaErrors(cudaGetDevice(&kstub->deviceId));
+    checkCudaErrors(cudaGetDeviceProperties(&deviceProp, kstub->deviceId));
 
-    // Restrict the numbers of blocks to launch on low end GPUs to avoid kernel timeout
-    //int blocksPerLaunch = min(blocks, 768 * deviceProp.multiProcessorCount);
-    int blocksPerLaunch = 16;
-
-    printf("Running DXT Compression on %u x %u image...\n", w, h);
+    printf("Running DXT Compression on %u x %u image...\n", params->w, params->h);
     printf("\n%u Blocks, %u Threads per Block, %u Threads in Grid...\n\n",
-           blocks, NUM_THREADS, blocks * NUM_THREADS);
-    int numIterations = 1;
+           kstub->kconf.gridsize.x, NUM_THREADS, kstub->kconf.gridsize.x * NUM_THREADS);
 
-    for (int i = -1; i < numIterations; ++i)
-    {
-        if (i == 0)
-        {
-            checkCudaErrors(cudaDeviceSynchronize());
-            sdkStartTimer(&timer);
-        }
+    return 0;
+}
 
-        for (int j=0; j<(int)blocks; j+=blocksPerLaunch)
-        {
-            compress<<<blocksPerLaunch, NUM_THREADS>>>(d_permutations, d_data, (uint2 *)d_result, j);
-        }
+////////////////////////////////////////////////////////////////////////////////
+// Program main
+////////////////////////////////////////////////////////////////////////////////
+int launch_orig_DXTC(void *arg)
+{
+    t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_DXTC_params *params = (t_DXTC_params *)kstub->params;
 
-        if (blocks % blocksPerLaunch != 0) compress<<<blocks % blocksPerLaunch, NUM_THREADS>>>(d_permutations, d_data, (uint2 *)d_result, blocks-(blocks % blocksPerLaunch));
-    }
+    checkCudaErrors(cudaDeviceSynchronize());
+
+    compress<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, 0);
 
     getLastCudaError("compress");
 
+    return 0;
+}
+
+int launch_slc_DXTC(void *arg)
+{
+    t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_DXTC_params *params = (t_DXTC_params *)kstub->params;
+
+    checkCudaErrors(cudaDeviceSynchronize());
+
+    compress<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, kstub->kconf.initial_blockID);
+
+    getLastCudaError("compress");
+
+    return 0;
+}
+
+int DXTC_end_kernel(void *arg) {
+    t_kernel_stub *kstub = (t_kernel_stub *)arg;
+	t_DXTC_params *params = (t_DXTC_params *)kstub->params;
+
     // sync to host, stop timer, record perf
     checkCudaErrors(cudaDeviceSynchronize());
-    sdkStopTimer(&timer);
-    double dAvgTime = 1.0e-3 * sdkGetTimerValue(&timer)/(double)numIterations;
-    printf("dxtc, Throughput = %.4f MPixels/s, Time = %.5f s, Size = %u Pixels, NumDevsUsed = %i, Workgroup = %d\n",
-           (1.0e-6 * (double)(W * H)/ dAvgTime), dAvgTime, (W * H), 1, NUM_THREADS);
 
     // copy result data from device to host
-    checkCudaErrors(cudaMemcpy(h_result, d_result, compressedSize, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(params->h_result, params->d_result, params->compressedSize, cudaMemcpyDeviceToHost));
 
     // Write out result data to DDS file
     char output_filename[1024];
-    strcpy(output_filename, image_path);
-    strcpy(output_filename + strlen(image_path) - 3, "dds");
+    strcpy(output_filename, params->image_path);
+    strcpy(output_filename + strlen(params->image_path) - 3, "dds");
     FILE *fp = fopen(output_filename, "wb");
 
     if (fp == 0)
@@ -715,9 +706,9 @@ int launch_generic(void *arg)
     header.fourcc = FOURCC_DDS;
     header.size = 124;
     header.flags  = (DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS|DDSD_PIXELFORMAT|DDSD_LINEARSIZE);
-    header.height = h;
-    header.width = w;
-    header.pitch = compressedSize;
+    header.height = params->h;
+    header.width = params->w;
+    header.pitch = params->compressedSize;
     header.depth = 0;
     header.mipmapcount = 0;
     memset(header.reserved, 0, sizeof(header.reserved));
@@ -735,11 +726,12 @@ int launch_generic(void *arg)
     header.caps.caps4 = 0;
     header.notused = 0;
     fwrite(&header, sizeof(DDSHeader), 1, fp);
-    fwrite(h_result, compressedSize, 1, fp);
+    fwrite(params->h_result, params->compressedSize, 1, fp);
     fclose(fp);
 
     // Make sure the generated image is correct.
-    const char *reference_image_path = sdkFindFilePath(REFERENCE_IMAGE, argv[0]);
+    char zero = '\0';
+    const char *reference_image_path = sdkFindFilePath(REFERENCE_IMAGE, &zero);
 
     if (reference_image_path == 0)
     {
@@ -758,7 +750,7 @@ int launch_generic(void *arg)
     }
 
     fseek(fp, sizeof(DDSHeader), SEEK_SET);
-    uint referenceSize = (W / 4) * (H / 4) * 8;
+    uint referenceSize = (params->w / 4) * (params->h / 4) * 8;
     uint *reference = (uint *)malloc(referenceSize);
     fread(reference, referenceSize, 1, fp);
     fclose(fp);
@@ -766,14 +758,14 @@ int launch_generic(void *arg)
     printf("\nChecking accuracy...\n");
     float rms = 0;
 
-    for (uint y = 0; y < h; y += 4)
+    for (uint y = 0; y < params->h; y += 4)
     {
-        for (uint x = 0; x < w; x += 4)
+        for (uint x = 0; x < params->w; x += 4)
         {
-            uint referenceBlockIdx = ((y/4) * (W/4) + (x/4));
-            uint resultBlockIdx = ((y/4) * (w/4) + (x/4));
+            uint referenceBlockIdx = ((y/4) * (params->w/4) + (x/4));
+            uint resultBlockIdx = ((y/4) * (params->w/4) + (x/4));
 
-            int cmp = compareBlock(((BlockDXT1 *)h_result) + resultBlockIdx, ((BlockDXT1 *)reference) + referenceBlockIdx);
+            int cmp = compareBlock(((BlockDXT1 *)params->h_result) + resultBlockIdx, ((BlockDXT1 *)reference) + referenceBlockIdx);
 
             if (cmp != 0.0f)
             {
@@ -784,21 +776,22 @@ int launch_generic(void *arg)
         }
     }
 
-    rms /= w * h * 3;
+    rms /= params->w * params->h * 3;
 
     // Free allocated resources and exit
-    checkCudaErrors(cudaFree(d_permutations));
-    checkCudaErrors(cudaFree(d_data));
-    checkCudaErrors(cudaFree(d_result));
-    free(image_path);
-    free(data);
-    free(block_image);
-    free(h_result);
-    free(reference);
-    sdkDeleteTimer(&timer);
+    checkCudaErrors(cudaFree(params->d_permutations));
+    checkCudaErrors(cudaFree(params->d_data));
+    checkCudaErrors(cudaFree(params->d_result));
+    free(params->image_path);
+    // free(data); // Maybe free it right after we use it on mallocs phase
+    free(params->block_image);
+    free(params->h_result);
+    // free(reference);
 
     printf("RMS(reference, result) = %f\n\n", rms);
     printf(rms <= ERROR_THRESHOLD ? "Test passed\n" : "Test failed!\n");
     /* Return zero if test passed, one otherwise */
     return rms > ERROR_THRESHOLD;
+
+    exit(EXIT_SUCCESS);
 }
