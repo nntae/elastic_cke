@@ -313,7 +313,8 @@ launch_orig_TP(void *arg)
 
     // Ensure no launch failure
     checkCudaErrors(cudaGetLastError());
-    exit(EXIT_SUCCESS);
+
+    return 0;
 }
 
 int
@@ -343,5 +344,6 @@ launch_slc_TP(void *arg)
 
     // Ensure no launch failure
     checkCudaErrors(cudaGetLastError());
-    exit(EXIT_SUCCESS);
+
+    return 0;
 }
