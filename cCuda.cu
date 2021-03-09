@@ -366,7 +366,7 @@ int launch_two_kernels(t_kernel_stub **kstub)
 }
 
 
-#define NUM_RUNS 32
+#define NUM_RUNS 1
 
 // Like  cCuda code but better: two streams, no sychronization but allowing slices with more that one cta per SM 
 int launch_improved_cCuda(t_kernel_stub **kstub, int max_ctas[2])
@@ -481,8 +481,8 @@ int launch_improved_cCuda(t_kernel_stub **kstub, int max_ctas[2])
         }
 
         cudaDeviceSynchronize();
-        //printf("sk=%d %d %d %d %d %f %f \n", shortest_kernel, remaining_blocks0, remaining_blocks1, launched_ctas0, launched_ctas1,
-        //        (double)launched_ctas0/(double)(k0->kconf.gridsize.x * k0->kconf.gridsize.y), (double)launched_ctas1/(double)(k1->kconf.gridsize.x * k1->kconf.gridsize.y));
+        printf("sk=%d %d %d %d %d %f %f \n", shortest_kernel, remaining_blocks0, remaining_blocks1, launched_ctas0, launched_ctas1,
+                (double)launched_ctas0/(double)(k0->kconf.gridsize.x * k0->kconf.gridsize.y), (double)launched_ctas1/(double)(k1->kconf.gridsize.x * k1->kconf.gridsize.y));
 
         // Sequential execution
         k0->total_tasks = launched_ctas0;
@@ -499,10 +499,10 @@ int launch_improved_cCuda(t_kernel_stub **kstub, int max_ctas[2])
         init_time = (double)now1.tv_sec+(double)now1.tv_nsec*1e-9;
         curr_time = (double)now2.tv_sec+(double)now2.tv_nsec*1e-9;
         double seq_time =  curr_time - init_time;
-        //char name[2][20];
-        //kid_from_index(k0->id, name[0]);
-        //kid_from_index(k1->id, name[1]);
-        //printf("%s/%s, %d/%d, %.3f, %.3f, %.2f\n", name[shortest_kernel], name[(shortest_kernel+ 1) % 2], pi0, pi1, coexec_time * 1000, seq_time * 1000, seq_time/coexec_time);
+        char name[2][20];
+        kid_from_index(k0->id, name[0]);
+        kid_from_index(k1->id, name[1]);
+        printf("%s/%s, %d/%d, %.3f, %.3f, %.2f\n", name[shortest_kernel], name[(shortest_kernel+ 1) % 2], pi0, pi1, coexec_time * 1000, seq_time * 1000, seq_time/coexec_time);
         speedup[iter][pi0] = seq_time/coexec_time;
     }
     }
@@ -522,7 +522,7 @@ int launch_improved_cCuda(t_kernel_stub **kstub, int max_ctas[2])
     double max_speedup=0, min_speedup=100000;
     for (pi0=f0; pi0 < max_ctas[0]; pi0+=f0){
         pi1 = max_ctas[1] - pi0/f0 * f1;
-      //  printf("%s/%s, %d/%d, %.2f\n", name[shortest_kernel], name[(shortest_kernel+ 1) % 2], pi0, pi1, avrg_speedup[pi0]);
+        printf("%s/%s, %d/%d, %.2f\n", name[shortest_kernel], name[(shortest_kernel+ 1) % 2], pi0, pi1, avrg_speedup[pi0]);
         if (min_speedup > avrg_speedup[pi0])
             min_speedup = avrg_speedup[pi0];
         if (max_speedup < avrg_speedup[pi0])
