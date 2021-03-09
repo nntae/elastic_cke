@@ -48,7 +48,7 @@ LDFLAGS     :=
 # Extra user flags
 EXTRA_NVCCFLAGS   ?= 
 EXTRA_NVCCLDFLAGS ?=
-EXTRA_LDFLAGS     ?=
+EXTRA_LDFLAGS     ?= -rpath /usr/local/cuda/extras/CUPTI/lib64
 EXTRA_CCFLAGS     ?= 
 
 # OS-specific build flags
