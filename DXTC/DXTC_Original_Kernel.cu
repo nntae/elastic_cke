@@ -401,8 +401,10 @@ __device__ void saveBlockDXT1(ushort start, ushort end, uint permutation, int xr
 // Compress color block
 ////////////////////////////////////////////////////////////////////////////////
 __launch_bounds__( 256 , 8 )
-__global__ void compress(const uint *permutations, const uint *image, uint2 *result, int blockOffset)
+__global__ void compress(const uint *permutations, const uint *image, uint2 *result, int blockOffset, int *zc_slc)
 {
+	if (threadIdx.x == 0 && threadIdx.y == 0) atomicAdd(zc_slc, 1);
+
     // Handle to thread block group
     cg::thread_block cta = cg::this_thread_block();
 
@@ -608,6 +610,9 @@ int DXTC_start_mallocs(void *arg) {
     params->d_data = NULL;
     checkCudaErrors(cudaMalloc((void **) &params->d_data, params->memSize));
 
+    //zc_slc malloc
+	cudaMalloc((void **)&params->zc_slc, sizeof(int));
+
     // Result
     params->d_result = NULL;
     params->compressedSize = (params->w / 4) * (params->h / 4) * 8;
@@ -659,7 +664,7 @@ int launch_orig_DXTC(void *arg)
 
     checkCudaErrors(cudaDeviceSynchronize());
 
-    compress<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, 0);
+    compress<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, 0, params->zc_slc);
 
     getLastCudaError("compress");
 
@@ -671,9 +676,10 @@ int launch_slc_DXTC(void *arg)
     t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_DXTC_params *params = (t_DXTC_params *)kstub->params;
 
+    //printf("Launch...\n");
     checkCudaErrors(cudaDeviceSynchronize());
 
-    compress<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, kstub->kconf.initial_blockID);
+    compress<<<kstub->total_tasks, kstub->kconf.blocksize.x>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, kstub->kconf.initial_blockID, params->zc_slc);
 
     getLastCudaError("compress");
 
