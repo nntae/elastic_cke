@@ -679,7 +679,7 @@ int launch_slc_DXTC(void *arg)
     //printf("Launch...\n");
     checkCudaErrors(cudaDeviceSynchronize());
 
-    compress<<<kstub->total_tasks, kstub->kconf.blocksize.x>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, kstub->kconf.initial_blockID, params->zc_slc);
+    compress<<<kstub->total_tasks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, kstub->kconf.initial_blockID, params->zc_slc);
 
     getLastCudaError("compress");
 
