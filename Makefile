@@ -115,7 +115,7 @@ LIBRARIES := -lpthread -lcuda -L /usr/local/cuda/extras/CUPTI/lib -L /usr/local/
 GENCODE_SM35    := -gencode arch=compute_35,code=\"sm_35,compute_35\"
 GENCODE_SM52    := -gencode arch=compute_52,code=sm_52 -gencode arch=compute_52,code=\"sm_52,compute_52\"
 GENCODE_SM61	:= -gencode arch=compute_61,code=sm_61 -gencode arch=compute_61,code=\"sm_61,compute_61\"
-GENCODE_FLAGS   := $(GENCODE_SM61)
+GENCODE_FLAGS   := $(GENCODE_SM35)
 
 ################################################################################
 
