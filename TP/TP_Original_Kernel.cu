@@ -229,6 +229,10 @@ int TP_start_mallocs(void *arg) {
     
     params->success = true;
 
+    kstub->kconf.gridsize.x = params->size_x/params->tile_dim; 
+    kstub->kconf.gridsize.y = params->size_y/params->tile_dim; 
+    kstub->total_tasks = kstub->kconf.gridsize.x*kstub->kconf.gridsize.y; 
+
     return 0;
 }
 
@@ -297,6 +301,8 @@ launch_orig_TP(void *arg)
     kstub->total_tasks = kstub->kconf.gridsize.x*kstub->kconf.gridsize.y; 
     dim3 threads(params->tile_dim,params->block_rows);
 
+    printf("(ORIG) Grid size: %d, Block size: (%d,%d)\n", kstub->total_tasks, params->tile_dim,params->block_rows);
+
     // Clear error status
     checkCudaErrors(cudaGetLastError());
 
@@ -323,16 +329,25 @@ launch_slc_TP(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_TP_params * params = (t_TP_params *)kstub->params;
 
-    kstub->kconf.gridsize.x = params->size_x/params->tile_dim; 
-    kstub->kconf.gridsize.y = params->size_y/params->tile_dim; 
-    kstub->total_tasks = kstub->kconf.gridsize.x*kstub->kconf.gridsize.y; 
-    dim3 threads(params->tile_dim,params->block_rows);
+    dim3 threads(kstub->kconf.blocksize.x,kstub->kconf.blocksize.y);
+
+    /*cudaError_t err = cudaGetLastError();
+
+     if ( err != cudaSuccess )
+     {
+        printf("CUDA Error: %s\n", cudaGetErrorString(err));       
+
+        // Possibly: exit(-1) if program cannot continue....
+     }
+    */
 
     // Clear error status
     checkCudaErrors(cudaGetLastError());
 
     // warmup to avoid timing startup
     // original_transposeNoBankConflicts<<<grid, threads>>>(params->d_odata, params->d_idata, params->size_x, params->size_y);
+
+    // printf("(SLC) Grid size: %d, Block size: (%d,%d)\n", kstub->total_tasks, params->tile_dim,params->block_rows);
 
     if (params->tile_dim == 16 && params->block_rows == 16) {
         slicing_transposeNoBankConflicts<16,16><<<kstub->total_tasks, threads>>>(params->d_odata, params->d_idata, params->size_x, params->size_y, kstub->kconf.gridsize.x, kstub->kconf.initial_blockID, params->zc_slc);
