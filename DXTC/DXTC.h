@@ -17,7 +17,7 @@ namespace cg = cooperative_groups;
 
 #define ERROR_THRESHOLD 0.02f
 
-#define NUM_THREADS 64
+#define NUM_THREADS 256
 
 #define __debugsync()
 
