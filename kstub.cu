@@ -68,8 +68,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startTransfers = BS_start_transfers;
 			k_stub->endKernel = BS_end_kernel_dummy;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {
-				k_stub->kconf.numSMs = 13;
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 16;
 				k_stub->kconf.blocksize.x = 128,1,1;
 				k_stub->kconf.gridsize.x  = 50 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
@@ -121,10 +126,15 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startTransfers = VA_start_transfers;
 			k_stub->endKernel = VA_end_kernel_dummy;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {
-				k_stub->kconf.numSMs = 13;
-				k_stub->kconf.max_persistent_blocks = 16;
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.blocksize.x = 128;
+				k_stub->kconf.max_persistent_blocks = 16;
 				k_stub->kconf.gridsize.x = 50 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				k_stub->kconf.coarsening = 40;
@@ -186,8 +196,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startTransfers = MM_start_transfers;
 			k_stub->endKernel = MM_end_kernel;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {
-				k_stub->kconf.numSMs = 13;
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
@@ -374,26 +389,46 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			// reduction_params->size *= 50;
 			reduction_params->size =  802816000 / 2;
 		
-			if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
-					k_stub->kconf.numSMs = 28;
-					k_stub->kconf.max_persistent_blocks = 8;
-					k_stub->kconf.blocksize.x = 256;
-					k_stub->kconf.blocksize.y = 1;
-					
-					reduction_params->gridDimX = k_stub->kconf.gridsize.x;
-					//#ifdef DATA_SET_1
-					//k_stub->kconf.gridsize.x =  64*28*8;
-					//#else
-					//k_stub->kconf.gridsize.x =  640*28*8; // 64 * number_of_permanent_blocks, a ver que tal
-					//k_stub->kconf.gridsize.x =  64 * 7;
-					//#endif
-
-					k_stub->kconf.coarsening = 64;					
-					k_stub->kconf.gridsize.x = reduction_params->size / (k_stub->kconf.blocksize.x * 2 * k_stub->kconf.coarsening);
-					k_stub->kconf.gridsize.y = 1; //Grid Linearization
-					reduction_params->gridDimX = k_stub->kconf.gridsize.x;
-					k_stub->total_tasks =  k_stub->kconf.gridsize.x;
+			if (strcmp(device_name, "Tesla K40c") == 0) {
+				k_stub->kconf.numSMs = 15;
+				k_stub->kconf.max_persistent_blocks = 8;
+				k_stub->kconf.blocksize.x = 256;
+				k_stub->kconf.blocksize.y = 1;
 				
+				reduction_params->gridDimX = k_stub->kconf.gridsize.x;
+				//#ifdef DATA_SET_1
+				//k_stub->kconf.gridsize.x =  64*28*8;
+				//#else
+				//k_stub->kconf.gridsize.x =  640*28*8; // 64 * number_of_permanent_blocks, a ver que tal
+				//k_stub->kconf.gridsize.x =  64 * 7;
+				//#endif
+
+				k_stub->kconf.coarsening = 64;					
+				k_stub->kconf.gridsize.x = reduction_params->size / (k_stub->kconf.blocksize.x * 2 * k_stub->kconf.coarsening);
+				k_stub->kconf.gridsize.y = 1; //Grid Linearization
+				reduction_params->gridDimX = k_stub->kconf.gridsize.x;
+				k_stub->total_tasks =  k_stub->kconf.gridsize.x;
+			}
+			else if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
+				k_stub->kconf.numSMs = 28;
+				k_stub->kconf.max_persistent_blocks = 8;
+				k_stub->kconf.blocksize.x = 256;
+				k_stub->kconf.blocksize.y = 1;
+				
+				reduction_params->gridDimX = k_stub->kconf.gridsize.x;
+				//#ifdef DATA_SET_1
+				//k_stub->kconf.gridsize.x =  64*28*8;
+				//#else
+				//k_stub->kconf.gridsize.x =  640*28*8; // 64 * number_of_permanent_blocks, a ver que tal
+				//k_stub->kconf.gridsize.x =  64 * 7;
+				//#endif
+
+				k_stub->kconf.coarsening = 64;					
+				k_stub->kconf.gridsize.x = reduction_params->size / (k_stub->kconf.blocksize.x * 2 * k_stub->kconf.coarsening);
+				k_stub->kconf.gridsize.y = 1; //Grid Linearization
+				reduction_params->gridDimX = k_stub->kconf.gridsize.x;
+				k_stub->total_tasks =  k_stub->kconf.gridsize.x;
+			
 			} 
 			else{
 				printf("Error: Unknown device\n");
@@ -451,8 +486,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startTransfers = PF_start_transfers;
 			k_stub->endKernel = PF_end_kernel;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {
-				k_stub->kconf.numSMs = 13;
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 256;
 				int smallBlockCol = k_stub->kconf.blocksize.x-(PF_params->param_pyramid_height)*2;
@@ -515,9 +555,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startTransfers = RCONV_start_transfers;
 			k_stub->endKernel = RCONV_end_kernel;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {		
-				//RCONV
-				k_stub->kconf.numSMs = 13;
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 16;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 4;
@@ -588,8 +632,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startTransfers = CCONV_start_transfers;
 			k_stub->endKernel = CCONV_end_kernel;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {		
-				k_stub->kconf.numSMs = 13;
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 9;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 8;
@@ -681,8 +730,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startMallocs = GCEDD_start_mallocs;
 			k_stub->startTransfers = GCEDD_start_transfers;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {			
-				k_stub->kconf.numSMs = 13;
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
@@ -756,8 +810,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startMallocs = SCEDD_start_mallocs;
 			k_stub->startTransfers = SCEDD_start_transfers;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {			
-				k_stub->kconf.numSMs = 13;
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
@@ -832,8 +891,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startMallocs = NCEDD_start_mallocs;
 			k_stub->startTransfers = NCEDD_start_transfers;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {			
-				k_stub->kconf.numSMs = 13;
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
@@ -908,8 +972,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startMallocs = HCEDD_start_mallocs;
 			k_stub->startTransfers = HCEDD_start_transfers;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {			
-				k_stub->kconf.numSMs = 13;
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
@@ -969,7 +1038,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startMallocs = HST256_start_mallocs;
 			k_stub->startTransfers = HST256_start_transfers;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
 				HST256_params->warp_count = 6;
 				HST256_params->histogram256_threadblock_size = HST256_params->warp_count * WARP_SIZE;
 				HST256_params->histogram256_threadblock_memory = HST256_params->warp_count * HISTOGRAM256_BIN_COUNT;
@@ -980,9 +1049,15 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				HST256_params->byteCount256 = 64 * 1048576 * HST256_params->warp_count;
 				#endif
 				
-				k_stub->kconf.numSMs = 13;
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+					k_stub->kconf.blocksize.x = 256;
+				}
+				else {
+					k_stub->kconf.numSMs = 13;
+					k_stub->kconf.blocksize.x = 192;
+				}
 				k_stub->kconf.max_persistent_blocks = 8;
-				k_stub->kconf.blocksize.x = 192;
 				k_stub->kconf.gridsize.x  = 240;
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				//k_stub->total_tasks = (64 * 1048576)/k_stub->kconf.blocksize.x + (((64 * 1048576)%k_stub->kconf.blocksize.x==0)?0:1);
@@ -1043,8 +1118,8 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		case TP:
 			t_TP_params *TP_params;
 			TP_params = (t_TP_params *)calloc(1, sizeof(t_TP_params));
-			TP_params->matrix_size_x = 6144; // Multiplo de 512
-			TP_params->matrix_size_y = 6144; // Multiplo de 512
+			TP_params->matrix_size_x = 3072; // Multiplo de 512
+			TP_params->matrix_size_y = 3072; // Multiplo de 512
 			TP_params->tile_dim = 16;
 			TP_params->block_rows = 16;
 			TP_params->mul_factor = TP_params->tile_dim;
@@ -1059,13 +1134,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startMallocs = TP_start_mallocs;
 			k_stub->startTransfers = TP_start_transfers;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {
+			if (strcmp(device_name, "Tesla K40c") == 0) {
 				k_stub->kconf.numSMs = 15;
-				k_stub->kconf.max_persistent_blocks = 16;
-				// k_stub->kconf.blocksize.x = TP_params->tile_dim; // Calculados en launch
-				// k_stub->kconf.blocksize.y = TP_params->block_rows; // Calculados en launch
-				//k_stub->kconf.gridsize.x // Calculados en launch
-				//k_stub->kconf.gridsize.y // Calculados en launch
+				k_stub->kconf.max_persistent_blocks = 8;
+				k_stub->kconf.blocksize.x = TP_params->tile_dim;
+				k_stub->kconf.blocksize.y = TP_params->block_rows;
+				// k_stub->kconf.gridsize.x // Calculados en launch
+				k_stub->kconf.gridsize.y = 1; // Grid linearization
 				// k_stub->total_tasks = k_stub->kconf.gridsize.x*k_stub->kconf.gridsize.y;
 				// k_stub->kconf.coarsening = _;
 			}
@@ -1078,6 +1153,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		case DXTC:
 			t_DXTC_params *DXTC_params;
 			DXTC_params = (t_DXTC_params *)calloc(1, sizeof(t_DXTC_params));
+			DXTC_params->sSDKsample = "DXTC";
 			k_stub->params = (void *)DXTC_params;
 	
 			k_stub->launchORIkernel = launch_orig_DXTC;
@@ -1087,11 +1163,12 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startMallocs = DXTC_start_mallocs;
 			k_stub->startTransfers = DXTC_start_transfers;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {
+			if (strcmp(device_name, "Tesla K40c") == 0) {
 				k_stub->kconf.numSMs = 15;
-				k_stub->kconf.max_persistent_blocks = 4;
-				k_stub->kconf.blocksize.x = 256; // NUM_THREADS
-				//k_stub->kconf.gridsize.x // (w/3)/4 * (h/3)/4 Calculados en launch
+				k_stub->kconf.max_persistent_blocks = 8;
+				k_stub->kconf.blocksize.x = 256; // NUM_THREADS must be changed as well
+				//k_stub->kconf.gridsize.x // (w+3)/4 * (h+3)/4 Calculados en launch
+				k_stub->kconf.gridsize.y = 1; // Grid linearization
 				// k_stub->total_tasks = k_stub->kconf.gridsize.x; Calculado en launch
 				// k_stub->kconf.coarsening = _;
 			}
