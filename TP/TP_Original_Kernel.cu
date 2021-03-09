@@ -350,7 +350,7 @@ launch_slc_TP(void *arg)
     // printf("(SLC) Grid size: %d, Block size: (%d,%d)\n", kstub->total_tasks, params->tile_dim,params->block_rows);
 
     if (params->tile_dim == 16 && params->block_rows == 16) {
-        slicing_transposeNoBankConflicts<16,16><<<kstub->total_tasks, threads>>>(params->d_odata, params->d_idata, params->size_x, params->size_y, kstub->kconf.gridsize.x, kstub->kconf.initial_blockID, params->zc_slc);
+        slicing_transposeNoBankConflicts<16,16><<<kstub->total_tasks, threads, 0, *(kstub->execution_s)>>>(params->d_odata, params->d_idata, params->size_x, params->size_y, kstub->kconf.gridsize.x, kstub->kconf.initial_blockID, params->zc_slc);
     }
     else {
         printf("TILE_DIM or BLOCK_ROWS not properly defined");
