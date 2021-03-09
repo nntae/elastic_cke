@@ -22,7 +22,7 @@ namespace cg = cooperative_groups;
 #define __debugsync()
 
 typedef struct {
-    const char *sSDKsample = "DXTC";
+    char *sSDKsample;
 
     char *image_path;
     uint compressedSize, memSize;
