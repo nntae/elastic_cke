@@ -122,8 +122,16 @@ int kid_from_index(int index, char *skid)
 		case 15:
 			strcpy(skid, "HCEDD");
 			break;
-			
+
 		case 17:
+			strcpy(skid, "TP");
+			break;
+			
+		case 18:
+			strcpy(skid, "DXTC");
+			break;
+
+		case 19:
 			strcpy(skid, "EMPTY");
 			break;
 			
@@ -190,6 +198,14 @@ t_Kernel kid_from_name(char *name)
 	
 	if (strcmp(name, "Reduction") == 0){
 		kid = Reduction;
+	}
+	
+	if (strcmp(name, "TP") == 0){
+		kid = TP;
+	}
+	
+	if (strcmp(name, "DXTC") == 0){
+		kid = DXTC;
 	}
 	
 	if (kid == -1){

@@ -16,6 +16,8 @@
 #include "CEDD/CEDD.h"
 #include "SPMV/SPMV.h"
 #include "CONV/CONV.h"
+#include "TP/TP.h"
+#include "DXTC/DXTC.h"
 
 
 int *get_cta_counter_position(t_kernel_stub *k)
@@ -56,6 +58,14 @@ int *get_cta_counter_position(t_kernel_stub *k)
     if (k->id == RCONV  || k->id == CCONV){
         t_CONV_params *CONVparams = (t_CONV_params *)k->params;
         return CONVparams->zc_slc;
+    }
+    if (k->id == TP) {
+        t_TP_params *TPparams = (t_TP_params *)k->params;
+        return TPparams->zc_slc;
+    }
+    if (k->id == DXTC) {
+        t_DXTC_params *DXTCparams = (t_DXTC_params *)k->params;
+        return DXTCparams->zc_slc;
     }
     
     return NULL;
