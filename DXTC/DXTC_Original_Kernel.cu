@@ -799,5 +799,7 @@ int DXTC_end_kernel(void *arg) {
     /* Return zero if test passed, one otherwise */
     return rms > ERROR_THRESHOLD;
 
-    exit(EXIT_SUCCESS);
+    printf("...end\n");
+
+    return 0;
 }
