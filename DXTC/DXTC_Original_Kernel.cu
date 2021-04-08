@@ -662,7 +662,7 @@ int launch_orig_DXTC(void *arg)
     t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_DXTC_params *params = (t_DXTC_params *)kstub->params;
 
-    checkCudaErrors(cudaDeviceSynchronize());
+    //checkCudaErrors(cudaDeviceSynchronize());
 
     compress<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, 0, params->zc_slc);
 
@@ -677,7 +677,7 @@ int launch_slc_DXTC(void *arg)
 	t_DXTC_params *params = (t_DXTC_params *)kstub->params;
 
     //printf("Launch...\n");
-    checkCudaErrors(cudaDeviceSynchronize());
+    //checkCudaErrors(cudaDeviceSynchronize());
 
     compress<<<kstub->total_tasks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, kstub->kconf.initial_blockID, params->zc_slc);
 
