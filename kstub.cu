@@ -1159,6 +1159,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 		case DXTC:
 			t_DXTC_params *DXTC_params;
 			DXTC_params = (t_DXTC_params *)calloc(1, sizeof(t_DXTC_params));
+			DXTC_params->printInfo = false;
 			DXTC_params->sSDKsample = "DXTC";
 			k_stub->params = (void *)DXTC_params;
 	

@@ -559,7 +559,7 @@ int DXTC_start_mallocs(void *arg) {
     t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_DXTC_params *params = (t_DXTC_params *)kstub->params;
 
-    printf("%s Starting...\n\n", params->sSDKsample);
+    if (params->printInfo) printf("%s Starting...\n\n", params->sSDKsample);
 
     // Load input image.
     unsigned char *data = NULL;
@@ -584,7 +584,7 @@ int DXTC_start_mallocs(void *arg) {
     params->w = W;
     params->h = H;
 
-    printf("Image Loaded '%s', %d x %d pixels\n\n", params->image_path, params->w, params->h);
+    if (params->printInfo) printf("Image Loaded '%s', %d x %d pixels\n\n", params->image_path, params->w, params->h);
 
     // Allocate input image.
     params->memSize = params->w * params->h * 4;
@@ -647,9 +647,11 @@ int DXTC_start_transfers(void *arg) {
     checkCudaErrors(cudaGetDevice(&kstub->deviceId));
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, kstub->deviceId));
 
+    if (params->printInfo) {
     printf("Running DXT Compression on %u x %u image...\n", params->w, params->h);
     printf("\n%u Blocks, %u Threads per Block, %u Threads in Grid...\n\n",
            kstub->kconf.gridsize.x, NUM_THREADS, kstub->kconf.gridsize.x * NUM_THREADS);
+    }
 
     return 0;
 }
