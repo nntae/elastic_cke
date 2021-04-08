@@ -182,8 +182,10 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			MM_params->Asize.x=4096;MM_params->Asize.y=4096;
 			MM_params->Bsize.x=4096;MM_params->Bsize.y=4096;
 			#else
-			MM_params->Asize.x=2048;MM_params->Asize.y=2048;
-			MM_params->Bsize.x=2048;MM_params->Bsize.y=2048;
+			//MM_params->Asize.x=2048;MM_params->Asize.y=2048;
+			//MM_params->Bsize.x=2048;MM_params->Bsize.y=2048;
+			MM_params->Asize.x=1024;MM_params->Asize.y=1024;
+			MM_params->Bsize.x=1024;MM_params->Bsize.y=1024;
 			#endif
 			
 			k_stub->params = (void *)MM_params;
