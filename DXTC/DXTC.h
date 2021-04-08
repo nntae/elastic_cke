@@ -23,6 +23,7 @@ namespace cg = cooperative_groups;
 
 typedef struct {
     char *sSDKsample;
+    bool printInfo;
 
     char *image_path;
     uint compressedSize, memSize;
