@@ -182,7 +182,7 @@ int coexecution(t_kernel_stub *k0, int pi0, t_kernel_stub *k1, int pi1, int slow
         ctas0 = pi1;
         ctas1 = pi0;
     }
-    printf("%s/%s, %d, %d, %.3f, %.2f, %.3f, %d\n", name[slowest_slice_idx], name[(slowest_slice_idx + 1) % 2], ctas0, ctas1, seq_time * 1000, seq_time/coexec_time, coexec_time * 1000/(double)cont, cont);
+    //printf("%s/%s, %d, %d, %.3f, %.2f, %.3f, %d\n", name[slowest_slice_idx], name[(slowest_slice_idx + 1) % 2], ctas0, ctas1, seq_time * 1000, seq_time/coexec_time, coexec_time * 1000/(double)cont, cont);
 
     return 0;
 }
@@ -292,7 +292,7 @@ int launch_like_original_cCuda(t_kernel_stub **kstub, double ktime_s[2])
     char name[2][20];
     kid_from_index(k0->id, name[0]);
     kid_from_index(k1->id, name[1]);
-    printf("%s/%s, %.3f, %.3f, %.2f\n", name[slowest_kernel_slice], name[(slowest_kernel_slice+ 1) % 2], coexec_time * 1000, seq_time * 1000, seq_time/coexec_time);
+    //printf("%s/%s, %.3f, %.3f, %.2f\n", name[slowest_kernel_slice], name[(slowest_kernel_slice+ 1) % 2], coexec_time * 1000, seq_time * 1000, seq_time/coexec_time);
     exit(0);
     return 0;
 
@@ -481,8 +481,8 @@ int launch_improved_cCuda(t_kernel_stub **kstub, int max_ctas[2])
         }
 
         cudaDeviceSynchronize();
-        printf("sk=%d %d %d %d %d %f %f \n", shortest_kernel, remaining_blocks0, remaining_blocks1, launched_ctas0, launched_ctas1,
-                (double)launched_ctas0/(double)(k0->kconf.gridsize.x * k0->kconf.gridsize.y), (double)launched_ctas1/(double)(k1->kconf.gridsize.x * k1->kconf.gridsize.y));
+        //printf("sk=%d %d %d %d %d %f %f \n", shortest_kernel, remaining_blocks0, remaining_blocks1, launched_ctas0, launched_ctas1,
+        //        (double)launched_ctas0/(double)(k0->kconf.gridsize.x * k0->kconf.gridsize.y), (double)launched_ctas1/(double)(k1->kconf.gridsize.x * k1->kconf.gridsize.y));
 
         // Sequential execution
         k0->total_tasks = launched_ctas0;
@@ -502,7 +502,7 @@ int launch_improved_cCuda(t_kernel_stub **kstub, int max_ctas[2])
         char name[2][20];
         kid_from_index(k0->id, name[0]);
         kid_from_index(k1->id, name[1]);
-        printf("%s/%s, %d/%d, %.3f, %.3f, %.2f\n", name[shortest_kernel], name[(shortest_kernel+ 1) % 2], pi0, pi1, coexec_time * 1000, seq_time * 1000, seq_time/coexec_time);
+        //printf("%s/%s, %d/%d, %.3f, %.3f, %.2f\n", name[shortest_kernel], name[(shortest_kernel+ 1) % 2], pi0, pi1, coexec_time * 1000, seq_time * 1000, seq_time/coexec_time);
         speedup[iter][pi0] = seq_time/coexec_time;
     }
     }
@@ -528,7 +528,7 @@ int launch_improved_cCuda(t_kernel_stub **kstub, int max_ctas[2])
         if (max_speedup < avrg_speedup[pi0])
             max_speedup = avrg_speedup[pi0];
     }
-    printf("%s, %s, %f, %f\n", name[0], name[1], max_speedup, min_speedup);
+    //printf("%s, %s, %f, %f\n", name[0], name[1], max_speedup, min_speedup);
 
     return 0;
 }
@@ -794,7 +794,7 @@ int get_slowest_kernel_ver2(t_kernel_stub *kstub[2], int max_ctas[2], double tim
     time[0] = ms0;
     time[1] = ms1;
 
-    printf("%f, %f\n", ms0, ms1);
+    //printf("%f, %f\n", ms0, ms1);
 
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
