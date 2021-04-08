@@ -911,6 +911,7 @@ int main (int argc, char *argv[])
 	cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, deviceId);	
     //printf("Device=%s\n", deviceProp.name);
+    char * device_name = deviceProp.name;
     int cores_per_SM = _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor);
 
 	/** Create commom streams for all kernels: two for asynchronous transfers, one for preemption commands*/
@@ -1001,9 +1002,9 @@ int main (int argc, char *argv[])
         }
     }
 
-    if ((max_ctas[0] = get_max_ctas(kstub[0]->id))<0)
+    if ((max_ctas[0] = get_max_ctas(kstub[0], device_name))<0)
         return -1;
-    if ((max_ctas[1] = get_max_ctas(kstub[1]->id))<0)
+    if ((max_ctas[1] = get_max_ctas(kstub[1], device_name))<0)
         return -1;
 
     // Memeory allocation and HtD trasnfers
