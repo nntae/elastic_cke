@@ -134,7 +134,7 @@ original_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gp
 	}
 }
 
-
+__launch_bounds__(256, 8)
 __global__ void
 slicing_pathFinderCUDA(int pyramid_heightPF, int *gpuWall, int *gpuSrc, int *gpuResults, int cols,  int rows, int startStep, int border, int initial_blockID,
 	int *zc_slicing)

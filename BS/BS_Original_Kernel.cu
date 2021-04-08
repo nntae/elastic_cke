@@ -129,6 +129,7 @@ __global__ void original_BlackScholesGPU(
 	
 }
 
+__launch_bounds__(256, 8)
 __global__ void slicing_BlackScholesGPU(
     float *d_CallResult,
     float *d_PutResult,

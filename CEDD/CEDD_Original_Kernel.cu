@@ -109,6 +109,7 @@ original_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, in
 }
 
 __global__ void
+__launch_bounds__(256, 8)
 slicing_gaussianCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, int rows_CEDD, int cols_CEDD, 
 	int coarsening, int gridDimY, int gridDimX, int init_blkIdx, int *zc_slc)
 {
@@ -899,6 +900,7 @@ original_sobelCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, unsig
 }
 
 __global__ void
+__launch_bounds__(256, 8)
 slicing_sobelCannyCUDA(unsigned char *data_CEDD, unsigned char *out_CEDD, unsigned char *theta_CEDD, int rows_CEDD, int cols_CEDD, 
 	int coarsening, int gridDimY, int gridDimX, int init_blkIdx, int *zc_slc)
 {
