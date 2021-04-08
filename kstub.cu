@@ -137,6 +137,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.max_persistent_blocks = 16;
 				k_stub->kconf.gridsize.x = 50 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
+				VA_params->gridDimX = k_stub->kconf.gridsize.x;
 				k_stub->kconf.coarsening = 40;
 			}
 			else {
