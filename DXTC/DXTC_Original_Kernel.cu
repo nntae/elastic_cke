@@ -648,9 +648,9 @@ int DXTC_start_transfers(void *arg) {
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, kstub->deviceId));
 
     if (params->printInfo) {
-    printf("Running DXT Compression on %u x %u image...\n", params->w, params->h);
-    printf("\n%u Blocks, %u Threads per Block, %u Threads in Grid...\n\n",
-           kstub->kconf.gridsize.x, NUM_THREADS, kstub->kconf.gridsize.x * NUM_THREADS);
+        printf("Running DXT Compression on %u x %u image...\n", params->w, params->h);
+        printf("\n%u Blocks, %u Threads per Block, %u Threads in Grid...\n\n",
+            kstub->kconf.gridsize.x, NUM_THREADS, kstub->kconf.gridsize.x * NUM_THREADS);
     }
 
     return 0;
