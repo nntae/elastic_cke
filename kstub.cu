@@ -560,11 +560,12 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
 				if (strcmp(device_name, "Tesla K40c") == 0) {
 					k_stub->kconf.numSMs = 15;
+					k_stub->kconf.max_persistent_blocks = 12;
 				}
 				else {
 					k_stub->kconf.numSMs = 13;
-				}
 				k_stub->kconf.max_persistent_blocks = 16;
+				}
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 4;
 				k_stub->kconf.gridsize.x = (CONV_params->conv_rows / (8 * 16)) * (CONV_params->conv_cols / 4);
@@ -637,10 +638,12 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
 				if (strcmp(device_name, "Tesla K40c") == 0) {
 					k_stub->kconf.numSMs = 15;
+					k_stub->kconf.max_persistent_blocks = 4;
+					k_stub->kconf.blocksize.x = 32;
+					k_stub->kconf.blocksize.y = 16;
 				}
 				else {
 					k_stub->kconf.numSMs = 13;
-				}
 				k_stub->kconf.max_persistent_blocks = 9;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 8;
@@ -1352,8 +1355,13 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 			k_stub->startMallocs = SCEDD_start_mallocs;
 			k_stub->startTransfers = SCEDD_start_transfers;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {			
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
 				k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
@@ -1433,8 +1441,13 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 			k_stub->startMallocs = NCEDD_start_mallocs;
 			k_stub->startTransfers = NCEDD_start_transfers;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {			
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
 				k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
@@ -1513,8 +1526,13 @@ int create_stubinfo_with_params(t_kernel_stub **stub, int deviceId, t_Kernel id,
 			k_stub->startMallocs = HCEDD_start_mallocs;
 			k_stub->startTransfers = HCEDD_start_transfers;
 			
-			if (strcmp(device_name, "Tesla K20c") == 0) {			
+			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					k_stub->kconf.numSMs = 15;
+				}
+				else {
 				k_stub->kconf.numSMs = 13;
+				}
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
