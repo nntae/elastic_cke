@@ -848,12 +848,22 @@ int get_slowest_kernel(t_kernel_stub *kstub[2])
     return slowest_index;
 }
 
-int get_max_ctas(t_Kernel id)
+int get_max_ctas(t_kernel_stub * kstub, char * device_name)
 {
-    switch(id)
+    if (kstub->kconf.max_persistent_blocks != 0) {
+        return kstub->kconf.max_persistent_blocks;
+    }
+
+    switch(kstub->id)
     {
         case VA:
         case BS:
+            if (strcmp(device_name, "Tesla K40c") == 0) {
+                return 16;
+            }
+            else {
+                return 8;
+            }
         case MM: 
         case PF:
         case HST256:
@@ -862,6 +872,8 @@ int get_max_ctas(t_Kernel id)
         case SCEDD:
         case NCEDD:
         case HCEDD:
+        case TP:
+        case DXTC:
             return 8;
 
         case SPMV_CSRscalar:
