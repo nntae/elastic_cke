@@ -401,39 +401,42 @@ __device__ void saveBlockDXT1(ushort start, ushort end, uint permutation, int xr
 // Compress color block
 ////////////////////////////////////////////////////////////////////////////////
 __launch_bounds__( 256 , 8 )
-__global__ void compress(const uint *permutations, const uint *image, uint2 *result, int blockOffset, int *zc_slc)
+__global__ void compress(const uint *permutations, const uint *image, uint2 *result, int blockOffset, int coarsening, int gridDimSlice, int *zc_slc)
 {
 	if (threadIdx.x == 0 && threadIdx.y == 0) atomicAdd(zc_slc, 1);
 
-    // Handle to thread block group
-    cg::thread_block cta = cg::this_thread_block();
+    for (int iter = 0; iter < coarsening; iter++) {
+        int realOffset = blockOffset * coarsening + iter * gridDimSlice;
+        // Handle to thread block group
+        cg::thread_block cta = cg::this_thread_block();
 
-    const int idx = threadIdx.x;
+        const int idx = threadIdx.x;
 
-    __shared__ float3 colors[16];
-    __shared__ float3 sums[16];
-    __shared__ int xrefs[16];
+        __shared__ float3 colors[16];
+        __shared__ float3 sums[16];
+        __shared__ int xrefs[16];
 
-    loadColorBlock(image, colors, sums, xrefs, blockOffset, cta);
+        loadColorBlock(image, colors, sums, xrefs, realOffset, cta);
 
-    cg::sync(cta);
+        cg::sync(cta);
 
-    ushort bestStart, bestEnd;
-    uint bestPermutation;
+        ushort bestStart, bestEnd;
+        uint bestPermutation;
 
-    __shared__ float errors[NUM_THREADS];
+        __shared__ float errors[NUM_THREADS];
 
-    evalAllPermutations(colors, permutations, bestStart, bestEnd, bestPermutation, errors, sums[0], cta);
+        evalAllPermutations(colors, permutations, bestStart, bestEnd, bestPermutation, errors, sums[0], cta);
 
-    // Use a parallel reduction to find minimum error.
-    const int minIdx = findMinError(errors, cta);
+        // Use a parallel reduction to find minimum error.
+        const int minIdx = findMinError(errors, cta);
 
-    cg::sync(cta);
+        cg::sync(cta);
 
-    // Only write the result of the winner thread.
-    if (idx == minIdx)
-    {
-        saveBlockDXT1(bestStart, bestEnd, bestPermutation, xrefs, result, blockOffset);
+        // Only write the result of the winner thread.
+        if (idx == minIdx)
+        {
+            saveBlockDXT1(bestStart, bestEnd, bestPermutation, xrefs, result, realOffset);
+        }
     }
 }
 
@@ -638,7 +641,7 @@ int DXTC_start_transfers(void *arg) {
     checkCudaErrors(cudaMemcpy(params->d_data, params->block_image, params->memSize, cudaMemcpyHostToDevice));
 
     // Determine launch configuration and run timed computation numIterations times
-    kstub->kconf.gridsize.x = ((params->w + 3) / 4) * ((params->h + 3) / 4); // rounds up by 1 block in each dim if %4 != 0
+    kstub->kconf.gridsize.x = ((params->w + 3) / 4) * ((params->h + 3) / 4) / kstub->kconf.coarsening; // rounds up by 1 block in each dim if %4 != 0
     kstub->total_tasks = kstub->kconf.gridsize.x; // rounds up by 1 block in each dim if %4 != 0
 
     cudaDeviceProp deviceProp;
@@ -666,7 +669,7 @@ int launch_orig_DXTC(void *arg)
 
     //checkCudaErrors(cudaDeviceSynchronize());
 
-    compress<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, 0, params->zc_slc);
+    compress<<<kstub->kconf.gridsize.x, kstub->kconf.blocksize.x>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, 0, kstub->kconf.coarsening, kstub->kconf.gridsize.x, params->zc_slc);
 
     getLastCudaError("compress");
 
@@ -681,7 +684,7 @@ int launch_slc_DXTC(void *arg)
     //printf("Launch...\n");
     //checkCudaErrors(cudaDeviceSynchronize());
 
-    compress<<<kstub->total_tasks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, kstub->kconf.initial_blockID, params->zc_slc);
+    compress<<<kstub->total_tasks, kstub->kconf.blocksize.x, 0, *(kstub->execution_s)>>>(params->d_permutations, params->d_data, (uint2 *)params->d_result, kstub->kconf.initial_blockID, kstub->kconf.coarsening, kstub->total_tasks, params->zc_slc);
 
     getLastCudaError("compress");
 
