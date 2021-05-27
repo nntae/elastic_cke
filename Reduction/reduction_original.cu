@@ -1003,6 +1003,10 @@ int reduce_start_mallocs(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	t_reduction_params * params = (t_reduction_params *)kstub->params;
 
+	kstub->kconf.gridsize.x = params->size / (kstub->kconf.blocksize.x * 2 * kstub->kconf.coarsening);
+	params->gridDimX = kstub->kconf.gridsize.x;
+	kstub->total_tasks =  kstub->kconf.gridsize.x;
+
 	// globalmemory position for launched ctas counter
 	cudaMalloc((void **)&params->zc_slc, sizeof(int));
 	

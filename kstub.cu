@@ -18,7 +18,7 @@
 #include "DXTC/DXTC.h"
 #include "HST/HST256.h"
 
-//#define DATA_SET_1
+#define DATA_SET_1
 
 int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_t *transfer_s, cudaStream_t *preemp_s)
 {
@@ -79,7 +79,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.blocksize.x = 128,1,1;
 				k_stub->kconf.gridsize.x  = 50 * k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks;
 				k_stub->total_tasks = k_stub->kconf.gridsize.x;
-				k_stub->kconf.coarsening = 40;
+				k_stub->kconf.coarsening = 2;
 			}
 			else {
 				if (strcmp(device_name, "GeForce GTX 980") == 0) {
@@ -180,13 +180,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			MM_params = (t_MM_params *)calloc(1, sizeof(t_MM_params));
 			
 			#ifdef DATA_SET_1
-			MM_params->Asize.x=4096;MM_params->Asize.y=4096;
-			MM_params->Bsize.x=4096;MM_params->Bsize.y=4096;
+			MM_params->Asize.x=1024;MM_params->Asize.y=1024;
+			MM_params->Bsize.x=1024;MM_params->Bsize.y=1024;
 			#else
 			//MM_params->Asize.x=2048;MM_params->Asize.y=2048;
 			//MM_params->Bsize.x=2048;MM_params->Bsize.y=2048;
-			MM_params->Asize.x=1024;MM_params->Asize.y=1024;
-			MM_params->Bsize.x=1024;MM_params->Bsize.y=1024;
+			MM_params->Asize.x=4096;MM_params->Asize.y=4096;
+			MM_params->Bsize.x=4096;MM_params->Bsize.y=4096;
 			#endif
 			
 			k_stub->params = (void *)MM_params;
@@ -406,11 +406,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				//k_stub->kconf.gridsize.x =  64 * 7;
 				//#endif
 
-				k_stub->kconf.coarsening = 64;					
-				k_stub->kconf.gridsize.x = reduction_params->size / (k_stub->kconf.blocksize.x * 2 * k_stub->kconf.coarsening);
+				k_stub->kconf.coarsening = 8;					
 				k_stub->kconf.gridsize.y = 1; //Grid Linearization
-				reduction_params->gridDimX = k_stub->kconf.gridsize.x;
-				k_stub->total_tasks =  k_stub->kconf.gridsize.x;
+				
+				// Done in start_mallocs:
+				//k_stub->kconf.gridsize.x = reduction_params->size / (k_stub->kconf.blocksize.x * 2 * k_stub->kconf.coarsening); 
+				//reduction_params->gridDimX = k_stub->kconf.gridsize.x;
+				//k_stub->total_tasks =  k_stub->kconf.gridsize.x;
 			}
 			else if (strcmp(device_name, "TITAN X (Pascal)") == 0) {
 				k_stub->kconf.numSMs = 28;
@@ -470,7 +472,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			PF_params = (t_PF_params *)calloc(1, sizeof(t_PF_params));
 			
 			#ifdef DATA_SET_1
-			PF_params->nRows = 500;
+			PF_params->nRows = 50;
 			PF_params->nCols = 6000;
 			#else
 			PF_params->nRows = 500; 
@@ -540,12 +542,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 
 			k_stub->kconf.coarsening = 16;
 			
+			// Multiply conv_cols by coarsening factor done in start_mallocs
 			#ifdef DATA_SET_1
-			CONV_params->conv_rows=6144;
-			CONV_params->conv_cols=6144  * k_stub->kconf.coarsening; // 4 is the coarsening factor
- 			#else 
 			CONV_params->conv_rows=8192;//16384;
-			CONV_params->conv_cols=2048 * k_stub->kconf.coarsening; //16384;
+			CONV_params->conv_cols=2048; //16384;
+ 			#else 
+			CONV_params->conv_rows=6144;
+			CONV_params->conv_cols=6144; // 4 is the coarsening factor
 			#endif
 			
 			k_stub->params = (void *)CONV_params;
@@ -569,10 +572,16 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				}
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 4;
-				k_stub->kconf.gridsize.x = (CONV_params->conv_rows / (8 * k_stub->kconf.blocksize.x)) * (CONV_params->conv_cols / k_stub->kconf.blocksize.y);
-				k_stub->kconf.gridsize.y = 1; //Grid Linearization
-				k_stub->total_tasks = k_stub->kconf.gridsize.x;
+				//k_stub->kconf.gridsize.x = (CONV_params->conv_rows / (8 * k_stub->kconf.blocksize.x)) * (CONV_params->conv_cols / k_stub->kconf.blocksize.y);
+				//k_stub->kconf.gridsize.y = 1; //Grid Linearization
+				//k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				k_stub->kconf.coarsening = 1;
+				// Done in start mallocs
+				// k_stub->kconf.gridsize.x = CONV_params->conv_cols / (8 * k_stub->kconf.blocksize.x * k_stub->kconf.coarsening );
+				// k_stub->kconf.gridsize.y = CONV_params->conv_rows / k_stub->kconf.blocksize.y;
+				// k_stub->total_tasks = (k_stub->kconf.gridsize.x * k_stub->kconf.gridsize.y)/k_stub->kconf.coarsening;
+				// CONV_params->gridDimX[0] = k_stub->kconf.gridsize.x;
+				// CONV_params->gridDimY[0] = k_stub->kconf.gridsize.y;
 			}
 			else {
 				if (strcmp(device_name, "GeForce GTX 980") == 0) {
@@ -718,12 +727,12 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			CEDD_params = (t_CEDD_params *)calloc(1, sizeof(t_CEDD_params));
 			
 			#ifdef DATA_SET_1
-			CEDD_params->nRows=4608;
-			CEDD_params->nCols=1200 * k_stub->kconf.coarsening;
-			#else
 			CEDD_params->nRows=4096;
 			//CEDD_params->nCols=1200 * k_stub->kconf.coarsening;
 			CEDD_params->nCols=4096;
+			#else
+			CEDD_params->nRows=4608;
+			CEDD_params->nCols=1200 * k_stub->kconf.coarsening;
 			#endif
 			
 			k_stub->params = (void *)CEDD_params;
@@ -747,12 +756,13 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				k_stub->kconf.max_persistent_blocks = 8;
 				k_stub->kconf.blocksize.x = 16;
 				k_stub->kconf.blocksize.y = 16;
-				CEDD_params->gridDimX = (CEDD_params->nCols - 2)/k_stub->kconf.blocksize.x; // Add information loss during linearization
-				CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
-				k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
 				k_stub->kconf.gridsize.y = 1; //Grid Linearization
-				k_stub->total_tasks = k_stub->kconf.gridsize.x;
 				k_stub->kconf.coarsening = 4;
+				// Done in start_transfers
+				//CEDD_params->gridDimX = (CEDD_params->nCols-2)/(k_stub->kconf.blocksize.x * k_stub->kconf.coarsening);
+				//CEDD_params->gridDimY = (CEDD_params->nRows - 2)/k_stub->kconf.blocksize.y;
+				//k_stub->kconf.gridsize.x = CEDD_params->gridDimX * CEDD_params->gridDimY;
+				//k_stub->total_tasks = k_stub->kconf.gridsize.x;
 			}
 			else {
 				if (strcmp(device_name, "GeForce GTX 980") == 0) {
@@ -1049,7 +1059,17 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 			k_stub->startTransfers = HST256_start_transfers;
 			
 			if (strcmp(device_name, "Tesla K20c") == 0 || strcmp(device_name, "Tesla K40c") == 0) {
-				HST256_params->warp_count = 6;
+				if (strcmp(device_name, "Tesla K40c") == 0) {
+					HST256_params->warp_count = 8;
+					k_stub->kconf.numSMs = 15;
+					k_stub->kconf.blocksize.x = 256;
+				}
+				else {
+					HST256_params->warp_count = 6;
+					k_stub->kconf.numSMs = 13;
+					k_stub->kconf.blocksize.x = 192;
+				}
+
 				HST256_params->histogram256_threadblock_size = HST256_params->warp_count * WARP_SIZE;
 				HST256_params->histogram256_threadblock_memory = HST256_params->warp_count * HISTOGRAM256_BIN_COUNT;
 				
@@ -1058,20 +1078,14 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				#else
 				HST256_params->byteCount256 = 64 * 1048576 * HST256_params->warp_count;
 				#endif
-				
-				if (strcmp(device_name, "Tesla K40c") == 0) {
-					k_stub->kconf.numSMs = 15;
-					k_stub->kconf.blocksize.x = 256;
-				}
-				else {
-					k_stub->kconf.numSMs = 13;
-					k_stub->kconf.blocksize.x = 192;
-				}
 				k_stub->kconf.max_persistent_blocks = 8;
-				k_stub->kconf.gridsize.x  = 240;
-				k_stub->total_tasks = k_stub->kconf.gridsize.x;
-				//k_stub->total_tasks = (64 * 1048576)/k_stub->kconf.blocksize.x + (((64 * 1048576)%k_stub->kconf.blocksize.x==0)?0:1);
 				k_stub->kconf.coarsening = 1;
+				k_stub->kconf.gridsize.x  = k_stub->kconf.numSMs * k_stub->kconf.max_persistent_blocks * 100;
+				HST256_params->gridDimX = k_stub->kconf.gridsize.x;
+				//k_stub->total_tasks = k_stub->kconf.gridsize.x;
+				k_stub->total_tasks = HST256_params->byteCount256 / (sizeof(uint) * k_stub->kconf.blocksize.x * k_stub->kconf.coarsening);
+				//k_stub->kconf.gridsize.x  = 240;
+				//k_stub->total_tasks = (64 * 1048576)/k_stub->kconf.blocksize.x + (((64 * 1048576)%k_stub->kconf.blocksize.x==0)?0:1);
 			}
 			else {
 				if (strcmp(device_name, "GeForce GTX 980") == 0) {
@@ -1181,7 +1195,7 @@ int create_stubinfo(t_kernel_stub **stub, int deviceId, t_Kernel id, cudaStream_
 				//k_stub->kconf.gridsize.x // (w+3)/4 * (h+3)/4 Calculados en launch
 				k_stub->kconf.gridsize.y = 1; // Grid linearization
 				// k_stub->total_tasks = k_stub->kconf.gridsize.x; Calculado en launch
-				// k_stub->kconf.coarsening = _;
+				k_stub->kconf.coarsening = 1;
 			}
 			else{
 				printf("Error: Unknown device\n");

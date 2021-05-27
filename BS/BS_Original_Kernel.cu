@@ -155,6 +155,8 @@ __global__ void slicing_BlackScholesGPU(
 	for (int k=0; k<iter_per_block; k++) {
 		
 		const int opt =  (blockIdx.x + init_blkIdx) * blockDim.x * iter_per_block + k *  blockDim.x + threadIdx.x;
+		//if (threadIdx.x == 0) printf("Block %d (init %d) (k %d) (gridDim %d) - Index %d\n", blockIdx.x, init_blkIdx, k, gridDim.x, opt);
+		//if (blockIdx.x == 0) printf("Block %d (init %d) (k %d) (gridDim %d) - Index %d\n", blockIdx.x, init_blkIdx, k, gridDim.x, opt);
 			
     //No matter how small is execution grid or how large OptN is,
     //exactly OptN indices will be processed with perfect memory coalescing

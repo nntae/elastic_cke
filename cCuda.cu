@@ -999,6 +999,11 @@ int main (int argc, char *argv[])
 
             default:
                 create_stubinfo(&kstub[i], deviceId, kid[i], transfers_s, &preemp_s);
+            
+            if (argc > 4+i) {
+                int coarsening = atoi(argv[4+i]);
+                kstub[i]->kconf.coarsening = coarsening;
+            }
         }
     }
 
@@ -1023,7 +1028,10 @@ int main (int argc, char *argv[])
     launch_one_kernel(kstub[0]);
     return 0;
 */
+
+    //printf("Coarsening K1: %d Coarsening K2: %d", kstub[0]->kconf.coarsening, kstub[1]->kconf.coarsening);
     launch_improved_cCuda(kstub, max_ctas);
+    //launch_one_kernel(kstub[0]);
     return 0;
 
     //* Calclulate slowest slice (each slice has the same number of ctas) 

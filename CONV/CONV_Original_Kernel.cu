@@ -1382,6 +1382,12 @@ int RCONV_start_mallocs(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	
 	t_CONV_params * params = (t_CONV_params *)kstub->params;
+	params->conv_cols *= kstub->kconf.coarsening;
+	kstub->kconf.gridsize.x = params->conv_cols / (8 * kstub->kconf.blocksize.x * kstub->kconf.coarsening );
+	kstub->kconf.gridsize.y = params->conv_rows / kstub->kconf.blocksize.y;
+	kstub->total_tasks = (kstub->kconf.gridsize.x * kstub->kconf.gridsize.y)/kstub->kconf.coarsening;
+	params->gridDimX[0] = kstub->kconf.gridsize.x;
+	params->gridDimY[0] = kstub->kconf.gridsize.y;
 
 	// globalmemory position for launched ctas counter
 	cudaMalloc((void **)&params->zc_slc, sizeof(int));

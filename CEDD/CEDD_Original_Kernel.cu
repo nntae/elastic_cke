@@ -3078,6 +3078,10 @@ int GCEDD_start_transfers(void *arg)
 	t_kernel_stub *kstub = (t_kernel_stub *)arg;
 	
 	t_CEDD_params * params = (t_CEDD_params *)kstub->params;
+	params->gridDimX = (params->nCols-2)/(kstub->kconf.blocksize.x * kstub->kconf.coarsening);
+	params->gridDimY = (params->nRows - 2)/kstub->kconf.blocksize.y;
+	kstub->kconf.gridsize.x = params->gridDimX * params->gridDimY;
+	kstub->total_tasks = kstub->kconf.gridsize.x;
 	rows_CEDD = params->nRows;
 	cols_CEDD = params->nCols;
 	
