@@ -109,7 +109,7 @@ original_rowsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int ima
 }
 
 __global__ void
-__launch_bounds__(64, 16)
+//__launch_bounds__(64, 8)
 slicing_rowsConvolutionCUDA(float *d_Dst_p, float *d_Src_p, int imageW, int imageH, int pitch, int coarsening, int gridDimY, int gridDimX, int init_blkIdx, int *zc_slc)
 {
 	__shared__ float s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
